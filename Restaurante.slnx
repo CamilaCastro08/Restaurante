@@ -1,1 +1,5 @@
-<Solution />
+<Solution>
+  <Project Path="Consl_restaurante/Consl_restaurante.csproj" Id="f8e73e8c-7fa3-46e7-b383-04fa9f252639" />
+  <Project Path="Libreria_restaurante/Libreria_restaurante.csproj" Id="ee679b62-9244-4754-99da-ef620e9b4198" />
+  <Project Path="Pruebas/Pruebas.csproj" Id="2f8f2436-f268-4059-8fa6-d8eb6f12de9b" />
+</Solution>
