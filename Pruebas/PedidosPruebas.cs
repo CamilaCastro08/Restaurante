@@ -1,0 +1,55 @@
+﻿using Libreria_restaurante.Implementaciones;
+using Libreria_restaurante.Interfaces;
+using Libreria_restaurante.Entidades;
+using Libreria_restaurante.Nucleo;
+using Microsoft.EntityFrameworkCore;
+
+namespace pruebas
+{
+    [TestClass]
+    public class PedidosPruebas
+    {
+        private IConexion conexion;
+        private Pedidos? entidad = null;
+
+        public PedidosPruebas()
+        {
+            this.conexion = new Conexion();
+            this.conexion.StringConexion = MetodosGenerales.ObtenerStringConexion();
+        }
+
+        [TestMethod]
+        public void Execute() { Insertar(); Consultar(); Actualizar(); Borrar(); }
+
+        public void Insertar()
+        {
+            var clienteExistente = this.conexion.Clientes!.First();
+            var mesaExistente = this.conexion.Mesas!.First();
+            var meseroExistente = this.conexion.Meseros!.First();
+
+            this.entidad = new Pedidos()
+            {
+                cliente = clienteExistente.id,
+                mesa = mesaExistente.id,
+                mesero = meseroExistente.id,
+                fecha_hora = DateTime.Now,
+                numero_personas = 4,
+                estado = "En preparación"
+            };
+            this.conexion.Pedidos!.Add(this.entidad!);
+            this.conexion.SaveChanges();
+        }
+
+        public void Consultar() { if (this.conexion.Pedidos!.ToList().Count <= 0) throw new Exception("Lista vacia"); }
+
+        private void Actualizar()
+        {
+            this.entidad!.estado = "Entregado";
+            var entry = this.conexion!.Entry<Pedidos>(this.entidad);
+            entry.State = EntityState.Modified;
+            this.conexion!.SaveChanges();
+        }
+
+        private void Borrar() { this.conexion.Pedidos!.Remove(this.entidad!); this.conexion.SaveChanges(); }
+    }
+}
