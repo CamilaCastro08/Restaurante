@@ -11,14 +11,11 @@ namespace pruebas
     {
 
         private TestDbContext conexion;
-        private IConexion conexion;
         private Categorias? entidad = null;
 
         public CategoriasPruebas()
         {
             this.conexion = new TestDbContext();
-            this.conexion = new Conexion();
-            this.conexion.StringConexion = MetodosGenerales.ObtenerStringConexion();
 
         }
 

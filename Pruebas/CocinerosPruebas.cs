@@ -10,14 +10,11 @@ namespace pruebas
     public class CocinerosPruebas
     {
         private TestDbContext conexion;
-        private IConexion conexion;
         private Cocineros? entidad = null;
 
         public CocinerosPruebas()
         {
             this.conexion = new TestDbContext();
-            this.conexion = new Conexion();
-            this.conexion.StringConexion = MetodosGenerales.ObtenerStringConexion();
         }
 
         [TestMethod]
@@ -26,7 +23,6 @@ namespace pruebas
         public void Insertar()
         {
             var empleadoExistente = this.conexion.Empleados!.FirstOrDefault();
-            var empleadoExistente = this.conexion.Empleados!.First();
 
             this.entidad = new Cocineros()
             {
@@ -44,8 +40,6 @@ namespace pruebas
             this.conexion = new TestDbContext();
         }
 
-        public void Consultar() { if (this.conexion.Cocineros!.ToList().Count <= 0) throw new Exception("Lista vacia"); }
-
         private void Actualizar()
         {
             this.entidad!.anios_experiencia = 7;
@@ -58,8 +52,5 @@ namespace pruebas
         private void Borrar() { this.conexion.Cocineros!.Remove(this.entidad!); this.conexion.SaveChanges();
             this.conexion = new TestDbContext();
         }
-        
-
-        private void Borrar() { this.conexion.Cocineros!.Remove(this.entidad!); this.conexion.SaveChanges(); }
     }
 }
