@@ -3,17 +3,23 @@ using Libreria_restaurante.Interfaces;
 using Libreria_restaurante.Entidades;
 using Libreria_restaurante.Nucleo;
 using Microsoft.EntityFrameworkCore;
+
 namespace pruebas
 {
     [TestClass]
     public class CategoriasPruebas
     {
+
         private TestDbContext conexion;
+        private IConexion conexion;
         private Categorias? entidad = null;
 
         public CategoriasPruebas()
         {
             this.conexion = new TestDbContext();
+            this.conexion = new Conexion();
+            this.conexion.StringConexion = MetodosGenerales.ObtenerStringConexion();
+
         }
 
         [TestMethod]

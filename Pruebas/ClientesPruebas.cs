@@ -10,11 +10,14 @@ namespace pruebas
     public class ClientesPruebas
     {
         private TestDbContext conexion;
+        private IConexion conexion;
         private Clientes? entidad = null;
 
         public ClientesPruebas()
         {
             this.conexion = new TestDbContext();
+            this.conexion = new Conexion();
+            this.conexion.StringConexion = MetodosGenerales.ObtenerStringConexion();
         }
 
         [TestMethod]
@@ -37,6 +40,9 @@ namespace pruebas
         public void Consultar() { if (this.conexion.Clientes!.ToList().Count <= 0) throw new Exception("Lista vacia");
         this.conexion = new TestDbContext();
         }
+        }
+
+        public void Consultar() { if (this.conexion.Clientes!.ToList().Count <= 0) throw new Exception("Lista vacia"); }
 
         private void Actualizar()
         {
@@ -50,5 +56,8 @@ namespace pruebas
         private void Borrar() { this.conexion.Clientes!.Remove(this.entidad!); this.conexion.SaveChanges();
             this.conexion = new TestDbContext();
         }
+        }
+
+        private void Borrar() { this.conexion.Clientes!.Remove(this.entidad!); this.conexion.SaveChanges(); }
     }
 }
