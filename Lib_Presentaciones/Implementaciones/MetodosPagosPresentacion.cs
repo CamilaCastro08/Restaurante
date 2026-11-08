@@ -4,7 +4,8 @@ using System.Text;
 
 namespace Lib_Presentaciones.Implementaciones
 {
-    internal class MetodosPagosPresentacion
+    public class MetodosPagosPresentacion
     {
+        
     }
 }

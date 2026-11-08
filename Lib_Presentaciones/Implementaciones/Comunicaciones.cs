@@ -1,9 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Text;
-using static Lib_Presentaciones.Comunicaciones;
+using static Lib_Presentaciones.Implementaciones.Comunicaciones;
 
-namespace Lib_Presentaciones
+namespace Lib_Presentaciones.Implementaciones
 {
     public class Comunicaciones
     {

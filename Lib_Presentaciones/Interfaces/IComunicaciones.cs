@@ -1,4 +1,4 @@
-﻿namespace presentacion_ganado.interfaces
+﻿namespace presentaciones_horarios.interfaces
 {
     public interface IComunicaciones
     {

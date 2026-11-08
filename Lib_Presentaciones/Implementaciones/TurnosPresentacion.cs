@@ -4,7 +4,9 @@ using System.Text;
 
 namespace Lib_Presentaciones.Implementaciones
 {
-    internal class TurnosPresentacion
+    public class TurnosPresentacion
     {
+        
     }
 }
+
