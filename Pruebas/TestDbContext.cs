@@ -14,7 +14,7 @@ namespace Libreria_restaurante.Implementaciones
         public DbSet<Gerentes>? Gerentes { get; set; }
         public DbSet<Ingredientes>? Ingredientes { get; set; }
         public DbSet<Inventarios>? Inventarios { get; set; }
-        public DbSet<Menus>? Menus { get; set; }
+        public DbSet<IMenus>? Menus { get; set; }
         public DbSet<Mesas>? Mesas { get; set; }
         public DbSet<Meseros>? Meseros { get; set; }
         public DbSet<MetodosPagos>? MetodosPagos { get; set; }

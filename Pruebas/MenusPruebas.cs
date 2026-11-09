@@ -10,7 +10,7 @@ namespace pruebas
     public class MenusPruebas
     {
         private TestDbContext conexion;
-        private Menus? entidad = null;
+        private IMenus? entidad = null;
 
         public MenusPruebas()
         {
@@ -22,7 +22,7 @@ namespace pruebas
 
         public void Insertar()
         {
-            this.entidad = new Menus()
+            this.entidad = new IMenus()
             {
                 nombre = "Menú Ejecutivo",
                 vigencia_desde = DateTime.Now,
@@ -41,7 +41,7 @@ namespace pruebas
         private void Actualizar()
         {
             this.entidad!.tipo = "Cena";
-            var entry = this.conexion!.Entry<Menus>(this.entidad);
+            var entry = this.conexion!.Entry<IMenus>(this.entidad);
             entry.State = EntityState.Modified;
             this.conexion!.SaveChanges();
             this.conexion = new TestDbContext();

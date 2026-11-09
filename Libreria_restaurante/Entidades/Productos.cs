@@ -15,7 +15,7 @@ namespace Libreria_restaurante.Entidades
         public int menu { get; set; }
 
         public Categorias? _categoria { get; set; }
-        public Menus? _menu { get; set; }
+        public IMenus? _menu { get; set; }
 
         public List<Recetas> Recetas { get; set; } = new();
         public List<Detalles_Pedidos> DetallesPedidos { get; set; } = new();

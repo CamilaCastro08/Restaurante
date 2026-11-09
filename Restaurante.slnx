@@ -1,9 +1,10 @@
 <Solution>
   <Folder Name="/1. Presentaciones/">
+    <Project Path="asp.presentacion/asp.presentacion.csproj" Id="f894d1fc-980e-4f99-bf23-79578e6ce12c" />
     <Project Path="Lib_Presentaciones/Lib_Presentaciones.csproj" Id="9228ed75-16ed-4c86-b4de-c4f6d73f9386" />
   </Folder>
   <Folder Name="/2. Servicios/">
-    <Project Path="Consl_restaurante/Consl_restaurante.csproj" Id="f8e73e8c-7fa3-46e7-b383-04fa9f252639" />
+    <Project Path="asp.servicios/asp.servicios.csproj" Id="c9924602-2abf-419a-903b-af7590dfeebc" />
     <Project Path="Libreria_restaurante/Libreria_restaurante.csproj" Id="ee679b62-9244-4754-99da-ef620e9b4198" />
   </Folder>
   <Folder Name="/3. Pruebas/">

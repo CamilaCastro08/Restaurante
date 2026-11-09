@@ -25,7 +25,7 @@ namespace pruebas
             var nuevaCategoria = new Categorias();
             this.conexion.Categorias.Add(nuevaCategoria);
 
-            var nuevoMenu = new Menus();
+            var nuevoMenu = new IMenus();
             this.conexion.Menus.Add(nuevoMenu);
 
             this.conexion.SaveChanges(); 

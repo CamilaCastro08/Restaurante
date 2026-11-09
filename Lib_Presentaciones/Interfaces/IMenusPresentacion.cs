@@ -7,10 +7,10 @@ namespace Lib_Presentaciones.Interfaces
 {
     public class IMenusPresentacion
     {
-        Menus Insertar(Menus entidad);
-        Menus Actualizar(Menus entidad);
-        List<Menus> Consultar();
-        List<Menus> Buscar(Menus entidad);
-        Menus Borrar(Menus entidad);
+        IMenus Insertar(IMenus entidad);
+        IMenus Actualizar(IMenus entidad);
+        List<IMenus> Consultar();
+        List<IMenus> Buscar(IMenus entidad);
+        IMenus Borrar(IMenus entidad);
     }
 }

@@ -4,7 +4,7 @@ using System.Text;
 
 namespace Libreria_restaurante.Entidades
 {
-    public class Menus
+    public class IMenus
     {
         public int id { get; set; }
         public string? nombre { get; set; }
