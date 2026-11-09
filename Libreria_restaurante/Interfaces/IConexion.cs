@@ -28,6 +28,11 @@ namespace Libreria_restaurante.Interfaces
         public DbSet<Recetas>? Recetas { get; set; }
         public DbSet<Reservas>? Reservas { get; set; }
         public DbSet<Turnos>? Turnos { get; set; }
+        public DbSet<Auditorias>? Auditorias { get; set; }
+        public DbSet<Usuarios>? Usuarios { get; set; }
+        public DbSet<Roles>? Roles { get; set; }
+        public DbSet<Permisos>? Permisos { get; set; }
+
 
         EntityEntry<T> Entry<T>(T entity) where T : class;
         int SaveChanges();

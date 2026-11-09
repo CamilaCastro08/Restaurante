@@ -23,7 +23,7 @@ namespace Libreria_restaurante.Implementaciones
         public DbSet<Gerentes>? Gerentes { get; set; }
         public DbSet<Ingredientes>? Ingredientes { get; set; }
         public DbSet<Inventarios>? Inventarios { get; set; }
-        public DbSet<IMenus>? Menus { get; set; }
+        public DbSet<Menus>? Menus { get; set; }
         public DbSet<Mesas>? Mesas { get; set; }
         public DbSet<Meseros>? Meseros { get; set; }
         public DbSet<MetodosPagos>? MetodosPagos { get; set; }
@@ -33,6 +33,10 @@ namespace Libreria_restaurante.Implementaciones
         public DbSet<Proveedores>? Proveedores { get; set; }
         public DbSet<Recetas>? Recetas { get; set; }
         public DbSet<Reservas>? Reservas { get; set; }
+        public DbSet<Turnos>? Turnos { get; set; }
+        public DbSet<Usuarios>? Usuarios { get; set; }
+        public DbSet<Permisos>? Permisos { get; set; }
+        public DbSet<Roles>? Roles { get; set; }
         public DbSet<Turnos>? Turnos { get; set; }
     }
 }
