@@ -7,16 +7,16 @@ using System.Text;
 
 namespace Libreria_restaurante.Implementaciones
 {
-    public class CategoriasAplicacion : ICategoriasAplicacion
+    public class MesasAplicacion : IMesasAplicacion
     {
         private IConexion IConexion;
 
-        public CategoriasAplicacion(IConexion IConexion)
+        public MesasAplicacion(IConexion IConexion)
         {
             this.IConexion = IConexion;
         }
 
-        public Categorias Actualizar(Categorias entidad)
+        public Mesas Actualizar(Mesas entidad)
         {
             if (entidad.id== 0)
                 throw new Exception("No se ha guardo");
@@ -24,35 +24,35 @@ namespace Libreria_restaurante.Implementaciones
             if (Validar(entidad))
                 throw new Exception("Falta informacion");
 
-            var entry = this.IConexion!.Entry<Categorias>(entidad);
+            var entry = this.IConexion!.Entry<Mesas>(entidad);
             entry.State = EntityState.Modified;
             this.IConexion!.SaveChanges();
             return entidad;
         }
 
-        public Categorias Borrar(Categorias entidad)
+        public Mesas Borrar(Mesas entidad)
         {
             if (entidad.id== 0)
                 throw new Exception("No se ha guardo");
 
-            this.IConexion.Categorias!.Remove(entidad!);
+            this.IConexion.Mesas!.Remove(entidad!);
             this.IConexion.SaveChanges();
             return entidad;
         }
 
-        public List<Categorias> Buscar(Categorias entidad)
+        public List<Mesas> Buscar(Mesas entidad)
         {
-            return this.IConexion.Categorias!
+            return this.IConexion.Mesas!
                 .Where(x => x.nombre!.Contains(entidad.nombre!))
                 .ToList();
         }
 
-        public List<Categorias> Consultar()
+        public List<Mesas> Consultar()
         {
-            return this.IConexion.Categorias!.ToList();
+            return this.IConexion.Mesas!.ToList();
         }
 
-        public Categorias Insertar(Categorias entidad)
+        public Mesas Insertar(Mesas entidad)
         {
             if (entidad.id!= 0)
                 throw new Exception("Ya se guardo");
@@ -60,12 +60,12 @@ namespace Libreria_restaurante.Implementaciones
             if (Validar(entidad))
                 throw new Exception("Falta informacion");
 
-            this.IConexion.Categorias!.Add(entidad!);
+            this.IConexion.Mesas!.Add(entidad!);
             this.IConexion.SaveChanges();
             return entidad;
         }
 
-        private bool Validar(Categorias entidad)
+        private bool Validar(Mesas entidad)
         {
             if (string.IsNullOrEmpty(entidad.nombre))
                 return false;

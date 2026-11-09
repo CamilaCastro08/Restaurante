@@ -6,4 +6,9 @@
     <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\Libreria_restaurante\Libreria_restaurante.csproj" />
+    <ProjectReference Include="..\Lib_Presentaciones\Lib_Presentaciones.csproj" />
+  </ItemGroup>
+
 </Project>

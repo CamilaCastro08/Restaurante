@@ -5,12 +5,12 @@ using System.Text;
 
 namespace Libreria_restaurante.Interfaces
 {
-    public class ICocineros
+    public class IEmpleadosAplicacion
     {
-        Cocineros Insertar(Cocineros entidad);
-        Cocineros Actualizar(Cocineros entidad);
-        List<Cocineros> Consultar();
-        List<Cocineros> Buscar(Cocineros entidad);
-        Cocineros Borrar(Cocineros entidad);
+        Empleados Insertar(Empleados entidad);
+        Empleados Actualizar(Empleados entidad);
+        List<Empleados> Consultar();
+        List<Empleados> Buscar(Empleados entidad);
+        Empleados Borrar(Empleados entidad);
     }
 }

@@ -5,12 +5,12 @@ using System.Text;
 
 namespace Libreria_restaurante.Interfaces
 {
-    public class IFacturas
+    public class IGerentesAplicacion
     {
-        Facturas Insertar(Facturas entidad);
-        Facturas Actualizar(Facturas entidad);
-        List<Facturas> Consultar();
-        List<Facturas> Buscar(Facturas entidad);
-        Facturas Borrar(Facturas entidad);
+        Gerentes Insertar(Gerentes entidad);
+        Gerentes Actualizar(Gerentes entidad);
+        List<Gerentes> Consultar();
+        List<Gerentes> Buscar(Gerentes entidad);
+        Gerentes Borrar(Gerentes entidad);
     }
 }

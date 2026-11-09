@@ -4,7 +4,6 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace asp.servicios.Controllers
 {
-{
     [ApiController]
     [Route("[controller]/[action]")]
     public class CategoriasController : ControllerBase
