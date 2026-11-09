@@ -8,7 +8,7 @@ namespace Libreria_restaurante.Entidades
 {
     internal class Permisos
     {
-        [Key] public int id { get; set; }
+        public int id { get; set; }
         public string? nombre { get; set; }
         public string? descripcion { get; set; }
         public int? rol { get; set; }

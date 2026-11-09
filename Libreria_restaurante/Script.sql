@@ -230,3 +230,48 @@ CREATE TABLE [Pagos]
 	CONSTRAINT FK_Pagos_MetodosPagos FOREIGN KEY ([metodoPago]) REFERENCES [MetodosPagos]([id])
 );
 GO
+CREATE TABLE [Roles]
+(
+	[id] INT PRIMARY KEY IDENTITY(1, 1) NOT NULL,
+	[nombre] NVARCHAR(50) NOT NULL,
+	[descripcion] NVARCHAR(200) NULL,
+	[activo] BIT NOT NULL DEFAULT 1,
+);
+GO
+
+CREATE TABLE [Usuarios]
+(
+	[id] INT PRIMARY KEY IDENTITY(1, 1) NOT NULL,
+	[nombreUsuario] NVARCHAR(50) NOT NULL,
+	[correo] NVARCHAR(150) NOT NULL,
+	[contrasenia] NVARCHAR(255) NOT NULL,
+	[activo] BIT NOT NULL DEFAULT 1,
+	[fechaCreacion] DATETIME NOT NULL DEFAULT GETDATE(),
+	[rol] INT NOT NULL,
+	CONSTRAINT FK_Usuarios_Roles FOREIGN KEY ([rol]) REFERENCES [Roles]([id])
+);
+GO
+
+CREATE TABLE [Permisos]
+(
+	[id] INT PRIMARY KEY IDENTITY(1, 1) NOT NULL,
+	[nombre] NVARCHAR(100) NOT NULL,
+	[descripcion] NVARCHAR(200) NULL,
+	[rol] INT NOT NULL,
+	CONSTRAINT UQ_Permisos_Roles_Nombre UNIQUE ([roles], [nombre]),
+	CONSTRAINT FK_Permisos_Roles FOREIGN KEY ([rol]) REFERENCES [Roles]([id])
+);
+GO
+
+CREATE TABLE [Auditorias]
+(
+	[id] INT PRIMARY KEY IDENTITY(1, 1) NOT NULL,
+	[tabla] NVARCHAR(100) NOT NULL,
+	[accion] NVARCHAR(50) NOT NULL,
+	[fecha] DATETIME NOT NULL DEFAULT GETDATE(),
+	[datosAnteriores] NVARCHAR(MAX) NULL,
+	[datosNuevos] NVARCHAR(MAX) NULL,
+	[usuario] INT NULL,
+	CONSTRAINT FK_Auditorias_Usuarios FOREIGN KEY ([usuario]) REFERENCES [Usuarios]([id])
+);
+GO

@@ -8,13 +8,13 @@ namespace Libreria_restaurante.Entidades
 {
     public class Auditorias
     {
-        [Key] public int id { get; set; }
+        public int id { get; set; }
         public string? tabla { get; set; }
         public string? acccion { get; set; }
         public DateTime fecha { get; set; }
         public string? datosAnteriores { get; set; }
         public string? datosNuevos { get; set; }
-        public int? usuarios { get; set; }
+        public int? usuario { get; set; }
 
         public Usuarios? _Usuario { get; set; }
     }

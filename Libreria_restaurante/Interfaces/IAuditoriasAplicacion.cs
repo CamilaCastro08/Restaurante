@@ -8,6 +8,6 @@ namespace Libreria_restaurante.Interfaces
     public class IAuditoriasAplicacion
     {
         List<Auditorias> Consultar();
-        Auditorias Guardar(Auditorias entidad);
+        Auditorias Actualizar(Auditorias entidad);
     }
 }
