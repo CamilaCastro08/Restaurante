@@ -5,9 +5,8 @@ using System.Text;
 
 namespace Libreria_restaurante.Interfaces
 {
-    public class IAuditoriasAplicacion
+    public interface IAuditoriasAplicacion
     {
         List<Auditorias> Consultar();
-        Auditorias Actualizar(Auditorias entidad);
     }
 }

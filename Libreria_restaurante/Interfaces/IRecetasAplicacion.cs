@@ -5,7 +5,7 @@ using System.Text;
 
 namespace Libreria_restaurante.Interfaces
 {
-    public class IRecetasAplicacion
+    public interface IRecetasAplicacion
     {
         Recetas Insertar(Recetas entidad);
         Recetas Actualizar(Recetas entidad);

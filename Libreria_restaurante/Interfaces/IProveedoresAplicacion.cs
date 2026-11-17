@@ -5,7 +5,7 @@ using System.Text;
 
 namespace Libreria_restaurante.Interfaces
 {
-    public class IProveedoresAplicacion
+    public interface IProveedoresAplicacion
     {
         Proveedores Insertar(Proveedores entidad);
         Proveedores Actualizar(Proveedores entidad);

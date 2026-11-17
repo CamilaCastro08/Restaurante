@@ -5,12 +5,11 @@ using System.Text;
 
 namespace Libreria_restaurante.Interfaces
 {
-    public class IGerentesAplicacion
+    public interface IGerentesAplicacion
     {
         Gerentes Insertar(Gerentes entidad);
         Gerentes Actualizar(Gerentes entidad);
         List<Gerentes> Consultar();
         List<Gerentes> Buscar(Gerentes entidad);
-        Gerentes Borrar(Gerentes entidad);
     }
 }

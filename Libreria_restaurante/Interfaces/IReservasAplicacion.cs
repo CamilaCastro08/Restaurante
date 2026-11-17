@@ -5,7 +5,7 @@ using System.Text;
 
 namespace Libreria_restaurante.Interfaces
 {
-    public class IReservasAplicacion
+    public interface IReservasAplicacion
     {
         Reservas Insertar(Reservas entidad);
         Reservas Actualizar(Reservas entidad);

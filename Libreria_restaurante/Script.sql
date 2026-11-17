@@ -244,7 +244,7 @@ CREATE TABLE [Usuarios]
 	[id] INT PRIMARY KEY IDENTITY(1, 1) NOT NULL,
 	[nombreUsuario] NVARCHAR(50) NOT NULL,
 	[correo] NVARCHAR(150) NOT NULL,
-	[contrasenia] NVARCHAR(255) NOT NULL,
+	[contraseña] NVARCHAR(255) NOT NULL,
 	[activo] BIT NOT NULL DEFAULT 1,
 	[fechaCreacion] DATETIME NOT NULL DEFAULT GETDATE(),
 	[rol] INT NOT NULL,
@@ -258,7 +258,7 @@ CREATE TABLE [Permisos]
 	[nombre] NVARCHAR(100) NOT NULL,
 	[descripcion] NVARCHAR(200) NULL,
 	[rol] INT NOT NULL,
-	CONSTRAINT UQ_Permisos_Roles_Nombre UNIQUE ([roles], [nombre]),
+	CONSTRAINT UQ_Permisos_Rol_Nombre UNIQUE ([rol], [nombre]),
 	CONSTRAINT FK_Permisos_Roles FOREIGN KEY ([rol]) REFERENCES [Roles]([id])
 );
 GO

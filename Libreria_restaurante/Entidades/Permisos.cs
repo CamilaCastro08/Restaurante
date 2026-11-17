@@ -6,7 +6,7 @@ using System.Text;
 
 namespace Libreria_restaurante.Entidades
 {
-    internal class Permisos
+    public class Permisos
     {
         public int id { get; set; }
         public string? nombre { get; set; }

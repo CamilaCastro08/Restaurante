@@ -40,7 +40,6 @@ namespace Libreria_restaurante.Implementaciones
             this.IConexion.SaveChanges();
             return entidad;
         }
-
         public List<Ingredientes> Buscar(Ingredientes entidad)
         {
             return this.IConexion.Ingredientes!

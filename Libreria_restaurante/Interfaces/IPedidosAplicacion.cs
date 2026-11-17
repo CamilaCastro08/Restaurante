@@ -5,12 +5,11 @@ using System.Text;
 
 namespace Libreria_restaurante.Interfaces
 {
-    public class IPedidosAplicacion
+    public interface IPedidosAplicacion
     {
         Pedidos Insertar(Pedidos entidad);
         Pedidos Actualizar(Pedidos entidad);
         List<Pedidos> Consultar();
         List<Pedidos> Buscar(Pedidos entidad);
-        Pedidos Borrar(Pedidos entidad);
     }
 }

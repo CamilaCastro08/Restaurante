@@ -7,16 +7,16 @@ using System.Text;
 
 namespace Libreria_restaurante.Implementaciones
 {
-    public class EmpleadosAplicacion : IEmpleadosAplicacionAplicacion
+    public class EmpleadosAplicacion : IEmpleadosAplicacion
     {
         private IConexion IConexion;
 
-        public EmpleadosAplicacionAplicacion(IConexion IConexion)
+        public EmpleadosAplicacion(IConexion IConexion)
         {
             this.IConexion = IConexion;
         }
 
-        public EmpleadosAplicacion Actualizar(EmpleadosAplicacion entidad)
+        public Empleados Actualizar(Empleados entidad)
         {
             if (entidad.id== 0)
                 throw new Exception("No se ha guardo");
@@ -24,35 +24,35 @@ namespace Libreria_restaurante.Implementaciones
             if (Validar(entidad))
                 throw new Exception("Falta informacion");
 
-            var entry = this.IConexion!.Entry<EmpleadosAplicacion>(entidad);
+            var entry = this.IConexion!.Entry<Empleados>(entidad);
             entry.State = EntityState.Modified;
             this.IConexion!.SaveChanges();
             return entidad;
         }
 
-        public EmpleadosAplicacion Borrar(EmpleadosAplicacion entidad)
+        public Empleados Borrar(Empleados entidad)
         {
             if (entidad.id== 0)
                 throw new Exception("No se ha guardo");
 
-            this.IConexion.EmpleadosAplicacion!.Remove(entidad!);
+            this.IConexion.Empleados!.Remove(entidad!);
             this.IConexion.SaveChanges();
             return entidad;
         }
 
-        public List<EmpleadosAplicacion> Buscar(EmpleadosAplicacion entidad)
+        public List<Empleados> Buscar(Empleados entidad)
         {
-            return this.IConexion.EmpleadosAplicacion!
+            return this.IConexion.Empleados!
                 .Where(x => x.nombre!.Contains(entidad.nombre!))
                 .ToList();
         }
 
-        public List<EmpleadosAplicacion> Consultar()
+        public List<Empleados> Consultar()
         {
-            return this.IConexion.EmpleadosAplicacion!.ToList();
+            return this.IConexion.Empleados!.ToList();
         }
 
-        public EmpleadosAplicacion Insertar(EmpleadosAplicacion entidad)
+        public Empleados Insertar(Empleados entidad)
         {
             if (entidad.id!= 0)
                 throw new Exception("Ya se guardo");
@@ -60,12 +60,12 @@ namespace Libreria_restaurante.Implementaciones
             if (Validar(entidad))
                 throw new Exception("Falta informacion");
 
-            this.IConexion.EmpleadosAplicacion!.Add(entidad!);
+            this.IConexion.Empleados!.Add(entidad!);
             this.IConexion.SaveChanges();
             return entidad;
         }
 
-        private bool Validar(EmpleadosAplicacion entidad)
+        private bool Validar(Empleados entidad)
         {
             if (string.IsNullOrEmpty(entidad.nombre))
                 return false;

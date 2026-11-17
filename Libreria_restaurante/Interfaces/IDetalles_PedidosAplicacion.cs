@@ -5,9 +5,9 @@ using System.Text;
 
 namespace Libreria_restaurante.Interfaces
 {
-    public class IDetalles_PedidosAplicacion
+    public interface IDetalles_PedidosAplicacion
     {
-        Detalles_Pedidos Insertar(Detalles_Pedidos entidad);
+        private Detalles_Pedidos Insertar(Detalles_Pedidos entidad);
         Detalles_Pedidos Actualizar(Detalles_Pedidos entidad);
         List<Detalles_Pedidos> Consultar();
         List<Detalles_Pedidos> Buscar(Detalles_Pedidos entidad);

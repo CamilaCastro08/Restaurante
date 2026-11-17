@@ -5,12 +5,11 @@ using System.Text;
 
 namespace Libreria_restaurante.Interfaces
 {
-    public class ICategoriasAplicacion
+    public interface ICategoriasAplicacion
     {
         Categorias Insertar(Categorias entidad);
         Categorias Actualizar(Categorias entidad);
         List<Categorias> Consultar();
-        List<Categorias> Buscar(Categorias entidad);
         Categorias Borrar(Categorias entidad);
     }
 }
