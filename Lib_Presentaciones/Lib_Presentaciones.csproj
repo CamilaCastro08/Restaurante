@@ -11,9 +11,5 @@
   <ItemGroup>
     <ProjectReference Include="..\Libreria_restaurante\Libreria_restaurante.csproj" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Implementaciones\" />
-    <Folder Include="Interfaces\" />
-  </ItemGroup>
 
 </Project>
