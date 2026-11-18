@@ -16,28 +16,61 @@ namespace Libreria_restaurante.Implementaciones
             this.IConexion = IConexion;
         }
 
-        public Menus Actualizar(Menus entidad)
+        public Menus Insertar(Menus entidad)
         {
-            if (entidad.id== 0)
-                throw new Exception("No se ha guardo");
+            if (entidad.id != 0)
+                throw new Exception("Ya se guardo");
 
-            if (Validar(entidad))
+            if (!Validar(entidad))
                 throw new Exception("Falta informacion");
 
-            var entry = this.IConexion!.Entry<Menus>(entidad);
-            entry.State = EntityState.Modified;
-            this.IConexion!.SaveChanges();
+            this.IConexion.Menus!.Add(entidad);
+            this.IConexion.SaveChanges();
+
+            var audit = new Auditorias
+            {
+                tabla = "Menus",
+                accion = "Insertar",
+                fecha = DateTime.Now,
+                datosAnteriores = "",
+                datosNuevos = "id: " + entidad.id + ", nombre: " + entidad.nombre
+            };
+            this.IConexion.Auditorias!.Add(audit);
+            this.IConexion.SaveChanges();
             return entidad;
         }
 
-        public Menus Borrar(Menus entidad)
+        public Menus Actualizar(Menus entidad)
         {
-            if (entidad.id== 0)
+            if (entidad.id == 0)
                 throw new Exception("No se ha guardo");
 
-            this.IConexion.Menus!.Remove(entidad!);
+            if (!Validar(entidad))
+                throw new Exception("Falta informacion");
+
+            var anterior = this.IConexion.Menus!.FirstOrDefault(x => x.id == entidad.id);
+            if (anterior == null)
+                throw new Exception("No existe");
+
+            var entry = this.IConexion.Entry<Menus>(entidad);
+            entry.State = EntityState.Modified;
+
+            var audit = new Auditorias
+            {
+                tabla = "Menus",
+                accion = "Actualizar",
+                fecha = DateTime.Now,
+                datosAnteriores = "id: " + anterior.id + ", nombre: " + anterior.nombre,
+                datosNuevos = "id: " + entidad.id + ", nombre: " + entidad.nombre
+            };
+            this.IConexion.Auditorias!.Add(audit);
             this.IConexion.SaveChanges();
             return entidad;
+        }
+
+        public List<Menus> Consultar()
+        {
+            return this.IConexion.Menus!.ToList();
         }
 
         public List<Menus> Buscar(Menus entidad)
@@ -47,20 +80,22 @@ namespace Libreria_restaurante.Implementaciones
                 .ToList();
         }
 
-        public List<Menus> Consultar()
+        public Menus Borrar(Menus entidad)
         {
-            return this.IConexion.Menus!.ToList();
-        }
+            if (entidad.id == 0)
+                throw new Exception("No se ha guardo");
 
-        public Menus Insertar(Menus entidad)
-        {
-            if (entidad.id!= 0)
-                throw new Exception("Ya se guardo");
+            this.IConexion.Menus!.Remove(entidad);
 
-            if (Validar(entidad))
-                throw new Exception("Falta informacion");
-
-            this.IConexion.Menus!.Add(entidad!);
+            var audit = new Auditorias
+            {
+                tabla = "Menus",
+                accion = "Borrar",
+                fecha = DateTime.Now,
+                datosAnteriores = "id: " + entidad.id + ", nombre: " + entidad.nombre,
+                datosNuevos = ""
+            };
+            this.IConexion.Auditorias!.Add(audit);
             this.IConexion.SaveChanges();
             return entidad;
         }

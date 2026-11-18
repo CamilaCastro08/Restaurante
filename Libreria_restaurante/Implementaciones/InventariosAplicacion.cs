@@ -16,35 +16,56 @@ namespace Libreria_restaurante.Implementaciones
             this.IConexion = IConexion;
         }
 
-        public Inventarios Actualizar(Inventarios entidad)
+        public Inventarios Insertar(Inventarios entidad)
         {
-            if (entidad.id== 0)
-                throw new Exception("No se ha guardo");
+            if (entidad.id != 0)
+                throw new Exception("Ya se guardo");
 
-            if (Validar(entidad))
+            if (!Validar(entidad))
                 throw new Exception("Falta informacion");
 
-            var entry = this.IConexion!.Entry<Inventarios>(entidad);
-            entry.State = EntityState.Modified;
-            this.IConexion!.SaveChanges();
-            return entidad;
-        }
+            this.IConexion.Inventarios!.Add(entidad);
+            this.IConexion.SaveChanges();
 
-        public Inventarios Borrar(Inventarios entidad)
-        {
-            if (entidad.id== 0)
-                throw new Exception("No se ha guardo");
-
-            this.IConexion.Inventarios!.Remove(entidad!);
+            var audit = new Auditorias
+            {
+                tabla = "Inventarios",
+                accion = "Insertar",
+                fecha = DateTime.Now,
+                datosAnteriores = "",
+                datosNuevos = "id: " + entidad.id + ", ingrediente: " + entidad.ingrediente
+            };
+            this.IConexion.Auditorias!.Add(audit);
             this.IConexion.SaveChanges();
             return entidad;
         }
 
-        public List<Inventarios> Buscar(Inventarios entidad)
+        public Inventarios Actualizar(Inventarios entidad)
         {
-            return this.IConexion.Inventarios!
-                .Where(x => x.nombre!.Contains(entidad.nombre!))
-                .ToList();
+            if (entidad.id == 0)
+                throw new Exception("No se ha guardo");
+
+            if (!Validar(entidad))
+                throw new Exception("Falta informacion");
+
+            var anterior = this.IConexion.Inventarios!.FirstOrDefault(x => x.id == entidad.id);
+            if (anterior == null)
+                throw new Exception("No existe");
+
+            var entry = this.IConexion.Entry<Inventarios>(entidad);
+            entry.State = EntityState.Modified;
+
+            var audit = new Auditorias
+            {
+                tabla = "Inventarios",
+                accion = "Actualizar",
+                fecha = DateTime.Now,
+                datosAnteriores = "id: " + anterior.id + ", ingrediente: " + anterior.ingrediente,
+                datosNuevos = "id: " + entidad.id + ", ingrediente: " + entidad.ingrediente
+            };
+            this.IConexion.Auditorias!.Add(audit);
+            this.IConexion.SaveChanges();
+            return entidad;
         }
 
         public List<Inventarios> Consultar()
@@ -52,22 +73,36 @@ namespace Libreria_restaurante.Implementaciones
             return this.IConexion.Inventarios!.ToList();
         }
 
-        public Inventarios Insertar(Inventarios entidad)
+        public List<Inventarios> Buscar(Inventarios entidad)
         {
-            if (entidad.id!= 0)
-                throw new Exception("Ya se guardo");
+            return this.IConexion.Inventarios!
+                .Where(x => x.ingrediente == entidad.ingrediente)
+                .ToList();
+        }
 
-            if (Validar(entidad))
-                throw new Exception("Falta informacion");
+        public Inventarios Borrar(Inventarios entidad)
+        {
+            if (entidad.id == 0)
+                throw new Exception("No se ha guardo");
 
-            this.IConexion.Inventarios!.Add(entidad!);
+            this.IConexion.Inventarios!.Remove(entidad);
+
+            var audit = new Auditorias
+            {
+                tabla = "Inventarios",
+                accion = "Borrar",
+                fecha = DateTime.Now,
+                datosAnteriores = "id: " + entidad.id + ", ingrediente: " + entidad.ingrediente,
+                datosNuevos = ""
+            };
+            this.IConexion.Auditorias!.Add(audit);
             this.IConexion.SaveChanges();
             return entidad;
         }
 
         private bool Validar(Inventarios entidad)
         {
-            if (string.IsNullOrEmpty(entidad.nombre))
+            if (entidad.ingrediente == 0)
                 return false;
             return true;
         }

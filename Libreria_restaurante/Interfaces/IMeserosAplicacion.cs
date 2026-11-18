@@ -11,5 +11,6 @@ namespace Libreria_restaurante.Interfaces
         Meseros Actualizar(Meseros entidad);
         List<Meseros> Consultar();
         List<Meseros> Buscar(Meseros entidad);
+        Meseros Borrar(Meseros entidad);
     }
 }

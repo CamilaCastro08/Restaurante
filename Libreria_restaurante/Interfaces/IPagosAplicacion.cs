@@ -8,7 +8,9 @@ namespace Libreria_restaurante.Interfaces
     public interface IPagosAplicacion
     {
         Pagos Insertar(Pagos entidad);
+        Pagos Actualizar(Pagos entidad);
         List<Pagos> Consultar();
         List<Pagos> Buscar(Pagos entidad);
+        Pagos Borrar(Pagos entidad);
     }
 }

@@ -11,5 +11,6 @@ namespace Libreria_restaurante.Interfaces
         Gerentes Actualizar(Gerentes entidad);
         List<Gerentes> Consultar();
         List<Gerentes> Buscar(Gerentes entidad);
+        Gerentes Borrar(Gerentes entidad);
     }
 }

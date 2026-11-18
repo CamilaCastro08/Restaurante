@@ -11,5 +11,6 @@ namespace Libreria_restaurante.Interfaces
         Pedidos Actualizar(Pedidos entidad);
         List<Pedidos> Consultar();
         List<Pedidos> Buscar(Pedidos entidad);
+        Pedidos Borrar(Pedidos entidad);
     }
 }

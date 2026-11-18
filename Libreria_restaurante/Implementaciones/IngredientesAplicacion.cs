@@ -16,35 +16,56 @@ namespace Libreria_restaurante.Implementaciones
             this.IConexion = IConexion;
         }
 
-        public Ingredientes Actualizar(Ingredientes entidad)
+        public Ingredientes Insertar(Ingredientes entidad)
         {
-            if (entidad.id== 0)
-                throw new Exception("No se ha guardo");
+            if (entidad.id != 0)
+                throw new Exception("Ya se guardo");
 
-            if (Validar(entidad))
+            if (!Validar(entidad))
                 throw new Exception("Falta informacion");
 
-            var entry = this.IConexion!.Entry<Ingredientes>(entidad);
-            entry.State = EntityState.Modified;
-            this.IConexion!.SaveChanges();
-            return entidad;
-        }
+            this.IConexion.Ingredientes!.Add(entidad);
+            this.IConexion.SaveChanges();
 
-        public Ingredientes Borrar(Ingredientes entidad)
-        {
+            var audit = new Auditorias
             {
-                if (entidad.id== 0)
-                throw new Exception("No se ha guardo");
-
-            this.IConexion.Ingredientes!.Remove(entidad!);
+                tabla = "Ingredientes",
+                accion = "Insertar",
+                fecha = DateTime.Now,
+                datosAnteriores = "",
+                datosNuevos = "id: " + entidad.id + ", nombre: " + entidad.nombre
+            };
+            this.IConexion.Auditorias!.Add(audit);
             this.IConexion.SaveChanges();
             return entidad;
         }
-        public List<Ingredientes> Buscar(Ingredientes entidad)
+
+        public Ingredientes Actualizar(Ingredientes entidad)
         {
-            return this.IConexion.Ingredientes!
-                .Where(x => x.nombre!.Contains(entidad.nombre!))
-                .ToList();
+            if (entidad.id == 0)
+                throw new Exception("No se ha guardo");
+
+            if (!Validar(entidad))
+                throw new Exception("Falta informacion");
+
+            var anterior = this.IConexion.Ingredientes!.FirstOrDefault(x => x.id == entidad.id);
+            if (anterior == null)
+                throw new Exception("No existe");
+
+            var entry = this.IConexion.Entry<Ingredientes>(entidad);
+            entry.State = EntityState.Modified;
+
+            var audit = new Auditorias
+            {
+                tabla = "Ingredientes",
+                accion = "Actualizar",
+                fecha = DateTime.Now,
+                datosAnteriores = "id: " + anterior.id + ", nombre: " + anterior.nombre,
+                datosNuevos = "id: " + entidad.id + ", nombre: " + entidad.nombre
+            };
+            this.IConexion.Auditorias!.Add(audit);
+            this.IConexion.SaveChanges();
+            return entidad;
         }
 
         public List<Ingredientes> Consultar()
@@ -52,15 +73,29 @@ namespace Libreria_restaurante.Implementaciones
             return this.IConexion.Ingredientes!.ToList();
         }
 
-        public Ingredientes Insertar(Ingredientes entidad)
+        public List<Ingredientes> Buscar(Ingredientes entidad)
         {
-            if (entidad.id!= 0)
-                throw new Exception("Ya se guardo");
+            return this.IConexion.Ingredientes!
+                .Where(x => x.nombre!.Contains(entidad.nombre!))
+                .ToList();
+        }
 
-            if (Validar(entidad))
-                throw new Exception("Falta informacion");
+        public Ingredientes Borrar(Ingredientes entidad)
+        {
+            if (entidad.id == 0)
+                throw new Exception("No se ha guardo");
 
-            this.IConexion.Ingredientes!.Add(entidad!);
+            this.IConexion.Ingredientes!.Remove(entidad);
+
+            var audit = new Auditorias
+            {
+                tabla = "Ingredientes",
+                accion = "Borrar",
+                fecha = DateTime.Now,
+                datosAnteriores = "id: " + entidad.id + ", nombre: " + entidad.nombre,
+                datosNuevos = ""
+            };
+            this.IConexion.Auditorias!.Add(audit);
             this.IConexion.SaveChanges();
             return entidad;
         }

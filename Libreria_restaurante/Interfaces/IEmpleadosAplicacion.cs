@@ -11,5 +11,6 @@ namespace Libreria_restaurante.Interfaces
         Empleados Actualizar(Empleados entidad);
         List<Empleados> Consultar();
         List<Empleados> Buscar(Empleados entidad);
+        Empleados Borrar(Empleados entidad);
     }
 }

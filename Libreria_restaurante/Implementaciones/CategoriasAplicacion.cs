@@ -16,46 +16,61 @@ namespace Libreria_restaurante.Implementaciones
             this.IConexion = IConexion;
         }
 
-        public Categorias Actualizar(Categorias entidad)
+        public Categorias Insertar(Categorias entidad)
         {
-            if (entidad.id== 0)
-                throw new Exception("No se ha guardo");
+            if (entidad.id != 0)
+                throw new Exception("Ya se guardo");
 
-            if (Validar(entidad))
+            if (!Validar(entidad))
                 throw new Exception("Falta informacion");
 
-            var entry = this.IConexion!.Entry<Categorias>(entidad);
-            entry.State = EntityState.Modified;
+            this.IConexion.Categorias!.Add(entidad);
+            this.IConexion.SaveChanges();
+
             var audit = new Auditorias
             {
                 tabla = "Categorias",
-                accion = "Acutalizó",
+                accion = "Insertar",
                 fecha = DateTime.Now,
-                datosAnteriores = "Id: " + entidad.id,
-                datosNuevos = "Se actualizó Id: {entidad.id} en Categorias"
+                datosAnteriores = "",
+                datosNuevos = "id: " + entidad.id + ", nombre: " + entidad.nombre
             };
-            IConexion.Auditorias!.Add(audit);
-            this.IConexion!.SaveChanges();
+            this.IConexion.Auditorias!.Add(audit);
+            this.IConexion.SaveChanges();
             return entidad;
         }
 
-        public Categorias Borrar(Categorias entidad)
+        public Categorias Actualizar(Categorias entidad)
         {
-            if (entidad.id== 0)
+            if (entidad.id == 0)
                 throw new Exception("No se ha guardo");
 
-            this.IConexion.Categorias!.Remove(entidad!);
+            if (!Validar(entidad))
+                throw new Exception("Falta informacion");
+
+            var anterior = this.IConexion.Categorias!.FirstOrDefault(x => x.id == entidad.id);
+            if (anterior == null)
+                throw new Exception("No existe");
+
+            var entry = this.IConexion.Entry<Categorias>(entidad);
+            entry.State = EntityState.Modified;
+
             var audit = new Auditorias
             {
                 tabla = "Categorias",
-                accion = "Borrar",
+                accion = "Actualizar",
                 fecha = DateTime.Now,
-                datosAnteriores = "Id: " + entidad.id,
-                datosNuevos = "Se borró registro Id: {entidad.id} en Categorias"
+                datosAnteriores = "id: " + anterior.id + ", nombre: " + anterior.nombre,
+                datosNuevos = "id: " + entidad.id + ", nombre: " + entidad.nombre
             };
-            IConexion.Auditorias!.Add(audit);
+            this.IConexion.Auditorias!.Add(audit);
             this.IConexion.SaveChanges();
             return entidad;
+        }
+
+        public List<Categorias> Consultar()
+        {
+            return this.IConexion.Categorias!.ToList();
         }
 
         public List<Categorias> Buscar(Categorias entidad)
@@ -65,29 +80,22 @@ namespace Libreria_restaurante.Implementaciones
                 .ToList();
         }
 
-        public List<Categorias> Consultar()
+        public Categorias Borrar(Categorias entidad)
         {
-            return this.IConexion.Categorias!.ToList();
-        }
+            if (entidad.id == 0)
+                throw new Exception("No se ha guardo");
 
-        public Categorias Insertar(Categorias entidad)
-        {
-            if (entidad.id!= 0)
-                throw new Exception("Ya se guardo");
+            this.IConexion.Categorias!.Remove(entidad);
 
-            if (Validar(entidad))
-                throw new Exception("Falta informacion");
-
-            this.IConexion.Categorias!.Add(entidad!);
             var audit = new Auditorias
             {
                 tabla = "Categorias",
-                accion = "Insertar",
+                accion = "Borrar",
                 fecha = DateTime.Now,
-                datosAnteriores = "Id: " + entidad.id,
-                datosNuevos = "Se insertó registro Id: {entidad.id} en Categorias"
+                datosAnteriores = "id: " + entidad.id + ", nombre: " + entidad.nombre,
+                datosNuevos = ""
             };
-            IConexion.Auditorias!.Add(audit);
+            this.IConexion.Auditorias!.Add(audit);
             this.IConexion.SaveChanges();
             return entidad;
         }

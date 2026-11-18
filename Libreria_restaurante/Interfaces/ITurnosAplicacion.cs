@@ -11,5 +11,6 @@ namespace Libreria_restaurante.Interfaces
         Turnos Actualizar(Turnos entidad);
         List<Turnos> Consultar();
         List<Turnos> Buscar(Turnos entidad);
+        Turnos Borrar(Turnos entidad);
     }
 }

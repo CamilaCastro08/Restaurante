@@ -16,35 +16,56 @@ namespace Libreria_restaurante.Implementaciones
             this.IConexion = IConexion;
         }
 
-        public Facturas Actualizar(Facturas entidad)
+        public Facturas Insertar(Facturas entidad)
         {
-            if (entidad.id== 0)
-                throw new Exception("No se ha guardo");
+            if (entidad.id != 0)
+                throw new Exception("Ya se guardo");
 
-            if (Validar(entidad))
+            if (!Validar(entidad))
                 throw new Exception("Falta informacion");
 
-            var entry = this.IConexion!.Entry<Facturas>(entidad);
-            entry.State = EntityState.Modified;
-            this.IConexion!.SaveChanges();
-            return entidad;
-        }
+            this.IConexion.Facturas!.Add(entidad);
+            this.IConexion.SaveChanges();
 
-        public Facturas Borrar(Facturas entidad)
-        {
-            if (entidad.id== 0)
-                throw new Exception("No se ha guardo");
-
-            this.IConexion.Facturas!.Remove(entidad!);
+            var audit = new Auditorias
+            {
+                tabla = "Facturas",
+                accion = "Insertar",
+                fecha = DateTime.Now,
+                datosAnteriores = "",
+                datosNuevos = "id: " + entidad.id + ", numero: " + entidad.numero
+            };
+            this.IConexion.Auditorias!.Add(audit);
             this.IConexion.SaveChanges();
             return entidad;
         }
 
-        public List<Facturas> Buscar(Facturas entidad)
+        public Facturas Actualizar(Facturas entidad)
         {
-            return this.IConexion.Facturas!
-                .Where(x => x.nombre!.Contains(entidad.nombre!))
-                .ToList();
+            if (entidad.id == 0)
+                throw new Exception("No se ha guardo");
+
+            if (!Validar(entidad))
+                throw new Exception("Falta informacion");
+
+            var anterior = this.IConexion.Facturas!.FirstOrDefault(x => x.id == entidad.id);
+            if (anterior == null)
+                throw new Exception("No existe");
+
+            var entry = this.IConexion.Entry<Facturas>(entidad);
+            entry.State = EntityState.Modified;
+
+            var audit = new Auditorias
+            {
+                tabla = "Facturas",
+                accion = "Actualizar",
+                fecha = DateTime.Now,
+                datosAnteriores = "id: " + anterior.id + ", numero: " + anterior.numero,
+                datosNuevos = "id: " + entidad.id + ", numero: " + entidad.numero
+            };
+            this.IConexion.Auditorias!.Add(audit);
+            this.IConexion.SaveChanges();
+            return entidad;
         }
 
         public List<Facturas> Consultar()
@@ -52,22 +73,36 @@ namespace Libreria_restaurante.Implementaciones
             return this.IConexion.Facturas!.ToList();
         }
 
-        public Facturas Insertar(Facturas entidad)
+        public List<Facturas> Buscar(Facturas entidad)
         {
-            if (entidad.id!= 0)
-                throw new Exception("Ya se guardo");
+            return this.IConexion.Facturas!
+                .Where(x => x.numero!.Contains(entidad.numero!))
+                .ToList();
+        }
 
-            if (Validar(entidad))
-                throw new Exception("Falta informacion");
+        public Facturas Borrar(Facturas entidad)
+        {
+            if (entidad.id == 0)
+                throw new Exception("No se ha guardo");
 
-            this.IConexion.Facturas!.Add(entidad!);
+            this.IConexion.Facturas!.Remove(entidad);
+
+            var audit = new Auditorias
+            {
+                tabla = "Facturas",
+                accion = "Borrar",
+                fecha = DateTime.Now,
+                datosAnteriores = "id: " + entidad.id + ", numero: " + entidad.numero,
+                datosNuevos = ""
+            };
+            this.IConexion.Auditorias!.Add(audit);
             this.IConexion.SaveChanges();
             return entidad;
         }
 
         private bool Validar(Facturas entidad)
         {
-            if (string.IsNullOrEmpty(entidad.nombre))
+            if (string.IsNullOrEmpty(entidad.numero))
                 return false;
             return true;
         }

@@ -16,35 +16,56 @@ namespace Libreria_restaurante.Implementaciones
             this.IConexion = IConexion;
         }
 
-        public Meseros Actualizar(Meseros entidad)
+        public Meseros Insertar(Meseros entidad)
         {
-            if (entidad.id== 0)
-                throw new Exception("No se ha guardo");
+            if (entidad.id != 0)
+                throw new Exception("Ya se guardo");
 
-            if (Validar(entidad))
+            if (!Validar(entidad))
                 throw new Exception("Falta informacion");
 
-            var entry = this.IConexion!.Entry<Meseros>(entidad);
-            entry.State = EntityState.Modified;
-            this.IConexion!.SaveChanges();
-            return entidad;
-        }
+            this.IConexion.Meseros!.Add(entidad);
+            this.IConexion.SaveChanges();
 
-        public Meseros Borrar(Meseros entidad)
-        {
-            if (entidad.id== 0)
-                throw new Exception("No se ha guardo");
-
-            this.IConexion.Meseros!.Remove(entidad!);
+            var audit = new Auditorias
+            {
+                tabla = "Meseros",
+                accion = "Insertar",
+                fecha = DateTime.Now,
+                datosAnteriores = "",
+                datosNuevos = "id: " + entidad.id + ", zona_asignada: " + entidad.zona_asignada
+            };
+            this.IConexion.Auditorias!.Add(audit);
             this.IConexion.SaveChanges();
             return entidad;
         }
 
-        public List<Meseros> Buscar(Meseros entidad)
+        public Meseros Actualizar(Meseros entidad)
         {
-            return this.IConexion.Meseros!
-                .Where(x => x.nombre!.Contains(entidad.nombre!))
-                .ToList();
+            if (entidad.id == 0)
+                throw new Exception("No se ha guardo");
+
+            if (!Validar(entidad))
+                throw new Exception("Falta informacion");
+
+            var anterior = this.IConexion.Meseros!.FirstOrDefault(x => x.id == entidad.id);
+            if (anterior == null)
+                throw new Exception("No existe");
+
+            var entry = this.IConexion.Entry<Meseros>(entidad);
+            entry.State = EntityState.Modified;
+
+            var audit = new Auditorias
+            {
+                tabla = "Meseros",
+                accion = "Actualizar",
+                fecha = DateTime.Now,
+                datosAnteriores = "id: " + anterior.id + ", zona_asignada: " + anterior.zona_asignada,
+                datosNuevos = "id: " + entidad.id + ", zona_asignada: " + entidad.zona_asignada
+            };
+            this.IConexion.Auditorias!.Add(audit);
+            this.IConexion.SaveChanges();
+            return entidad;
         }
 
         public List<Meseros> Consultar()
@@ -52,22 +73,36 @@ namespace Libreria_restaurante.Implementaciones
             return this.IConexion.Meseros!.ToList();
         }
 
-        public Meseros Insertar(Meseros entidad)
+        public List<Meseros> Buscar(Meseros entidad)
         {
-            if (entidad.id!= 0)
-                throw new Exception("Ya se guardo");
+            return this.IConexion.Meseros!
+                .Where(x => x.zona_asignada!.Contains(entidad.zona_asignada!))
+                .ToList();
+        }
 
-            if (Validar(entidad))
-                throw new Exception("Falta informacion");
+        public Meseros Borrar(Meseros entidad)
+        {
+            if (entidad.id == 0)
+                throw new Exception("No se ha guardo");
 
-            this.IConexion.Meseros!.Add(entidad!);
+            this.IConexion.Meseros!.Remove(entidad);
+
+            var audit = new Auditorias
+            {
+                tabla = "Meseros",
+                accion = "Borrar",
+                fecha = DateTime.Now,
+                datosAnteriores = "id: " + entidad.id + ", zona_asignada: " + entidad.zona_asignada,
+                datosNuevos = ""
+            };
+            this.IConexion.Auditorias!.Add(audit);
             this.IConexion.SaveChanges();
             return entidad;
         }
 
         private bool Validar(Meseros entidad)
         {
-            if (string.IsNullOrEmpty(entidad.nombre))
+            if (string.IsNullOrEmpty(entidad.zona_asignada))
                 return false;
             return true;
         }

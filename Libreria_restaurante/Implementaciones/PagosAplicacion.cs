@@ -16,35 +16,56 @@ namespace Libreria_restaurante.Implementaciones
             this.IConexion = IConexion;
         }
 
-        public Pagos Actualizar(Pagos entidad)
+        public Pagos Insertar(Pagos entidad)
         {
-            if (entidad.id== 0)
-                throw new Exception("No se ha guardo");
+            if (entidad.id != 0)
+                throw new Exception("Ya se guardo");
 
-            if (Validar(entidad))
+            if (!Validar(entidad))
                 throw new Exception("Falta informacion");
 
-            var entry = this.IConexion!.Entry<Pagos>(entidad);
-            entry.State = EntityState.Modified;
-            this.IConexion!.SaveChanges();
-            return entidad;
-        }
+            this.IConexion.Pagos!.Add(entidad);
+            this.IConexion.SaveChanges();
 
-        public Pagos Borrar(Pagos entidad)
-        {
-            if (entidad.id== 0)
-                throw new Exception("No se ha guardo");
-
-            this.IConexion.Pagos!.Remove(entidad!);
+            var audit = new Auditorias
+            {
+                tabla = "Pagos",
+                accion = "Insertar",
+                fecha = DateTime.Now,
+                datosAnteriores = "",
+                datosNuevos = "id: " + entidad.id + ", referencia: " + entidad.referencia
+            };
+            this.IConexion.Auditorias!.Add(audit);
             this.IConexion.SaveChanges();
             return entidad;
         }
 
-        public List<Pagos> Buscar(Pagos entidad)
+        public Pagos Actualizar(Pagos entidad)
         {
-            return this.IConexion.Pagos!
-                .Where(x => x.nombre!.Contains(entidad.nombre!))
-                .ToList();
+            if (entidad.id == 0)
+                throw new Exception("No se ha guardo");
+
+            if (!Validar(entidad))
+                throw new Exception("Falta informacion");
+
+            var anterior = this.IConexion.Pagos!.FirstOrDefault(x => x.id == entidad.id);
+            if (anterior == null)
+                throw new Exception("No existe");
+
+            var entry = this.IConexion.Entry<Pagos>(entidad);
+            entry.State = EntityState.Modified;
+
+            var audit = new Auditorias
+            {
+                tabla = "Pagos",
+                accion = "Actualizar",
+                fecha = DateTime.Now,
+                datosAnteriores = "id: " + anterior.id + ", referencia: " + anterior.referencia,
+                datosNuevos = "id: " + entidad.id + ", referencia: " + entidad.referencia
+            };
+            this.IConexion.Auditorias!.Add(audit);
+            this.IConexion.SaveChanges();
+            return entidad;
         }
 
         public List<Pagos> Consultar()
@@ -52,22 +73,36 @@ namespace Libreria_restaurante.Implementaciones
             return this.IConexion.Pagos!.ToList();
         }
 
-        public Pagos Insertar(Pagos entidad)
+        public List<Pagos> Buscar(Pagos entidad)
         {
-            if (entidad.id!= 0)
-                throw new Exception("Ya se guardo");
+            return this.IConexion.Pagos!
+                .Where(x => x.referencia!.Contains(entidad.referencia!))
+                .ToList();
+        }
 
-            if (Validar(entidad))
-                throw new Exception("Falta informacion");
+        public Pagos Borrar(Pagos entidad)
+        {
+            if (entidad.id == 0)
+                throw new Exception("No se ha guardo");
 
-            this.IConexion.Pagos!.Add(entidad!);
+            this.IConexion.Pagos!.Remove(entidad);
+
+            var audit = new Auditorias
+            {
+                tabla = "Pagos",
+                accion = "Borrar",
+                fecha = DateTime.Now,
+                datosAnteriores = "id: " + entidad.id + ", referencia: " + entidad.referencia,
+                datosNuevos = ""
+            };
+            this.IConexion.Auditorias!.Add(audit);
             this.IConexion.SaveChanges();
             return entidad;
         }
 
         private bool Validar(Pagos entidad)
         {
-            if (string.IsNullOrEmpty(entidad.nombre))
+            if (string.IsNullOrEmpty(entidad.referencia))
                 return false;
             return true;
         }

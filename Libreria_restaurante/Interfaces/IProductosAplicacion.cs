@@ -11,7 +11,6 @@ namespace Libreria_restaurante.Interfaces
         Productos Actualizar(Productos entidad);
         List<Productos> Consultar();
         List<Productos> Buscar(Productos entidad);
-
         Productos Borrar(Productos entidad);
     }
 }

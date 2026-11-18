@@ -16,35 +16,56 @@ namespace Libreria_restaurante.Implementaciones
             this.IConexion = IConexion;
         }
 
-        public Pedidos Actualizar(Pedidos entidad)
+        public Pedidos Insertar(Pedidos entidad)
         {
-            if (entidad.id== 0)
-                throw new Exception("No se ha guardo");
+            if (entidad.id != 0)
+                throw new Exception("Ya se guardo");
 
-            if (Validar(entidad))
+            if (!Validar(entidad))
                 throw new Exception("Falta informacion");
 
-            var entry = this.IConexion!.Entry<Pedidos>(entidad);
-            entry.State = EntityState.Modified;
-            this.IConexion!.SaveChanges();
-            return entidad;
-        }
+            this.IConexion.Pedidos!.Add(entidad);
+            this.IConexion.SaveChanges();
 
-        public Pedidos Borrar(Pedidos entidad)
-        {
-            if (entidad.id== 0)
-                throw new Exception("No se ha guardo");
-
-            this.IConexion.Pedidos!.Remove(entidad!);
+            var audit = new Auditorias
+            {
+                tabla = "Pedidos",
+                accion = "Insertar",
+                fecha = DateTime.Now,
+                datosAnteriores = "",
+                datosNuevos = "id: " + entidad.id + ", estado: " + entidad.estado
+            };
+            this.IConexion.Auditorias!.Add(audit);
             this.IConexion.SaveChanges();
             return entidad;
         }
 
-        public List<Pedidos> Buscar(Pedidos entidad)
+        public Pedidos Actualizar(Pedidos entidad)
         {
-            return this.IConexion.Pedidos!
-                .Where(x => x.nombre!.Contains(entidad.nombre!))
-                .ToList();
+            if (entidad.id == 0)
+                throw new Exception("No se ha guardo");
+
+            if (!Validar(entidad))
+                throw new Exception("Falta informacion");
+
+            var anterior = this.IConexion.Pedidos!.FirstOrDefault(x => x.id == entidad.id);
+            if (anterior == null)
+                throw new Exception("No existe");
+
+            var entry = this.IConexion.Entry<Pedidos>(entidad);
+            entry.State = EntityState.Modified;
+
+            var audit = new Auditorias
+            {
+                tabla = "Pedidos",
+                accion = "Actualizar",
+                fecha = DateTime.Now,
+                datosAnteriores = "id: " + anterior.id + ", estado: " + anterior.estado,
+                datosNuevos = "id: " + entidad.id + ", estado: " + entidad.estado
+            };
+            this.IConexion.Auditorias!.Add(audit);
+            this.IConexion.SaveChanges();
+            return entidad;
         }
 
         public List<Pedidos> Consultar()
@@ -52,22 +73,36 @@ namespace Libreria_restaurante.Implementaciones
             return this.IConexion.Pedidos!.ToList();
         }
 
-        public Pedidos Insertar(Pedidos entidad)
+        public List<Pedidos> Buscar(Pedidos entidad)
         {
-            if (entidad.id!= 0)
-                throw new Exception("Ya se guardo");
+            return this.IConexion.Pedidos!
+                .Where(x => x.estado!.Contains(entidad.estado!))
+                .ToList();
+        }
 
-            if (Validar(entidad))
-                throw new Exception("Falta informacion");
+        public Pedidos Borrar(Pedidos entidad)
+        {
+            if (entidad.id == 0)
+                throw new Exception("No se ha guardo");
 
-            this.IConexion.Pedidos!.Add(entidad!);
+            this.IConexion.Pedidos!.Remove(entidad);
+
+            var audit = new Auditorias
+            {
+                tabla = "Pedidos",
+                accion = "Borrar",
+                fecha = DateTime.Now,
+                datosAnteriores = "id: " + entidad.id + ", estado: " + entidad.estado,
+                datosNuevos = ""
+            };
+            this.IConexion.Auditorias!.Add(audit);
             this.IConexion.SaveChanges();
             return entidad;
         }
 
         private bool Validar(Pedidos entidad)
         {
-            if (string.IsNullOrEmpty(entidad.nombre))
+            if (string.IsNullOrEmpty(entidad.estado))
                 return false;
             return true;
         }

@@ -16,35 +16,56 @@ namespace Libreria_restaurante.Implementaciones
             this.IConexion = IConexion;
         }
 
-        public Gerentes Actualizar(Gerentes entidad)
+        public Gerentes Insertar(Gerentes entidad)
         {
-            if (entidad.id== 0)
-                throw new Exception("No se ha guardo");
+            if (entidad.id != 0)
+                throw new Exception("Ya se guardo");
 
-            if (Validar(entidad))
+            if (!Validar(entidad))
                 throw new Exception("Falta informacion");
 
-            var entry = this.IConexion!.Entry<Gerentes>(entidad);
-            entry.State = EntityState.Modified;
-            this.IConexion!.SaveChanges();
-            return entidad;
-        }
+            this.IConexion.Gerentes!.Add(entidad);
+            this.IConexion.SaveChanges();
 
-        public Gerentes Borrar(Gerentes entidad)
-        {
-            if (entidad.id== 0)
-                throw new Exception("No se ha guardo");
-
-            this.IConexion.Gerentes!.Remove(entidad!);
+            var audit = new Auditorias
+            {
+                tabla = "Gerentes",
+                accion = "Insertar",
+                fecha = DateTime.Now,
+                datosAnteriores = "",
+                datosNuevos = "id: " + entidad.id + ", area_responsable: " + entidad.area_responsable
+            };
+            this.IConexion.Auditorias!.Add(audit);
             this.IConexion.SaveChanges();
             return entidad;
         }
 
-        public List<Gerentes> Buscar(Gerentes entidad)
+        public Gerentes Actualizar(Gerentes entidad)
         {
-            return this.IConexion.Gerentes!
-                .Where(x => x.nombre!.Contains(entidad.nombre!))
-                .ToList();
+            if (entidad.id == 0)
+                throw new Exception("No se ha guardo");
+
+            if (!Validar(entidad))
+                throw new Exception("Falta informacion");
+
+            var anterior = this.IConexion.Gerentes!.FirstOrDefault(x => x.id == entidad.id);
+            if (anterior == null)
+                throw new Exception("No existe");
+
+            var entry = this.IConexion.Entry<Gerentes>(entidad);
+            entry.State = EntityState.Modified;
+
+            var audit = new Auditorias
+            {
+                tabla = "Gerentes",
+                accion = "Actualizar",
+                fecha = DateTime.Now,
+                datosAnteriores = "id: " + anterior.id + ", area_responsable: " + anterior.area_responsable,
+                datosNuevos = "id: " + entidad.id + ", area_responsable: " + entidad.area_responsable
+            };
+            this.IConexion.Auditorias!.Add(audit);
+            this.IConexion.SaveChanges();
+            return entidad;
         }
 
         public List<Gerentes> Consultar()
@@ -52,22 +73,36 @@ namespace Libreria_restaurante.Implementaciones
             return this.IConexion.Gerentes!.ToList();
         }
 
-        public Gerentes Insertar(Gerentes entidad)
+        public List<Gerentes> Buscar(Gerentes entidad)
         {
-            if (entidad.id!= 0)
-                throw new Exception("Ya se guardo");
+            return this.IConexion.Gerentes!
+                .Where(x => x.area_responsable!.Contains(entidad.area_responsable!))
+                .ToList();
+        }
 
-            if (Validar(entidad))
-                throw new Exception("Falta informacion");
+        public Gerentes Borrar(Gerentes entidad)
+        {
+            if (entidad.id == 0)
+                throw new Exception("No se ha guardo");
 
-            this.IConexion.Gerentes!.Add(entidad!);
+            this.IConexion.Gerentes!.Remove(entidad);
+
+            var audit = new Auditorias
+            {
+                tabla = "Gerentes",
+                accion = "Borrar",
+                fecha = DateTime.Now,
+                datosAnteriores = "id: " + entidad.id + ", area_responsable: " + entidad.area_responsable,
+                datosNuevos = ""
+            };
+            this.IConexion.Auditorias!.Add(audit);
             this.IConexion.SaveChanges();
             return entidad;
         }
 
         private bool Validar(Gerentes entidad)
         {
-            if (string.IsNullOrEmpty(entidad.nombre))
+            if (string.IsNullOrEmpty(entidad.area_responsable))
                 return false;
             return true;
         }

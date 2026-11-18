@@ -16,35 +16,56 @@ namespace Libreria_restaurante.Implementaciones
             this.IConexion = IConexion;
         }
 
-        public Detalles_Pedidos Actualizar(Detalles_Pedidos entidad)
+        public Detalles_Pedidos Insertar(Detalles_Pedidos entidad)
         {
-            if (entidad.id== 0)
-                throw new Exception("No se ha guardo");
+            if (entidad.id != 0)
+                throw new Exception("Ya se guardo");
 
-            if (Validar(entidad))
+            if (!Validar(entidad))
                 throw new Exception("Falta informacion");
 
-            var entry = this.IConexion!.Entry<Detalles_Pedidos>(entidad);
-            entry.State = EntityState.Modified;
-            this.IConexion!.SaveChanges();
-            return entidad;
-        }
+            this.IConexion.Detalles_Pedidos!.Add(entidad);
+            this.IConexion.SaveChanges();
 
-        public Detalles_Pedidos Borrar(Detalles_Pedidos entidad)
-        {
-            if (entidad.id== 0)
-                throw new Exception("No se ha guardo");
-
-            this.IConexion.Detalles_Pedidos!.Remove(entidad!);
+            var audit = new Auditorias
+            {
+                tabla = "Detalles_Pedidos",
+                accion = "Insertar",
+                fecha = DateTime.Now,
+                datosAnteriores = "",
+                datosNuevos = "id: " + entidad.id + ", pedido: " + entidad.pedido
+            };
+            this.IConexion.Auditorias!.Add(audit);
             this.IConexion.SaveChanges();
             return entidad;
         }
 
-        public List<Detalles_Pedidos> Buscar(Detalles_Pedidos entidad)
+        public Detalles_Pedidos Actualizar(Detalles_Pedidos entidad)
         {
-            return this.IConexion.Detalles_Pedidos!
-                .Where(x => x.nombre!.Contains(entidad.nombre!))
-                .ToList();
+            if (entidad.id == 0)
+                throw new Exception("No se ha guardo");
+
+            if (!Validar(entidad))
+                throw new Exception("Falta informacion");
+
+            var anterior = this.IConexion.Detalles_Pedidos!.FirstOrDefault(x => x.id == entidad.id);
+            if (anterior == null)
+                throw new Exception("No existe");
+
+            var entry = this.IConexion.Entry<Detalles_Pedidos>(entidad);
+            entry.State = EntityState.Modified;
+
+            var audit = new Auditorias
+            {
+                tabla = "Detalles_Pedidos",
+                accion = "Actualizar",
+                fecha = DateTime.Now,
+                datosAnteriores = "id: " + anterior.id + ", pedido: " + anterior.pedido,
+                datosNuevos = "id: " + entidad.id + ", pedido: " + entidad.pedido
+            };
+            this.IConexion.Auditorias!.Add(audit);
+            this.IConexion.SaveChanges();
+            return entidad;
         }
 
         public List<Detalles_Pedidos> Consultar()
@@ -52,22 +73,36 @@ namespace Libreria_restaurante.Implementaciones
             return this.IConexion.Detalles_Pedidos!.ToList();
         }
 
-        public Detalles_Pedidos Insertar(Detalles_Pedidos entidad)
+        public List<Detalles_Pedidos> Buscar(Detalles_Pedidos entidad)
         {
-            if (entidad.id!= 0)
-                throw new Exception("Ya se guardo");
+            return this.IConexion.Detalles_Pedidos!
+                .Where(x => x.pedido == entidad.pedido)
+                .ToList();
+        }
 
-            if (Validar(entidad))
-                throw new Exception("Falta informacion");
+        public Detalles_Pedidos Borrar(Detalles_Pedidos entidad)
+        {
+            if (entidad.id == 0)
+                throw new Exception("No se ha guardo");
 
-            this.IConexion.Detalles_Pedidos!.Add(entidad!);
+            this.IConexion.Detalles_Pedidos!.Remove(entidad);
+
+            var audit = new Auditorias
+            {
+                tabla = "Detalles_Pedidos",
+                accion = "Borrar",
+                fecha = DateTime.Now,
+                datosAnteriores = "id: " + entidad.id + ", pedido: " + entidad.pedido,
+                datosNuevos = ""
+            };
+            this.IConexion.Auditorias!.Add(audit);
             this.IConexion.SaveChanges();
             return entidad;
         }
 
         private bool Validar(Detalles_Pedidos entidad)
         {
-            if (string.IsNullOrEmpty(entidad.nombre))
+            if (entidad.pedido == 0)
                 return false;
             return true;
         }

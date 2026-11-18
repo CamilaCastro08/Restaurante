@@ -11,5 +11,6 @@ namespace Libreria_restaurante.Interfaces
         Cocineros Actualizar(Cocineros entidad);
         List<Cocineros> Consultar();
         List<Cocineros> Buscar(Cocineros entidad);
+        Cocineros Borrar(Cocineros entidad);
     }
 }

@@ -11,5 +11,6 @@ namespace Libreria_restaurante.Interfaces
         Inventarios Actualizar(Inventarios entidad);
         List<Inventarios> Consultar();
         List<Inventarios> Buscar(Inventarios entidad);
+        Inventarios Borrar(Inventarios entidad);
     }
 }

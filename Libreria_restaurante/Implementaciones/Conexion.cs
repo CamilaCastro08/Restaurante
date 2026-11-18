@@ -37,6 +37,6 @@ namespace Libreria_restaurante.Implementaciones
         public DbSet<Usuarios>? Usuarios { get; set; }
         public DbSet<Permisos>? Permisos { get; set; }
         public DbSet<Roles>? Roles { get; set; }
-        public DbSet<Turnos>? Turnos { get; set; }
+        public DbSet<Auditorias>? Auditorias { get; set; }
     }
 }

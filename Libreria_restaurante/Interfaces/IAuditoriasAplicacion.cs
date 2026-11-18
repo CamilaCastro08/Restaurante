@@ -8,5 +8,6 @@ namespace Libreria_restaurante.Interfaces
     public interface IAuditoriasAplicacion
     {
         List<Auditorias> Consultar();
+        List<Auditorias> Buscar(Auditorias entidad);
     }
 }

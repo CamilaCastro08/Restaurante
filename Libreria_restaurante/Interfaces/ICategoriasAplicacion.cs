@@ -10,6 +10,7 @@ namespace Libreria_restaurante.Interfaces
         Categorias Insertar(Categorias entidad);
         Categorias Actualizar(Categorias entidad);
         List<Categorias> Consultar();
+        List<Categorias> Buscar(Categorias entidad);
         Categorias Borrar(Categorias entidad);
     }
 }

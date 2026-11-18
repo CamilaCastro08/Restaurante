@@ -10,6 +10,7 @@ namespace Libreria_restaurante.Interfaces
         MetodosPagos Insertar(MetodosPagos entidad);
         MetodosPagos Actualizar(MetodosPagos entidad);
         List<MetodosPagos> Consultar();
+        List<MetodosPagos> Buscar(MetodosPagos entidad);
         MetodosPagos Borrar(MetodosPagos entidad);
     }
 }

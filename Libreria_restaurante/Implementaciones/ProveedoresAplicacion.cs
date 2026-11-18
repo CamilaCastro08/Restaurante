@@ -16,28 +16,61 @@ namespace Libreria_restaurante.Implementaciones
             this.IConexion = IConexion;
         }
 
-        public Proveedores Actualizar(Proveedores entidad)
+        public Proveedores Insertar(Proveedores entidad)
         {
-            if (entidad.id== 0)
-                throw new Exception("No se ha guardo");
+            if (entidad.id != 0)
+                throw new Exception("Ya se guardo");
 
-            if (Validar(entidad))
+            if (!Validar(entidad))
                 throw new Exception("Falta informacion");
 
-            var entry = this.IConexion!.Entry<Proveedores>(entidad);
-            entry.State = EntityState.Modified;
-            this.IConexion!.SaveChanges();
+            this.IConexion.Proveedores!.Add(entidad);
+            this.IConexion.SaveChanges();
+
+            var audit = new Auditorias
+            {
+                tabla = "Proveedores",
+                accion = "Insertar",
+                fecha = DateTime.Now,
+                datosAnteriores = "",
+                datosNuevos = "id: " + entidad.id + ", nombre: " + entidad.nombre
+            };
+            this.IConexion.Auditorias!.Add(audit);
+            this.IConexion.SaveChanges();
             return entidad;
         }
 
-        public Proveedores Borrar(Proveedores entidad)
+        public Proveedores Actualizar(Proveedores entidad)
         {
-            if (entidad.id== 0)
+            if (entidad.id == 0)
                 throw new Exception("No se ha guardo");
 
-            this.IConexion.Proveedores!.Remove(entidad!);
+            if (!Validar(entidad))
+                throw new Exception("Falta informacion");
+
+            var anterior = this.IConexion.Proveedores!.FirstOrDefault(x => x.id == entidad.id);
+            if (anterior == null)
+                throw new Exception("No existe");
+
+            var entry = this.IConexion.Entry<Proveedores>(entidad);
+            entry.State = EntityState.Modified;
+
+            var audit = new Auditorias
+            {
+                tabla = "Proveedores",
+                accion = "Actualizar",
+                fecha = DateTime.Now,
+                datosAnteriores = "id: " + anterior.id + ", nombre: " + anterior.nombre,
+                datosNuevos = "id: " + entidad.id + ", nombre: " + entidad.nombre
+            };
+            this.IConexion.Auditorias!.Add(audit);
             this.IConexion.SaveChanges();
             return entidad;
+        }
+
+        public List<Proveedores> Consultar()
+        {
+            return this.IConexion.Proveedores!.ToList();
         }
 
         public List<Proveedores> Buscar(Proveedores entidad)
@@ -47,20 +80,22 @@ namespace Libreria_restaurante.Implementaciones
                 .ToList();
         }
 
-        public List<Proveedores> Consultar()
+        public Proveedores Borrar(Proveedores entidad)
         {
-            return this.IConexion.Proveedores!.ToList();
-        }
+            if (entidad.id == 0)
+                throw new Exception("No se ha guardo");
 
-        public Proveedores Insertar(Proveedores entidad)
-        {
-            if (entidad.id!= 0)
-                throw new Exception("Ya se guardo");
+            this.IConexion.Proveedores!.Remove(entidad);
 
-            if (Validar(entidad))
-                throw new Exception("Falta informacion");
-
-            this.IConexion.Proveedores!.Add(entidad!);
+            var audit = new Auditorias
+            {
+                tabla = "Proveedores",
+                accion = "Borrar",
+                fecha = DateTime.Now,
+                datosAnteriores = "id: " + entidad.id + ", nombre: " + entidad.nombre,
+                datosNuevos = ""
+            };
+            this.IConexion.Auditorias!.Add(audit);
             this.IConexion.SaveChanges();
             return entidad;
         }

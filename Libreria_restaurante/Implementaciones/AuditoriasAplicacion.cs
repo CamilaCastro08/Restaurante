@@ -1,7 +1,5 @@
 ﻿using Libreria_restaurante.Entidades;
 using Libreria_restaurante.Interfaces;
-using Libreria_restaurante.Nucleo;
-
 
 namespace Libreria_restaurante.Implementaciones
 {
@@ -9,14 +7,21 @@ namespace Libreria_restaurante.Implementaciones
     {
         private IConexion IConexion;
 
-        public List<Auditorias> Consultar()
+        public AuditoriasAplicacion(IConexion IConexion)
         {
-            IConexion = new Conexion();
-            IConexion.StringConexion = MetodosGenerales.ObtenerStringConexion("string_conexion");
-            return IConexion.Auditorias!.ToList();
+            this.IConexion = IConexion;
         }
 
+        public List<Auditorias> Consultar()
+        {
+            return this.IConexion.Auditorias!.ToList();
+        }
 
-
+        public List<Auditorias> Buscar(Auditorias entidad)
+        {
+            return this.IConexion.Auditorias!
+                .Where(x => x.tabla!.Contains(entidad.tabla!))
+                .ToList();
+        }
     }
 }
