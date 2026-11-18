@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Text;
 
 namespace Libreria_restaurante.Entidades
@@ -13,7 +14,9 @@ namespace Libreria_restaurante.Entidades
         public decimal subtotal { get; set; }
         public string? comentarios { get; set; }
 
+        [ForeignKey("pedido")]
         public Pedidos? _pedido { get; set; }
+        [ForeignKey("producto")]
         public Productos? _producto { get; set; }
     }
 }

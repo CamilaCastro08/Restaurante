@@ -13,6 +13,7 @@ namespace Libreria_restaurante.Entidades
         public string? descripcion { get; set; }
         public int? rol { get; set; }
 
+        [ForeignKey("rol")]
         public Roles? _rol { get; set; }
     }
 }

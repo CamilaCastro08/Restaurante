@@ -16,6 +16,7 @@ namespace Libreria_restaurante.Entidades
         public string? datosNuevos { get; set; }
         public int? usuario { get; set; }
 
+        [ForeignKey("usuario")]
         public Usuarios? _Usuario { get; set; }
     }
 }

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Text;
 
 namespace Libreria_restaurante.Entidades
@@ -14,7 +15,9 @@ namespace Libreria_restaurante.Entidades
         public string? estado { get; set; }
 
 
+        [ForeignKey("cliente")]
         public Clientes? _cliente { get; set; }
+        [ForeignKey("mesa")]
         public Mesas? _mesa { get; set; }
     }
 }

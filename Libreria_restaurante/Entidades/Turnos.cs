@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Text;
 
 namespace Libreria_restaurante.Entidades
@@ -12,6 +13,7 @@ namespace Libreria_restaurante.Entidades
         public DateTime hora_entrada { get; set; }
         public DateTime hora_salida { get; set; }
 
+        [ForeignKey("empleado")]
         public Empleados? _empleado { get; set; }
     }
 }

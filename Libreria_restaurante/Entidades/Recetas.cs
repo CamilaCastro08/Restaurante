@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Text;
 
 namespace Libreria_restaurante.Entidades
@@ -15,6 +16,7 @@ namespace Libreria_restaurante.Entidades
             public string? dificultad { get; set; }
 
 
+            [ForeignKey("producto")]
             public Productos? _producto { get; set; }
             public List<Ingredientes> Ingredientes { get; set; } = new();
     }

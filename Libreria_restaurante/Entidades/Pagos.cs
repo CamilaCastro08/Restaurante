@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Text;
 
 namespace Libreria_restaurante.Entidades
@@ -15,8 +16,10 @@ namespace Libreria_restaurante.Entidades
         public string? estado { get; set; }
 
 
+        [ForeignKey("factura")]
         public Facturas? _factura { get; set; }
 
+        [ForeignKey("metodoPago")]
         public MetodosPagos? _metodoPago { get; set; }
     }
 }

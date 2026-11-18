@@ -16,6 +16,7 @@ namespace Libreria_restaurante.Entidades
         public DateTime fechaCreacion { get; set; }
         public int? rol { get; set; }
 
+        [ForeignKey("rol")]
         public Roles? _rol { get; set; }
 
         public List<Auditorias>? _Auditorias { get; set; } = new();

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Text;
 
 namespace Libreria_restaurante.Entidades
@@ -13,7 +14,9 @@ namespace Libreria_restaurante.Entidades
         public int proveedor { get; set; }
         public int receta { get; set; }
 
+        [ForeignKey("receta")]
         public Recetas? _receta { get; set; }
+        [ForeignKey("proveedor")]
         public Proveedores? _proveedor { get; set; }
         public List<Inventarios> Inventarios { get; set; } = new();
 
