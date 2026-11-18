@@ -1,0 +1,78 @@
+@page
+@model asp.presentacion.Pages.Ventanas.GerentesModel
+@{
+    ViewData["Title"] = "Gerentes";
+}
+
+<h2>Gerentes</h2>
+
+@if (!string.IsNullOrEmpty(Model.Mensaje))
+{
+    <div class="alert alert-danger">@Model.Mensaje</div>
+}
+@if (TempData["Mensaje"] != null)
+{
+    <div class="alert alert-success">@TempData["Mensaje"]</div>
+}
+
+<form method="post" asp-page-handler="Guardar" class="mb-4">
+    <input type="hidden" asp-for="Entidad.id" />
+    <div class="mb-2">
+        <label asp-for="Entidad.empleado" class="form-label"></label>
+        <input asp-for="Entidad.empleado" type="number" class="form-control" />
+    </div>
+    <div class="mb-2">
+        <label asp-for="Entidad.nivel_autorizacion" class="form-label"></label>
+        <input asp-for="Entidad.nivel_autorizacion" class="form-control" />
+    </div>
+    <div class="mb-2">
+        <label asp-for="Entidad.bono_desempeno" class="form-label"></label>
+        <input asp-for="Entidad.bono_desempeno" type="number" step="0.01" class="form-control" />
+    </div>
+    <div class="mb-2">
+        <label asp-for="Entidad.area_responsable" class="form-label"></label>
+        <input asp-for="Entidad.area_responsable" class="form-control" />
+    </div>
+    <button type="submit" class="btn btn-success">Guardar</button>
+    <a asp-page="Gerentes" class="btn btn-secondary">Nuevo</a>
+</form>
+
+<form method="post" asp-page-handler="Buscar" class="row g-2 mb-3">
+    <div class="col">
+        <input asp-for="Filtro.area_responsable" class="form-control" placeholder="Buscar por area responsable" />
+    </div>
+    <div class="col-auto">
+        <button type="submit" class="btn btn-primary">Buscar</button>
+    </div>
+</form>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Id</th>
+            <th>Empleado</th>
+            <th>Nivel autorizacion</th>
+            <th>Bono desempeno</th>
+            <th>Area responsable</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model.Lista)
+        {
+            <tr>
+                <td>@item.id</td>
+                <td>@item.empleado</td>
+                <td>@item.nivel_autorizacion</td>
+                <td>@item.bono_desempeno</td>
+                <td>@item.area_responsable</td>
+                <td>
+                    <form method="post" class="d-inline">
+                        <button type="submit" asp-page-handler="Editar" asp-route-id="@item.id" class="btn btn-sm btn-warning">Editar</button>
+                        <button type="submit" asp-page-handler="Borrar" asp-route-id="@item.id" class="btn btn-sm btn-danger" onclick="return confirm('Borrar este registro?')">Borrar</button>
+                    </form>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

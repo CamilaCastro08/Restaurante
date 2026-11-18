@@ -1,0 +1,90 @@
+@page
+@model asp.presentacion.Pages.Ventanas.ProductosModel
+@{
+    ViewData["Title"] = "Productos";
+}
+
+<h2>Productos</h2>
+
+@if (!string.IsNullOrEmpty(Model.Mensaje))
+{
+    <div class="alert alert-danger">@Model.Mensaje</div>
+}
+@if (TempData["Mensaje"] != null)
+{
+    <div class="alert alert-success">@TempData["Mensaje"]</div>
+}
+
+<form method="post" asp-page-handler="Guardar" class="mb-4">
+    <input type="hidden" asp-for="Entidad.id" />
+    <div class="mb-2">
+        <label asp-for="Entidad.nombre" class="form-label"></label>
+        <input asp-for="Entidad.nombre" class="form-control" />
+    </div>
+    <div class="mb-2">
+        <label asp-for="Entidad.vigencia_desde" class="form-label"></label>
+        <input asp-for="Entidad.vigencia_desde" type="datetime-local" class="form-control" />
+    </div>
+    <div class="mb-2">
+        <label asp-for="Entidad.vigencia_hasta" class="form-label"></label>
+        <input asp-for="Entidad.vigencia_hasta" type="datetime-local" class="form-control" />
+    </div>
+    <div class="mb-2">
+        <label asp-for="Entidad.tipo" class="form-label"></label>
+        <input asp-for="Entidad.tipo" class="form-control" />
+    </div>
+    <div class="mb-2">
+        <label asp-for="Entidad.categoria" class="form-label"></label>
+        <input asp-for="Entidad.categoria" type="number" class="form-control" />
+    </div>
+    <div class="mb-2">
+        <label asp-for="Entidad.menu" class="form-label"></label>
+        <input asp-for="Entidad.menu" type="number" class="form-control" />
+    </div>
+    <button type="submit" class="btn btn-success">Guardar</button>
+    <a asp-page="Productos" class="btn btn-secondary">Nuevo</a>
+</form>
+
+<form method="post" asp-page-handler="Buscar" class="row g-2 mb-3">
+    <div class="col">
+        <input asp-for="Filtro.nombre" class="form-control" placeholder="Buscar por nombre" />
+    </div>
+    <div class="col-auto">
+        <button type="submit" class="btn btn-primary">Buscar</button>
+    </div>
+</form>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Id</th>
+            <th>Nombre</th>
+            <th>Vigencia desde</th>
+            <th>Vigencia hasta</th>
+            <th>Tipo</th>
+            <th>Categoria</th>
+            <th>Menu</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model.Lista)
+        {
+            <tr>
+                <td>@item.id</td>
+                <td>@item.nombre</td>
+                <td>@item.vigencia_desde</td>
+                <td>@item.vigencia_hasta</td>
+                <td>@item.tipo</td>
+                <td>@item.categoria</td>
+                <td>@item.menu</td>
+                <td>
+                    <form method="post" class="d-inline">
+                        <button type="submit" asp-page-handler="Editar" asp-route-id="@item.id" class="btn btn-sm btn-warning">Editar</button>
+                        <button type="submit" asp-page-handler="Borrar" asp-route-id="@item.id" class="btn btn-sm btn-danger" onclick="return confirm('Borrar este registro?')">Borrar</button>
+                    </form>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

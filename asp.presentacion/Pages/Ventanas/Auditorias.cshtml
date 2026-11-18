@@ -1,0 +1,49 @@
+@page
+@model asp.presentacion.Pages.Ventanas.AuditoriasModel
+@{
+    ViewData["Title"] = "Auditorias";
+}
+
+<h2>Auditorias</h2>
+
+@if (!string.IsNullOrEmpty(Model.Mensaje))
+{
+    <div class="alert alert-danger">@Model.Mensaje</div>
+}
+
+<form method="post" asp-page-handler="Buscar" class="row g-2 mb-3">
+    <div class="col">
+        <input asp-for="Filtro.tabla" class="form-control" placeholder="Buscar por tabla" />
+    </div>
+    <div class="col-auto">
+        <button type="submit" class="btn btn-primary">Buscar</button>
+    </div>
+</form>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Id</th>
+            <th>Tabla</th>
+            <th>Accion</th>
+            <th>Fecha</th>
+            <th>Datos anteriores</th>
+            <th>Datos nuevos</th>
+            <th>Usuario</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model.Lista)
+        {
+            <tr>
+                <td>@item.id</td>
+                <td>@item.tabla</td>
+                <td>@item.accion</td>
+                <td>@item.fecha.ToString("dd/MM/yyyy HH:mm:ss")</td>
+                <td>@item.datosAnteriores</td>
+                <td>@item.datosNuevos</td>
+                <td>@item.usuario</td>
+            </tr>
+        }
+    </tbody>
+</table>

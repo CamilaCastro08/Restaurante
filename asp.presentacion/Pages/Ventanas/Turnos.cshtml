@@ -1,0 +1,78 @@
+@page
+@model asp.presentacion.Pages.Ventanas.TurnosModel
+@{
+    ViewData["Title"] = "Turnos";
+}
+
+<h2>Turnos</h2>
+
+@if (!string.IsNullOrEmpty(Model.Mensaje))
+{
+    <div class="alert alert-danger">@Model.Mensaje</div>
+}
+@if (TempData["Mensaje"] != null)
+{
+    <div class="alert alert-success">@TempData["Mensaje"]</div>
+}
+
+<form method="post" asp-page-handler="Guardar" class="mb-4">
+    <input type="hidden" asp-for="Entidad.id" />
+    <div class="mb-2">
+        <label asp-for="Entidad.empleado" class="form-label"></label>
+        <input asp-for="Entidad.empleado" type="number" class="form-control" />
+    </div>
+    <div class="mb-2">
+        <label asp-for="Entidad.fecha" class="form-label"></label>
+        <input asp-for="Entidad.fecha" type="datetime-local" class="form-control" />
+    </div>
+    <div class="mb-2">
+        <label asp-for="Entidad.hora_entrada" class="form-label"></label>
+        <input asp-for="Entidad.hora_entrada" type="datetime-local" class="form-control" />
+    </div>
+    <div class="mb-2">
+        <label asp-for="Entidad.hora_salida" class="form-label"></label>
+        <input asp-for="Entidad.hora_salida" type="datetime-local" class="form-control" />
+    </div>
+    <button type="submit" class="btn btn-success">Guardar</button>
+    <a asp-page="Turnos" class="btn btn-secondary">Nuevo</a>
+</form>
+
+<form method="post" asp-page-handler="Buscar" class="row g-2 mb-3">
+    <div class="col">
+        <input asp-for="Filtro.empleado" type="number" class="form-control" placeholder="Buscar por empleado" />
+    </div>
+    <div class="col-auto">
+        <button type="submit" class="btn btn-primary">Buscar</button>
+    </div>
+</form>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Id</th>
+            <th>Empleado</th>
+            <th>Fecha</th>
+            <th>Hora entrada</th>
+            <th>Hora salida</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model.Lista)
+        {
+            <tr>
+                <td>@item.id</td>
+                <td>@item.empleado</td>
+                <td>@item.fecha</td>
+                <td>@item.hora_entrada</td>
+                <td>@item.hora_salida</td>
+                <td>
+                    <form method="post" class="d-inline">
+                        <button type="submit" asp-page-handler="Editar" asp-route-id="@item.id" class="btn btn-sm btn-warning">Editar</button>
+                        <button type="submit" asp-page-handler="Borrar" asp-route-id="@item.id" class="btn btn-sm btn-danger" onclick="return confirm('Borrar este registro?')">Borrar</button>
+                    </form>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
