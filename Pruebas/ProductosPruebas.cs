@@ -1,8 +1,6 @@
-﻿using Libreria_restaurante.Implementaciones;
-using Libreria_restaurante.Interfaces;
 using Libreria_restaurante.Entidades;
-using Libreria_restaurante.Nucleo;
-using Microsoft.EntityFrameworkCore;
+using Libreria_restaurante.Implementaciones;
+using Libreria_restaurante.Interfaces;
 
 namespace pruebas
 {
@@ -10,59 +8,94 @@ namespace pruebas
     public class ProductosPruebas
     {
         private TestDbContext conexion;
+        private IProductosAplicacion iAplicacion;
         private Productos? entidad = null;
 
         public ProductosPruebas()
         {
             this.conexion = new TestDbContext();
+            this.iAplicacion = new ProductosAplicacion(this.conexion);
         }
 
         [TestMethod]
-        public void Execute() { Insertar(); Consultar(); Actualizar(); Borrar(); }
-
-        public void Insertar()
+        public void Execute()
         {
-            var nuevaCategoria = new Categorias();
-            this.conexion.Categorias.Add(nuevaCategoria);
+            Insertar();
+            Consultar();
+            Buscar();
+            Actualizar();
+            Borrar();
+        }
 
-            var nuevoMenu = new IMenus();
-            this.conexion.Menus.Add(nuevoMenu);
+        private int ContarAuditorias(string accion)
+        {
+            return this.conexion.Auditorias!.Count(x => x.tabla == "Productos" && x.accion == accion);
+        }
 
-            this.conexion.SaveChanges(); 
+        private void Reiniciar()
+        {
+            this.conexion = new TestDbContext();
+            this.iAplicacion = new ProductosAplicacion(this.conexion);
+        }
 
+        private void Insertar()
+        {
+            var p0 = new Categorias();
+            this.conexion.Categorias!.Add(p0);
+            var p1 = new Menus();
+            this.conexion.Menus!.Add(p1);
+            this.conexion.SaveChanges();
 
-            var categoriaExistente = this.conexion.Categorias!.FirstOrDefault();
-            var menuExistente = this.conexion.Menus!.FirstOrDefault();
-
-            this.entidad = new Productos()
+            int antes = ContarAuditorias("Insertar");
+            this.entidad = this.iAplicacion.Insertar(new Productos()
             {
                 nombre = "Bandeja paisa",
                 vigencia_desde = DateTime.Today,
                 vigencia_hasta = DateTime.Today.AddMonths(6),
                 tipo = "Plato fuerte",
-                categoria = categoriaExistente.id,
-                menu = menuExistente.id
-            };
-            this.conexion.Productos!.Add(this.entidad!);
-            this.conexion.SaveChanges();
-            this.conexion = new TestDbContext();
+                categoria = p0.id,
+                menu = p1.id
+            });
+            Reiniciar();
+            if (this.entidad.id == 0)
+                throw new Exception("No se guardo");
+            if (ContarAuditorias("Insertar") != antes + 1)
+                throw new Exception("No se guardo la auditoria");
         }
 
-        public void Consultar() { if (this.conexion.Productos!.ToList().Count <= 0) throw new Exception("Lista vacia");
-            this.conexion = new TestDbContext();
+        private void Consultar()
+        {
+            var lista = this.iAplicacion.Consultar();
+            Reiniciar();
+            if (lista.Count <= 0)
+                throw new Exception("Lista vacia");
+        }
+
+        private void Buscar()
+        {
+            var lista = this.iAplicacion.Buscar(new Productos() { nombre = this.entidad!.nombre });
+            Reiniciar();
+            if (lista.Count <= 0)
+                throw new Exception("No encontro");
         }
 
         private void Actualizar()
         {
+            int antes = ContarAuditorias("Actualizar");
             this.entidad!.nombre = "Bandeja paisa especial";
-            var entry = this.conexion!.Entry<Productos>(this.entidad);
-            this.conexion.Update(this.entidad);
-            this.conexion!.SaveChanges();
-            this.conexion = new TestDbContext();
+            this.iAplicacion.Actualizar(this.entidad);
+            Reiniciar();
+            if (ContarAuditorias("Actualizar") != antes + 1)
+                throw new Exception("No se guardo la auditoria");
         }
 
-        private void Borrar() { this.conexion.Productos!.Remove(this.entidad!); this.conexion.SaveChanges();
-            this.conexion = new TestDbContext();
+        private void Borrar()
+        {
+            int antes = ContarAuditorias("Borrar");
+            this.iAplicacion.Borrar(this.entidad!);
+            Reiniciar();
+            if (ContarAuditorias("Borrar") != antes + 1)
+                throw new Exception("No se guardo la auditoria");
         }
     }
 }

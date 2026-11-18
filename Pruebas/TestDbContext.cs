@@ -1,11 +1,14 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Libreria_restaurante.Entidades;
+using Libreria_restaurante.Interfaces;
 
 namespace Libreria_restaurante.Implementaciones
 {
-    public class TestDbContext : DbContext
+    public class TestDbContext : DbContext, IConexion
     {
-        public DbSet<Categorias> Categorias { get; set; }
+        public string? StringConexion { get; set; }
+
+        public DbSet<Categorias>? Categorias { get; set; }
         public DbSet<Clientes>? Clientes { get; set; }
         public DbSet<Cocineros>? Cocineros { get; set; }
         public DbSet<Detalles_Pedidos>? Detalles_Pedidos { get; set; }
@@ -14,7 +17,7 @@ namespace Libreria_restaurante.Implementaciones
         public DbSet<Gerentes>? Gerentes { get; set; }
         public DbSet<Ingredientes>? Ingredientes { get; set; }
         public DbSet<Inventarios>? Inventarios { get; set; }
-        public DbSet<IMenus>? Menus { get; set; }
+        public DbSet<Menus>? Menus { get; set; }
         public DbSet<Mesas>? Mesas { get; set; }
         public DbSet<Meseros>? Meseros { get; set; }
         public DbSet<MetodosPagos>? MetodosPagos { get; set; }
@@ -25,10 +28,15 @@ namespace Libreria_restaurante.Implementaciones
         public DbSet<Recetas>? Recetas { get; set; }
         public DbSet<Reservas>? Reservas { get; set; }
         public DbSet<Turnos>? Turnos { get; set; }
+        public DbSet<Auditorias>? Auditorias { get; set; }
+        public DbSet<Usuarios>? Usuarios { get; set; }
+        public DbSet<Roles>? Roles { get; set; }
+        public DbSet<Permisos>? Permisos { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             optionsBuilder.UseInMemoryDatabase("Testdb_InMemory");
+            optionsBuilder.UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking);
         }
     }
 }

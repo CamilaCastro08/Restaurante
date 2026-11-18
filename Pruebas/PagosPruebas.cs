@@ -1,8 +1,6 @@
-﻿using Libreria_restaurante.Implementaciones;
-using Libreria_restaurante.Interfaces;
 using Libreria_restaurante.Entidades;
-using Libreria_restaurante.Nucleo;
-using Microsoft.EntityFrameworkCore;
+using Libreria_restaurante.Implementaciones;
+using Libreria_restaurante.Interfaces;
 
 namespace pruebas
 {
@@ -10,60 +8,94 @@ namespace pruebas
     public class PagosPruebas
     {
         private TestDbContext conexion;
+        private IPagosAplicacion iAplicacion;
         private Pagos? entidad = null;
 
         public PagosPruebas()
         {
             this.conexion = new TestDbContext();
+            this.iAplicacion = new PagosAplicacion(this.conexion);
         }
 
         [TestMethod]
-        public void Execute() { Insertar(); Consultar(); Actualizar(); Borrar();
-            this.conexion = new TestDbContext();
+        public void Execute()
+        {
+            Insertar();
+            Consultar();
+            Buscar();
+            Actualizar();
+            Borrar();
         }
 
-        public void Insertar()
+        private int ContarAuditorias(string accion)
         {
-            var nuevaFactura = new Facturas();
-            this.conexion.Facturas.Add(nuevaFactura);
+            return this.conexion.Auditorias!.Count(x => x.tabla == "Pagos" && x.accion == accion);
+        }
 
-            var nuevoMetodo = new MetodosPagos();
-            this.conexion.MetodosPagos.Add(nuevoMetodo);
+        private void Reiniciar()
+        {
+            this.conexion = new TestDbContext();
+            this.iAplicacion = new PagosAplicacion(this.conexion);
+        }
 
+        private void Insertar()
+        {
+            var p0 = new Facturas();
+            this.conexion.Facturas!.Add(p0);
+            var p1 = new MetodosPagos();
+            this.conexion.MetodosPagos!.Add(p1);
             this.conexion.SaveChanges();
 
-            var facturaExistente = this.conexion.Facturas!.FirstOrDefault();
-            var metodoExistente = this.conexion.MetodosPagos!.FirstOrDefault();
-
-            this.entidad = new Pagos()
+            int antes = ContarAuditorias("Insertar");
+            this.entidad = this.iAplicacion.Insertar(new Pagos()
             {
-                factura = facturaExistente.id,
-                metodoPago = metodoExistente.id,
+                factura = p0.id,
+                metodoPago = p1.id,
                 monto = 119000m,
                 fecha = DateTime.Now,
-                referencia = "REF-20260929-001",
+                referencia = "REF-001",
                 estado = "Aprobado"
-            };
-            this.conexion.Pagos!.Add(this.entidad!);
-            this.conexion.SaveChanges();
-            this.conexion = new TestDbContext();
+            });
+            Reiniciar();
+            if (this.entidad.id == 0)
+                throw new Exception("No se guardo");
+            if (ContarAuditorias("Insertar") != antes + 1)
+                throw new Exception("No se guardo la auditoria");
         }
 
-        public void Consultar() { if (this.conexion.Pagos!.ToList().Count <= 0) throw new Exception("Lista vacia");
-            this.conexion = new TestDbContext();
+        private void Consultar()
+        {
+            var lista = this.iAplicacion.Consultar();
+            Reiniciar();
+            if (lista.Count <= 0)
+                throw new Exception("Lista vacia");
+        }
+
+        private void Buscar()
+        {
+            var lista = this.iAplicacion.Buscar(new Pagos() { referencia = this.entidad!.referencia });
+            Reiniciar();
+            if (lista.Count <= 0)
+                throw new Exception("No encontro");
         }
 
         private void Actualizar()
         {
+            int antes = ContarAuditorias("Actualizar");
             this.entidad!.estado = "Anulado";
-            var entry = this.conexion!.Entry<Pagos>(this.entidad);
-            entry.State = EntityState.Modified;
-            this.conexion!.SaveChanges();
-            this.conexion = new TestDbContext();
+            this.iAplicacion.Actualizar(this.entidad);
+            Reiniciar();
+            if (ContarAuditorias("Actualizar") != antes + 1)
+                throw new Exception("No se guardo la auditoria");
         }
 
-        private void Borrar() { this.conexion.Pagos!.Remove(this.entidad!); this.conexion.SaveChanges();
-            this.conexion = new TestDbContext();
+        private void Borrar()
+        {
+            int antes = ContarAuditorias("Borrar");
+            this.iAplicacion.Borrar(this.entidad!);
+            Reiniciar();
+            if (ContarAuditorias("Borrar") != antes + 1)
+                throw new Exception("No se guardo la auditoria");
         }
     }
 }

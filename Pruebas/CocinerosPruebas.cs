@@ -1,8 +1,6 @@
-﻿using Libreria_restaurante.Implementaciones;
-using Libreria_restaurante.Interfaces;
 using Libreria_restaurante.Entidades;
-using Libreria_restaurante.Nucleo;
-using Microsoft.EntityFrameworkCore;
+using Libreria_restaurante.Implementaciones;
+using Libreria_restaurante.Interfaces;
 
 namespace pruebas
 {
@@ -10,47 +8,90 @@ namespace pruebas
     public class CocinerosPruebas
     {
         private TestDbContext conexion;
+        private ICocinerosAplicacion iAplicacion;
         private Cocineros? entidad = null;
 
         public CocinerosPruebas()
         {
             this.conexion = new TestDbContext();
+            this.iAplicacion = new CocinerosAplicacion(this.conexion);
         }
 
         [TestMethod]
-        public void Execute() { Insertar(); Consultar(); Actualizar(); Borrar(); }
-
-        public void Insertar()
+        public void Execute()
         {
-            var empleadoExistente = this.conexion.Empleados!.FirstOrDefault();
-
-            this.entidad = new Cocineros()
-            {
-                empleado = empleadoExistente.id,
-                especialidad = "Cocina colombiana",
-                anios_experiencia = 6,
-                estacion_asignada = "Parrilla"
-            };
-            this.conexion.Cocineros!.Add(this.entidad!);
-            this.conexion.SaveChanges();
-            this.conexion = new TestDbContext();
+            Insertar();
+            Consultar();
+            Buscar();
+            Actualizar();
+            Borrar();
         }
 
-        public void Consultar() { if (this.conexion.Cocineros!.ToList().Count <= 0) throw new Exception("Lista vacia");
+        private int ContarAuditorias(string accion)
+        {
+            return this.conexion.Auditorias!.Count(x => x.tabla == "Cocineros" && x.accion == accion);
+        }
+
+        private void Reiniciar()
+        {
             this.conexion = new TestDbContext();
+            this.iAplicacion = new CocinerosAplicacion(this.conexion);
+        }
+
+        private void Insertar()
+        {
+            var p0 = new Empleados();
+            this.conexion.Empleados!.Add(p0);
+            this.conexion.SaveChanges();
+
+            int antes = ContarAuditorias("Insertar");
+            this.entidad = this.iAplicacion.Insertar(new Cocineros()
+            {
+                empleado = p0.id,
+                especialidad = "Cocina italiana",
+                anios_experiencia = 5,
+                estacion_asignada = "Parrilla"
+            });
+            Reiniciar();
+            if (this.entidad.id == 0)
+                throw new Exception("No se guardo");
+            if (ContarAuditorias("Insertar") != antes + 1)
+                throw new Exception("No se guardo la auditoria");
+        }
+
+        private void Consultar()
+        {
+            var lista = this.iAplicacion.Consultar();
+            Reiniciar();
+            if (lista.Count <= 0)
+                throw new Exception("Lista vacia");
+        }
+
+        private void Buscar()
+        {
+            var lista = this.iAplicacion.Buscar(new Cocineros() { especialidad = this.entidad!.especialidad });
+            Reiniciar();
+            if (lista.Count <= 0)
+                throw new Exception("No encontro");
         }
 
         private void Actualizar()
         {
-            this.entidad!.anios_experiencia = 7;
-            var entry = this.conexion!.Entry<Cocineros>(this.entidad);
-            entry.State = EntityState.Modified;
-            this.conexion!.SaveChanges();
-            this.conexion = new TestDbContext();
+            int antes = ContarAuditorias("Actualizar");
+            this.entidad!.especialidad = "Cocina francesa";
+            this.iAplicacion.Actualizar(this.entidad);
+            Reiniciar();
+            if (ContarAuditorias("Actualizar") != antes + 1)
+                throw new Exception("No se guardo la auditoria");
         }
 
-        private void Borrar() { this.conexion.Cocineros!.Remove(this.entidad!); this.conexion.SaveChanges();
-            this.conexion = new TestDbContext();
+        private void Borrar()
+        {
+            int antes = ContarAuditorias("Borrar");
+            this.iAplicacion.Borrar(this.entidad!);
+            Reiniciar();
+            if (ContarAuditorias("Borrar") != antes + 1)
+                throw new Exception("No se guardo la auditoria");
         }
     }
 }

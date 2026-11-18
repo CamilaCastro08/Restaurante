@@ -1,8 +1,6 @@
-﻿using Libreria_restaurante.Implementaciones;
-using Libreria_restaurante.Interfaces;
 using Libreria_restaurante.Entidades;
-using Libreria_restaurante.Nucleo;
-using Microsoft.EntityFrameworkCore;
+using Libreria_restaurante.Implementaciones;
+using Libreria_restaurante.Interfaces;
 
 namespace pruebas
 {
@@ -10,52 +8,90 @@ namespace pruebas
     public class InventariosPruebas
     {
         private TestDbContext conexion;
+        private IInventariosAplicacion iAplicacion;
         private Inventarios? entidad = null;
 
         public InventariosPruebas()
         {
             this.conexion = new TestDbContext();
+            this.iAplicacion = new InventariosAplicacion(this.conexion);
         }
 
         [TestMethod]
-        public void Execute() { Insertar(); Consultar(); Actualizar(); Borrar();
+        public void Execute()
+        {
+            Insertar();
+            Consultar();
+            Buscar();
+            Actualizar();
+            Borrar();
         }
 
-        public void Insertar()
+        private int ContarAuditorias(string accion)
         {
+            return this.conexion.Auditorias!.Count(x => x.tabla == "Inventarios" && x.accion == accion);
+        }
 
-            var nuevoIngrediente = new Ingredientes();
-            this.conexion.Ingredientes.Add(nuevoIngrediente);
+        private void Reiniciar()
+        {
+            this.conexion = new TestDbContext();
+            this.iAplicacion = new InventariosAplicacion(this.conexion);
+        }
+
+        private void Insertar()
+        {
+            var p0 = new Ingredientes();
+            this.conexion.Ingredientes!.Add(p0);
             this.conexion.SaveChanges();
 
-            var ingredienteExistente = this.conexion.Ingredientes!.FirstOrDefault();
-
-            this.entidad = new Inventarios()
-
+            int antes = ContarAuditorias("Insertar");
+            this.entidad = this.iAplicacion.Insertar(new Inventarios()
             {
-                ingrediente = ingredienteExistente.id,
+                ingrediente = p0.id,
                 stock_actual = 25.5m,
                 stock_minimo = 10m,
                 fecha_actualizacion = DateTime.Now
-            };
-            this.conexion.Inventarios!.Add(this.entidad!);
-            this.conexion.SaveChanges();
-            this.conexion = new TestDbContext();
+            });
+            Reiniciar();
+            if (this.entidad.id == 0)
+                throw new Exception("No se guardo");
+            if (ContarAuditorias("Insertar") != antes + 1)
+                throw new Exception("No se guardo la auditoria");
         }
 
-        public void Consultar() { if (this.conexion.Inventarios!.ToList().Count <= 0) throw new Exception("Lista vacia"); }
+        private void Consultar()
+        {
+            var lista = this.iAplicacion.Consultar();
+            Reiniciar();
+            if (lista.Count <= 0)
+                throw new Exception("Lista vacia");
+        }
+
+        private void Buscar()
+        {
+            var lista = this.iAplicacion.Buscar(new Inventarios() { ingrediente = this.entidad!.ingrediente });
+            Reiniciar();
+            if (lista.Count <= 0)
+                throw new Exception("No encontro");
+        }
 
         private void Actualizar()
         {
-            this.entidad!.stock_actual = 8m;
-            this.conexion = new TestDbContext();
-            var entry = this.conexion!.Entry<Inventarios>(this.entidad);
-            this.conexion.Update(this.entidad);
-            this.conexion!.SaveChanges();
+            int antes = ContarAuditorias("Actualizar");
+            this.entidad!.stock_actual = 40m;
+            this.iAplicacion.Actualizar(this.entidad);
+            Reiniciar();
+            if (ContarAuditorias("Actualizar") != antes + 1)
+                throw new Exception("No se guardo la auditoria");
         }
 
-        private void Borrar() { this.conexion.Inventarios!.Remove(this.entidad!); this.conexion.SaveChanges();
-            this.conexion = new TestDbContext();
+        private void Borrar()
+        {
+            int antes = ContarAuditorias("Borrar");
+            this.iAplicacion.Borrar(this.entidad!);
+            Reiniciar();
+            if (ContarAuditorias("Borrar") != antes + 1)
+                throw new Exception("No se guardo la auditoria");
         }
     }
 }

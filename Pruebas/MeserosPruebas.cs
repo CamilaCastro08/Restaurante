@@ -1,8 +1,6 @@
-﻿using Libreria_restaurante.Implementaciones;
-using Libreria_restaurante.Interfaces;
 using Libreria_restaurante.Entidades;
-using Libreria_restaurante.Nucleo;
-using Microsoft.EntityFrameworkCore;
+using Libreria_restaurante.Implementaciones;
+using Libreria_restaurante.Interfaces;
 
 namespace pruebas
 {
@@ -10,53 +8,90 @@ namespace pruebas
     public class MeserosPruebas
     {
         private TestDbContext conexion;
+        private IMeserosAplicacion iAplicacion;
         private Meseros? entidad = null;
 
         public MeserosPruebas()
         {
             this.conexion = new TestDbContext();
+            this.iAplicacion = new MeserosAplicacion(this.conexion);
         }
 
         [TestMethod]
-        public void Execute() { Insertar(); Consultar(); Actualizar(); Borrar();
-            this.conexion = new TestDbContext();
-        }
-
-        public void Insertar()
+        public void Execute()
         {
-            var nuevoEmpleado = new Empleados();
-            this.conexion.Empleados.Add(nuevoEmpleado);
-            this.conexion.SaveChanges();
-
-            var empleadoExistente = this.conexion.Empleados!.FirstOrDefault();
-
-            this.entidad = new Meseros()
-            {
-                empleado = empleadoExistente.id,
-                zona_asignada = "Terraza",
-                num_mesas_asignadas = 5,
-                calificacion_promedio = 4.5m
-            };
-            this.conexion.Meseros!.Add(this.entidad!);
-            this.conexion.SaveChanges();
-            this.conexion = new TestDbContext();
+            Insertar();
+            Consultar();
+            Buscar();
+            Actualizar();
+            Borrar();
         }
 
-        public void Consultar() { if (this.conexion.Meseros!.ToList().Count <= 0) throw new Exception("Lista vacia");
+        private int ContarAuditorias(string accion)
+        {
+            return this.conexion.Auditorias!.Count(x => x.tabla == "Meseros" && x.accion == accion);
+        }
+
+        private void Reiniciar()
+        {
             this.conexion = new TestDbContext();
+            this.iAplicacion = new MeserosAplicacion(this.conexion);
+        }
+
+        private void Insertar()
+        {
+            var p0 = new Empleados();
+            this.conexion.Empleados!.Add(p0);
+            this.conexion.SaveChanges();
+
+            int antes = ContarAuditorias("Insertar");
+            this.entidad = this.iAplicacion.Insertar(new Meseros()
+            {
+                empleado = p0.id,
+                zona_asignada = "Zona norte",
+                num_mesas_asignadas = 6,
+                calificacion_promedio = 4.5m
+            });
+            Reiniciar();
+            if (this.entidad.id == 0)
+                throw new Exception("No se guardo");
+            if (ContarAuditorias("Insertar") != antes + 1)
+                throw new Exception("No se guardo la auditoria");
+        }
+
+        private void Consultar()
+        {
+            var lista = this.iAplicacion.Consultar();
+            Reiniciar();
+            if (lista.Count <= 0)
+                throw new Exception("Lista vacia");
+        }
+
+        private void Buscar()
+        {
+            var lista = this.iAplicacion.Buscar(new Meseros() { zona_asignada = this.entidad!.zona_asignada });
+            Reiniciar();
+            if (lista.Count <= 0)
+                throw new Exception("No encontro");
         }
 
         private void Actualizar()
         {
-            this.entidad!.num_mesas_asignadas = 6;
-            var entry = this.conexion!.Entry<Meseros>(this.entidad);
-            entry.State = EntityState.Modified;
-            this.conexion!.SaveChanges();
-            this.conexion = new TestDbContext();
+            int antes = ContarAuditorias("Actualizar");
+            this.entidad!.zona_asignada = "Zona sur";
+            this.iAplicacion.Actualizar(this.entidad);
+            Reiniciar();
+            if (ContarAuditorias("Actualizar") != antes + 1)
+                throw new Exception("No se guardo la auditoria");
         }
 
-        private void Borrar() { this.conexion.Meseros!.Remove(this.entidad!); this.conexion.SaveChanges();
-            this.conexion = new TestDbContext();
+        private void Borrar()
+        {
+            int antes = ContarAuditorias("Borrar");
+            this.iAplicacion.Borrar(this.entidad!);
+            Reiniciar();
+            if (ContarAuditorias("Borrar") != antes + 1)
+                throw new Exception("No se guardo la auditoria");
         }
     }
 }

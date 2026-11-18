@@ -1,8 +1,6 @@
-﻿using Libreria_restaurante.Implementaciones;
-using Libreria_restaurante.Interfaces;
 using Libreria_restaurante.Entidades;
-using Libreria_restaurante.Nucleo;
-using Microsoft.EntityFrameworkCore;
+using Libreria_restaurante.Implementaciones;
+using Libreria_restaurante.Interfaces;
 
 namespace pruebas
 {
@@ -10,45 +8,86 @@ namespace pruebas
     public class ProveedoresPruebas
     {
         private TestDbContext conexion;
+        private IProveedoresAplicacion iAplicacion;
         private Proveedores? entidad = null;
 
         public ProveedoresPruebas()
         {
             this.conexion = new TestDbContext();
+            this.iAplicacion = new ProveedoresAplicacion(this.conexion);
         }
 
         [TestMethod]
-        public void Execute() { Insertar(); Consultar(); Actualizar(); Borrar(); }
-
-        public void Insertar()
+        public void Execute()
         {
-            this.entidad = new Proveedores()
-            {
-                nombre = "Distribuidora S.A.",
-                contacto = "Juan Pérez",
-                direccion = "Calle 123",
-                telefono = "5551234"
-            };
-            this.conexion.Proveedores!.Add(this.entidad!);
-            this.conexion.SaveChanges();
-            this.conexion = new TestDbContext();
+            Insertar();
+            Consultar();
+            Buscar();
+            Actualizar();
+            Borrar();
         }
 
-        public void Consultar() { if (this.conexion.Proveedores!.ToList().Count <= 0) throw new Exception("Lista vacia");
+        private int ContarAuditorias(string accion)
+        {
+            return this.conexion.Auditorias!.Count(x => x.tabla == "Proveedores" && x.accion == accion);
+        }
+
+        private void Reiniciar()
+        {
             this.conexion = new TestDbContext();
+            this.iAplicacion = new ProveedoresAplicacion(this.conexion);
+        }
+
+        private void Insertar()
+        {
+            int antes = ContarAuditorias("Insertar");
+            this.entidad = this.iAplicacion.Insertar(new Proveedores()
+            {
+                nombre = "Frutas del Valle",
+                contacto = "Luis Rojas",
+                direccion = "Zona industrial",
+                telefono = "3205558899"
+            });
+            Reiniciar();
+            if (this.entidad.id == 0)
+                throw new Exception("No se guardo");
+            if (ContarAuditorias("Insertar") != antes + 1)
+                throw new Exception("No se guardo la auditoria");
+        }
+
+        private void Consultar()
+        {
+            var lista = this.iAplicacion.Consultar();
+            Reiniciar();
+            if (lista.Count <= 0)
+                throw new Exception("Lista vacia");
+        }
+
+        private void Buscar()
+        {
+            var lista = this.iAplicacion.Buscar(new Proveedores() { nombre = this.entidad!.nombre });
+            Reiniciar();
+            if (lista.Count <= 0)
+                throw new Exception("No encontro");
         }
 
         private void Actualizar()
         {
-            this.entidad!.telefono = "5559876";
-            var entry = this.conexion!.Entry<Proveedores>(this.entidad);
-            entry.State = EntityState.Modified;
-            this.conexion!.SaveChanges();
-            this.conexion = new TestDbContext();
+            int antes = ContarAuditorias("Actualizar");
+            this.entidad!.nombre = "Frutas del Valle SAS";
+            this.iAplicacion.Actualizar(this.entidad);
+            Reiniciar();
+            if (ContarAuditorias("Actualizar") != antes + 1)
+                throw new Exception("No se guardo la auditoria");
         }
 
-        private void Borrar() { this.conexion.Proveedores!.Remove(this.entidad!); this.conexion.SaveChanges();
-            this.conexion = new TestDbContext();
+        private void Borrar()
+        {
+            int antes = ContarAuditorias("Borrar");
+            this.iAplicacion.Borrar(this.entidad!);
+            Reiniciar();
+            if (ContarAuditorias("Borrar") != antes + 1)
+                throw new Exception("No se guardo la auditoria");
         }
     }
 }

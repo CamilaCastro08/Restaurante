@@ -1,8 +1,6 @@
-﻿using Libreria_restaurante.Implementaciones;
-using Libreria_restaurante.Interfaces;
 using Libreria_restaurante.Entidades;
-using Libreria_restaurante.Nucleo;
-using Microsoft.EntityFrameworkCore;
+using Libreria_restaurante.Implementaciones;
+using Libreria_restaurante.Interfaces;
 
 namespace pruebas
 {
@@ -10,58 +8,93 @@ namespace pruebas
     public class Detalles_PedidosPruebas
     {
         private TestDbContext conexion;
+        private IDetalles_PedidosAplicacion iAplicacion;
         private Detalles_Pedidos? entidad = null;
 
         public Detalles_PedidosPruebas()
         {
             this.conexion = new TestDbContext();
+            this.iAplicacion = new Detalles_PedidosAplicacion(this.conexion);
         }
 
         [TestMethod]
-        public void Execute() { Insertar(); Consultar(); Actualizar(); Borrar(); }
-
-        public void Insertar()
+        public void Execute()
         {
-            var nuevoPedido = new Pedidos();
-            this.conexion.Pedidos.Add(nuevoPedido);
-
-            var nuevoProducto = new Productos();
-            this.conexion.Productos.Add(nuevoProducto);
-
-            this.conexion.SaveChanges();
-
-            var pedidoExistente = this.conexion.Pedidos!.FirstOrDefault();
-            var productoExistente = this.conexion.Productos!.FirstOrDefault();
-
-            this.entidad = new Detalles_Pedidos()
-            {
-                pedido = pedidoExistente.id,
-                producto = productoExistente.id,
-                cantidad = 2,
-                subtotal = 56000m,
-                comentarios = "Sin cebolla, por favor"
-            };
-            this.conexion.Detalles_Pedidos!.Add(this.entidad!);
-            this.conexion.SaveChanges();
-            this.conexion = new TestDbContext();
+            Insertar();
+            Consultar();
+            Buscar();
+            Actualizar();
+            Borrar();
         }
 
-        public void Consultar() { if (this.conexion.Detalles_Pedidos!.ToList().Count <= 0) throw new Exception("Lista vacia");
+        private int ContarAuditorias(string accion)
+        {
+            return this.conexion.Auditorias!.Count(x => x.tabla == "Detalles_Pedidos" && x.accion == accion);
+        }
+
+        private void Reiniciar()
+        {
             this.conexion = new TestDbContext();
+            this.iAplicacion = new Detalles_PedidosAplicacion(this.conexion);
+        }
+
+        private void Insertar()
+        {
+            var p0 = new Pedidos();
+            this.conexion.Pedidos!.Add(p0);
+            var p1 = new Productos();
+            this.conexion.Productos!.Add(p1);
+            this.conexion.SaveChanges();
+
+            int antes = ContarAuditorias("Insertar");
+            this.entidad = this.iAplicacion.Insertar(new Detalles_Pedidos()
+            {
+                pedido = p0.id,
+                producto = p1.id,
+                cantidad = 2,
+                subtotal = 56000m,
+                comentarios = "Sin cebolla"
+            });
+            Reiniciar();
+            if (this.entidad.id == 0)
+                throw new Exception("No se guardo");
+            if (ContarAuditorias("Insertar") != antes + 1)
+                throw new Exception("No se guardo la auditoria");
+        }
+
+        private void Consultar()
+        {
+            var lista = this.iAplicacion.Consultar();
+            Reiniciar();
+            if (lista.Count <= 0)
+                throw new Exception("Lista vacia");
+        }
+
+        private void Buscar()
+        {
+            var lista = this.iAplicacion.Buscar(new Detalles_Pedidos() { pedido = this.entidad!.pedido });
+            Reiniciar();
+            if (lista.Count <= 0)
+                throw new Exception("No encontro");
         }
 
         private void Actualizar()
         {
-            this.entidad!.cantidad = 3;
-            this.entidad.subtotal = 84000m;
-            var entry = this.conexion!.Entry<Detalles_Pedidos>(this.entidad);
-            entry.State = EntityState.Modified;
-            this.conexion!.SaveChanges();
-            this.conexion = new TestDbContext();
+            int antes = ContarAuditorias("Actualizar");
+            this.entidad!.comentarios = "Sin sal";
+            this.iAplicacion.Actualizar(this.entidad);
+            Reiniciar();
+            if (ContarAuditorias("Actualizar") != antes + 1)
+                throw new Exception("No se guardo la auditoria");
         }
 
-        private void Borrar() { this.conexion.Detalles_Pedidos!.Remove(this.entidad!); this.conexion.SaveChanges();
-            this.conexion = new TestDbContext();
+        private void Borrar()
+        {
+            int antes = ContarAuditorias("Borrar");
+            this.iAplicacion.Borrar(this.entidad!);
+            Reiniciar();
+            if (ContarAuditorias("Borrar") != antes + 1)
+                throw new Exception("No se guardo la auditoria");
         }
-}
+    }
 }

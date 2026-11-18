@@ -1,8 +1,6 @@
-﻿using Libreria_restaurante.Implementaciones;
-using Libreria_restaurante.Interfaces;
 using Libreria_restaurante.Entidades;
-using Libreria_restaurante.Nucleo;
-using Microsoft.EntityFrameworkCore;
+using Libreria_restaurante.Implementaciones;
+using Libreria_restaurante.Interfaces;
 
 namespace pruebas
 {
@@ -10,48 +8,91 @@ namespace pruebas
     public class RecetasPruebas
     {
         private TestDbContext conexion;
+        private IRecetasAplicacion iAplicacion;
         private Recetas? entidad = null;
 
         public RecetasPruebas()
         {
             this.conexion = new TestDbContext();
+            this.iAplicacion = new RecetasAplicacion(this.conexion);
         }
 
         [TestMethod]
-        public void Execute() { Insertar(); Consultar(); Actualizar(); Borrar(); }
-
-        public void Insertar()
+        public void Execute()
         {
-            var productoExistente = this.conexion.Productos!.FirstOrDefault();
-
-            this.entidad = new Recetas()
-            {
-                producto = productoExistente.id,
-                tiempo_preparacion = DateTime.Today.AddMinutes(45),
-                instrucciones = "Remojar los fríjoles la noche anterior y cocinarlos a fuego lento.",
-                porciones = 2,
-                dificultad = "Media"
-            };
-            this.conexion.Recetas!.Add(this.entidad!);
-            this.conexion.SaveChanges();
-            this.conexion = new TestDbContext();
+            Insertar();
+            Consultar();
+            Buscar();
+            Actualizar();
+            Borrar();
         }
 
-        public void Consultar() { if (this.conexion.Recetas!.ToList().Count <= 0) throw new Exception("Lista vacia");
+        private int ContarAuditorias(string accion)
+        {
+            return this.conexion.Auditorias!.Count(x => x.tabla == "Recetas" && x.accion == accion);
+        }
+
+        private void Reiniciar()
+        {
             this.conexion = new TestDbContext();
+            this.iAplicacion = new RecetasAplicacion(this.conexion);
+        }
+
+        private void Insertar()
+        {
+            var p0 = new Productos();
+            this.conexion.Productos!.Add(p0);
+            this.conexion.SaveChanges();
+
+            int antes = ContarAuditorias("Insertar");
+            this.entidad = this.iAplicacion.Insertar(new Recetas()
+            {
+                producto = p0.id,
+                tiempo_preparacion = DateTime.Today.AddMinutes(45),
+                instrucciones = "Hervir y servir",
+                porciones = 4,
+                dificultad = "Media"
+            });
+            Reiniciar();
+            if (this.entidad.id == 0)
+                throw new Exception("No se guardo");
+            if (ContarAuditorias("Insertar") != antes + 1)
+                throw new Exception("No se guardo la auditoria");
+        }
+
+        private void Consultar()
+        {
+            var lista = this.iAplicacion.Consultar();
+            Reiniciar();
+            if (lista.Count <= 0)
+                throw new Exception("Lista vacia");
+        }
+
+        private void Buscar()
+        {
+            var lista = this.iAplicacion.Buscar(new Recetas() { instrucciones = this.entidad!.instrucciones });
+            Reiniciar();
+            if (lista.Count <= 0)
+                throw new Exception("No encontro");
         }
 
         private void Actualizar()
         {
-            this.entidad!.porciones = 4;
-            var entry = this.conexion!.Entry<Recetas>(this.entidad);
-            entry.State = EntityState.Modified;
-            this.conexion!.SaveChanges();
-            this.conexion = new TestDbContext();
+            int antes = ContarAuditorias("Actualizar");
+            this.entidad!.instrucciones = "Freir y servir";
+            this.iAplicacion.Actualizar(this.entidad);
+            Reiniciar();
+            if (ContarAuditorias("Actualizar") != antes + 1)
+                throw new Exception("No se guardo la auditoria");
         }
 
-        private void Borrar() { this.conexion.Recetas!.Remove(this.entidad!); this.conexion.SaveChanges();
-            this.conexion = new TestDbContext();
+        private void Borrar()
+        {
+            int antes = ContarAuditorias("Borrar");
+            this.iAplicacion.Borrar(this.entidad!);
+            Reiniciar();
+            if (ContarAuditorias("Borrar") != antes + 1)
+                throw new Exception("No se guardo la auditoria");
         }
     }
 }
