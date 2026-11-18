@@ -16,16 +16,15 @@ namespace asp.servicios.Controllers
         }
 
         [HttpPost]
+        public List<Auditorias> Consultar()
+        {
+            return this.IAuditoriasAplicacion.Consultar();
+        }
+
+        [HttpPost]
         public List<Auditorias> Buscar(Auditorias entidad)
         {
             return this.IAuditoriasAplicacion.Buscar(entidad);
-        }
-
-        
-        [HttpPost]
-        public Auditorias Actualizar(Auditorias entidad)
-        {
-            return this.IAuditoriasAplicacion.Actualizar(entidad);
         }
     }
 }
