@@ -21,7 +21,7 @@ namespace Libreria_restaurante.Implementaciones
             if (entidad.id != 0)
                 throw new Exception("Ya se guardo");
 
-            if (!Validar(entidad))
+            if (Validar(entidad))
                 throw new Exception("Falta informacion");
 
             this.IConexion.Menus!.Add(entidad);
@@ -45,7 +45,7 @@ namespace Libreria_restaurante.Implementaciones
             if (entidad.id == 0)
                 throw new Exception("No se ha guardo");
 
-            if (!Validar(entidad))
+            if (Validar(entidad))
                 throw new Exception("Falta informacion");
 
             var anterior = this.IConexion.Menus!.FirstOrDefault(x => x.id == entidad.id);
@@ -102,9 +102,7 @@ namespace Libreria_restaurante.Implementaciones
 
         private bool Validar(Menus entidad)
         {
-            if (string.IsNullOrEmpty(entidad.nombre))
-                return false;
-            return true;
+            return string.IsNullOrEmpty(entidad.nombre);
         }
     }
 }

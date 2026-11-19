@@ -21,19 +21,19 @@ namespace asp.presentacion.Pages.Ventanas
         public List<Menus> Lista { get; set; } = new();
         public string? Mensaje { get; set; }
 
-        public async Task OnGet()
+        public void OnGet()
         {
-            await Cargar();
+            Cargar();
         }
 
-        public async Task OnPostBuscar()
+        public void OnPostBuscar()
         {
             try
             {
                 if (string.IsNullOrEmpty(Filtro.nombre))
-                    Lista = await iPresentacion.Consultar();
+                    Lista = iPresentacion.Consultar();
                 else
-                    Lista = await iPresentacion.Buscar(Filtro);
+                    Lista = iPresentacion.Buscar(Filtro);
             }
             catch (Exception ex)
             {
@@ -41,58 +41,58 @@ namespace asp.presentacion.Pages.Ventanas
             }
         }
 
-        public async Task<IActionResult> OnPostGuardar()
+        public IActionResult OnPostGuardar()
         {
             try
             {
                 if (Entidad.id == 0)
-                    await iPresentacion.Insertar(Entidad);
+                    iPresentacion.Insertar(Entidad);
                 else
-                    await iPresentacion.Actualizar(Entidad);
+                    iPresentacion.Actualizar(Entidad);
                 TempData["Mensaje"] = "Guardado";
                 return RedirectToPage();
             }
             catch (Exception ex)
             {
                 Mensaje = ex.Message;
-                await Cargar();
+                Cargar();
                 return Page();
             }
         }
 
-        public async Task OnPostEditar(int id)
+        public void OnPostEditar(int id)
         {
-            await Cargar();
+            Cargar();
             ModelState.Clear();
             var item = Lista.FirstOrDefault(x => x.id == id);
             if (item != null)
                 Entidad = item;
         }
 
-        public async Task<IActionResult> OnPostBorrar(int id)
+        public IActionResult OnPostBorrar(int id)
         {
             try
             {
-                var lista = await iPresentacion.Consultar();
+                var lista = iPresentacion.Consultar();
                 var item = lista.FirstOrDefault(x => x.id == id);
                 if (item != null)
-                    await iPresentacion.Borrar(item);
+                    iPresentacion.Borrar(item);
                 TempData["Mensaje"] = "Borrado";
                 return RedirectToPage();
             }
             catch (Exception ex)
             {
                 Mensaje = ex.Message;
-                await Cargar();
+                Cargar();
                 return Page();
             }
         }
 
-        private async Task Cargar()
+        private void Cargar()
         {
             try
             {
-                Lista = await iPresentacion.Consultar();
+                Lista = iPresentacion.Consultar();
             }
             catch (Exception ex)
             {

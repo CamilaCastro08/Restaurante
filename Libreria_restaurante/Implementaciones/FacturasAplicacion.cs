@@ -21,7 +21,7 @@ namespace Libreria_restaurante.Implementaciones
             if (entidad.id != 0)
                 throw new Exception("Ya se guardo");
 
-            if (!Validar(entidad))
+            if (Validar(entidad))
                 throw new Exception("Falta informacion");
 
             this.IConexion.Facturas!.Add(entidad);
@@ -45,7 +45,7 @@ namespace Libreria_restaurante.Implementaciones
             if (entidad.id == 0)
                 throw new Exception("No se ha guardo");
 
-            if (!Validar(entidad))
+            if (Validar(entidad))
                 throw new Exception("Falta informacion");
 
             var anterior = this.IConexion.Facturas!.FirstOrDefault(x => x.id == entidad.id);
@@ -70,12 +70,14 @@ namespace Libreria_restaurante.Implementaciones
 
         public List<Facturas> Consultar()
         {
-            return this.IConexion.Facturas!.ToList();
+            return this.IConexion.Facturas!
+                .Include(x => x._pedido).ToList();
         }
 
         public List<Facturas> Buscar(Facturas entidad)
         {
             return this.IConexion.Facturas!
+                .Include(x => x._pedido)
                 .Where(x => x.numero!.Contains(entidad.numero!))
                 .ToList();
         }
@@ -102,9 +104,7 @@ namespace Libreria_restaurante.Implementaciones
 
         private bool Validar(Facturas entidad)
         {
-            if (string.IsNullOrEmpty(entidad.numero))
-                return false;
-            return true;
+            return string.IsNullOrEmpty(entidad.numero);
         }
     }
 }

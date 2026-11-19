@@ -21,7 +21,7 @@ namespace Libreria_restaurante.Implementaciones
             if (entidad.id != 0)
                 throw new Exception("Ya se guardo");
 
-            if (!Validar(entidad))
+            if (Validar(entidad))
                 throw new Exception("Falta informacion");
 
             this.IConexion.Turnos!.Add(entidad);
@@ -45,7 +45,7 @@ namespace Libreria_restaurante.Implementaciones
             if (entidad.id == 0)
                 throw new Exception("No se ha guardo");
 
-            if (!Validar(entidad))
+            if (Validar(entidad))
                 throw new Exception("Falta informacion");
 
             var anterior = this.IConexion.Turnos!.FirstOrDefault(x => x.id == entidad.id);
@@ -70,12 +70,14 @@ namespace Libreria_restaurante.Implementaciones
 
         public List<Turnos> Consultar()
         {
-            return this.IConexion.Turnos!.ToList();
+            return this.IConexion.Turnos!
+                .Include(x => x._empleado).ToList();
         }
 
         public List<Turnos> Buscar(Turnos entidad)
         {
             return this.IConexion.Turnos!
+                .Include(x => x._empleado)
                 .Where(x => x.empleado == entidad.empleado)
                 .ToList();
         }
@@ -102,9 +104,7 @@ namespace Libreria_restaurante.Implementaciones
 
         private bool Validar(Turnos entidad)
         {
-            if (entidad.empleado == 0)
-                return false;
-            return true;
+            return entidad.empleado == 0;
         }
     }
 }

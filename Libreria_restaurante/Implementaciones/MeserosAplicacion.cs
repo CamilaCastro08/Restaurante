@@ -21,7 +21,7 @@ namespace Libreria_restaurante.Implementaciones
             if (entidad.id != 0)
                 throw new Exception("Ya se guardo");
 
-            if (!Validar(entidad))
+            if (Validar(entidad))
                 throw new Exception("Falta informacion");
 
             this.IConexion.Meseros!.Add(entidad);
@@ -45,7 +45,7 @@ namespace Libreria_restaurante.Implementaciones
             if (entidad.id == 0)
                 throw new Exception("No se ha guardo");
 
-            if (!Validar(entidad))
+            if (Validar(entidad))
                 throw new Exception("Falta informacion");
 
             var anterior = this.IConexion.Meseros!.FirstOrDefault(x => x.id == entidad.id);
@@ -70,12 +70,14 @@ namespace Libreria_restaurante.Implementaciones
 
         public List<Meseros> Consultar()
         {
-            return this.IConexion.Meseros!.ToList();
+            return this.IConexion.Meseros!
+                .Include(x => x._empleado).ToList();
         }
 
         public List<Meseros> Buscar(Meseros entidad)
         {
             return this.IConexion.Meseros!
+                .Include(x => x._empleado)
                 .Where(x => x.zona_asignada!.Contains(entidad.zona_asignada!))
                 .ToList();
         }
@@ -102,9 +104,7 @@ namespace Libreria_restaurante.Implementaciones
 
         private bool Validar(Meseros entidad)
         {
-            if (string.IsNullOrEmpty(entidad.zona_asignada))
-                return false;
-            return true;
+            return string.IsNullOrEmpty(entidad.zona_asignada);
         }
     }
 }

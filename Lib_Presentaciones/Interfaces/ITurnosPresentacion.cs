@@ -1,13 +1,13 @@
-using Libreria_restaurante.Entidades;
+﻿using Libreria_restaurante.Entidades;
 
 namespace Lib_Presentaciones.Interfaces
 {
     public interface ITurnosPresentacion
     {
-        Task<Turnos> Insertar(Turnos entidad);
-        Task<Turnos> Actualizar(Turnos entidad);
-        Task<List<Turnos>> Consultar();
-        Task<List<Turnos>> Buscar(Turnos entidad);
-        Task<Turnos> Borrar(Turnos entidad);
+        Turnos Insertar(Turnos entidad);
+        Turnos Actualizar(Turnos entidad);
+        List<Turnos> Consultar();
+        List<Turnos> Buscar(Turnos entidad);
+        Turnos Borrar(Turnos entidad);
     }
 }

@@ -1,13 +1,13 @@
-using Libreria_restaurante.Entidades;
+﻿using Libreria_restaurante.Entidades;
 
 namespace Lib_Presentaciones.Interfaces
 {
     public interface IInventariosPresentacion
     {
-        Task<Inventarios> Insertar(Inventarios entidad);
-        Task<Inventarios> Actualizar(Inventarios entidad);
-        Task<List<Inventarios>> Consultar();
-        Task<List<Inventarios>> Buscar(Inventarios entidad);
-        Task<Inventarios> Borrar(Inventarios entidad);
+        Inventarios Insertar(Inventarios entidad);
+        Inventarios Actualizar(Inventarios entidad);
+        List<Inventarios> Consultar();
+        List<Inventarios> Buscar(Inventarios entidad);
+        Inventarios Borrar(Inventarios entidad);
     }
 }

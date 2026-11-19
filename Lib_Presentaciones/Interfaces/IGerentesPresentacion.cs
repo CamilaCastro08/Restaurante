@@ -1,13 +1,13 @@
-using Libreria_restaurante.Entidades;
+﻿using Libreria_restaurante.Entidades;
 
 namespace Lib_Presentaciones.Interfaces
 {
     public interface IGerentesPresentacion
     {
-        Task<Gerentes> Insertar(Gerentes entidad);
-        Task<Gerentes> Actualizar(Gerentes entidad);
-        Task<List<Gerentes>> Consultar();
-        Task<List<Gerentes>> Buscar(Gerentes entidad);
-        Task<Gerentes> Borrar(Gerentes entidad);
+        Gerentes Insertar(Gerentes entidad);
+        Gerentes Actualizar(Gerentes entidad);
+        List<Gerentes> Consultar();
+        List<Gerentes> Buscar(Gerentes entidad);
+        Gerentes Borrar(Gerentes entidad);
     }
 }

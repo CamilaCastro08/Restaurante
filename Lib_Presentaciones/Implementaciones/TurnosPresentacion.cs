@@ -1,68 +1,75 @@
-using System.Text;
-using Newtonsoft.Json;
-using Lib_Presentaciones.Interfaces;
-using Lib_Presentaciones.Nucleo;
+﻿using Lib_Presentaciones.Interfaces;
 using Libreria_restaurante.Entidades;
 
 namespace Lib_Presentaciones.Implementaciones
 {
     public class TurnosPresentacion : ITurnosPresentacion
     {
-        private string url = Rutas.Url + "Turnos/";
+        private IComunicaciones IComunicaciones;
 
-        public async Task<Turnos> Insertar(Turnos entidad)
+        public TurnosPresentacion(IComunicaciones IComunicaciones)
         {
-            var cliente = new HttpClient();
-            var contenido = new StringContent(JsonConvert.SerializeObject(entidad), Encoding.UTF8, "application/json");
-            var respuesta = await cliente.PostAsync(this.url + "Insertar", contenido);
-            var texto = await respuesta.Content.ReadAsStringAsync();
-            if (!respuesta.IsSuccessStatusCode)
-                throw new Exception(texto);
-            return JsonConvert.DeserializeObject<Turnos>(texto)!;
+            this.IComunicaciones = IComunicaciones;
         }
 
-        public async Task<Turnos> Actualizar(Turnos entidad)
+        public Turnos Actualizar(Turnos entidad)
         {
-            var cliente = new HttpClient();
-            var contenido = new StringContent(JsonConvert.SerializeObject(entidad), Encoding.UTF8, "application/json");
-            var respuesta = await cliente.PostAsync(this.url + "Actualizar", contenido);
-            var texto = await respuesta.Content.ReadAsStringAsync();
-            if (!respuesta.IsSuccessStatusCode)
-                throw new Exception(texto);
-            return JsonConvert.DeserializeObject<Turnos>(texto)!;
+            if (entidad.id == 0)
+                throw new Exception("No se ha guardo");
+
+            if (Validar(entidad))
+                throw new Exception("Falta informacion");
+
+            var task = this.IComunicaciones.Ejecutar<Turnos>(
+                "Turnos/Actualizar",
+                entidad);
+            return task.GetAwaiter().GetResult();
         }
 
-        public async Task<List<Turnos>> Consultar()
+        public Turnos Borrar(Turnos entidad)
         {
-            var cliente = new HttpClient();
-            var contenido = new StringContent("{}", Encoding.UTF8, "application/json");
-            var respuesta = await cliente.PostAsync(this.url + "Consultar", contenido);
-            var texto = await respuesta.Content.ReadAsStringAsync();
-            if (!respuesta.IsSuccessStatusCode)
-                throw new Exception(texto);
-            return JsonConvert.DeserializeObject<List<Turnos>>(texto)!;
+            if (entidad.id == 0)
+                throw new Exception("No se ha guardo");
+
+            var task = this.IComunicaciones.Ejecutar<Turnos>(
+                "Turnos/Borrar",
+                entidad);
+            return task.GetAwaiter().GetResult();
         }
 
-        public async Task<List<Turnos>> Buscar(Turnos entidad)
+        public List<Turnos> Buscar(Turnos entidad)
         {
-            var cliente = new HttpClient();
-            var contenido = new StringContent(JsonConvert.SerializeObject(entidad), Encoding.UTF8, "application/json");
-            var respuesta = await cliente.PostAsync(this.url + "Buscar", contenido);
-            var texto = await respuesta.Content.ReadAsStringAsync();
-            if (!respuesta.IsSuccessStatusCode)
-                throw new Exception(texto);
-            return JsonConvert.DeserializeObject<List<Turnos>>(texto)!;
+            var task = this.IComunicaciones.Ejecutar<List<Turnos>>(
+                "Turnos/Buscar",
+                entidad);
+            return task.GetAwaiter().GetResult();
         }
 
-        public async Task<Turnos> Borrar(Turnos entidad)
+        public List<Turnos> Consultar()
         {
-            var cliente = new HttpClient();
-            var contenido = new StringContent(JsonConvert.SerializeObject(entidad), Encoding.UTF8, "application/json");
-            var respuesta = await cliente.PostAsync(this.url + "Borrar", contenido);
-            var texto = await respuesta.Content.ReadAsStringAsync();
-            if (!respuesta.IsSuccessStatusCode)
-                throw new Exception(texto);
-            return JsonConvert.DeserializeObject<Turnos>(texto)!;
+            var task = this.IComunicaciones.Ejecutar<List<Turnos>>(
+                "Turnos/Consultar",
+                null);
+            return task.GetAwaiter().GetResult();
+        }
+
+        public Turnos Insertar(Turnos entidad)
+        {
+            if (entidad.id != 0)
+                throw new Exception("Ya se guardo");
+
+            if (Validar(entidad))
+                throw new Exception("Falta informacion");
+
+            var task = this.IComunicaciones.Ejecutar<Turnos>(
+                "Turnos/Insertar",
+                entidad);
+            return task.GetAwaiter().GetResult();
+        }
+
+        private bool Validar(Turnos entidad)
+        {
+            return entidad.empleado == 0;
         }
     }
 }

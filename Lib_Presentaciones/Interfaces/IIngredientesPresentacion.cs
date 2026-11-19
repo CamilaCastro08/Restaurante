@@ -1,13 +1,13 @@
-using Libreria_restaurante.Entidades;
+﻿using Libreria_restaurante.Entidades;
 
 namespace Lib_Presentaciones.Interfaces
 {
     public interface IIngredientesPresentacion
     {
-        Task<Ingredientes> Insertar(Ingredientes entidad);
-        Task<Ingredientes> Actualizar(Ingredientes entidad);
-        Task<List<Ingredientes>> Consultar();
-        Task<List<Ingredientes>> Buscar(Ingredientes entidad);
-        Task<Ingredientes> Borrar(Ingredientes entidad);
+        Ingredientes Insertar(Ingredientes entidad);
+        Ingredientes Actualizar(Ingredientes entidad);
+        List<Ingredientes> Consultar();
+        List<Ingredientes> Buscar(Ingredientes entidad);
+        Ingredientes Borrar(Ingredientes entidad);
     }
 }

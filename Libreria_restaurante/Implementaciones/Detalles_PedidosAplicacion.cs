@@ -21,7 +21,7 @@ namespace Libreria_restaurante.Implementaciones
             if (entidad.id != 0)
                 throw new Exception("Ya se guardo");
 
-            if (!Validar(entidad))
+            if (Validar(entidad))
                 throw new Exception("Falta informacion");
 
             this.IConexion.Detalles_Pedidos!.Add(entidad);
@@ -45,7 +45,7 @@ namespace Libreria_restaurante.Implementaciones
             if (entidad.id == 0)
                 throw new Exception("No se ha guardo");
 
-            if (!Validar(entidad))
+            if (Validar(entidad))
                 throw new Exception("Falta informacion");
 
             var anterior = this.IConexion.Detalles_Pedidos!.FirstOrDefault(x => x.id == entidad.id);
@@ -70,12 +70,16 @@ namespace Libreria_restaurante.Implementaciones
 
         public List<Detalles_Pedidos> Consultar()
         {
-            return this.IConexion.Detalles_Pedidos!.ToList();
+            return this.IConexion.Detalles_Pedidos!
+                .Include(x => x._pedido)
+                .Include(x => x._producto).ToList();
         }
 
         public List<Detalles_Pedidos> Buscar(Detalles_Pedidos entidad)
         {
             return this.IConexion.Detalles_Pedidos!
+                .Include(x => x._pedido)
+                .Include(x => x._producto)
                 .Where(x => x.pedido == entidad.pedido)
                 .ToList();
         }
@@ -102,9 +106,7 @@ namespace Libreria_restaurante.Implementaciones
 
         private bool Validar(Detalles_Pedidos entidad)
         {
-            if (entidad.pedido == 0)
-                return false;
-            return true;
+            return entidad.pedido == 0;
         }
     }
 }

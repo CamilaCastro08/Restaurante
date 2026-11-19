@@ -21,7 +21,7 @@ namespace Libreria_restaurante.Implementaciones
             if (entidad.id != 0)
                 throw new Exception("Ya se guardo");
 
-            if (!Validar(entidad))
+            if (Validar(entidad))
                 throw new Exception("Falta informacion");
 
             if (string.IsNullOrEmpty(entidad.contraseña))
@@ -56,7 +56,7 @@ namespace Libreria_restaurante.Implementaciones
             if (entidad.id == 0)
                 throw new Exception("No se ha guardo");
 
-            if (!Validar(entidad))
+            if (Validar(entidad))
                 throw new Exception("Falta informacion");
 
             var anterior = this.IConexion.Usuarios!.AsNoTracking().FirstOrDefault(x => x.id == entidad.id);
@@ -90,7 +90,8 @@ namespace Libreria_restaurante.Implementaciones
 
         public List<Usuarios> Consultar()
         {
-            var lista = this.IConexion.Usuarios!.ToList();
+            var lista = this.IConexion.Usuarios!
+                .Include(x => x._rol).ToList();
             foreach (var item in lista)
                 item.contraseña = null;
             return lista;
@@ -99,6 +100,7 @@ namespace Libreria_restaurante.Implementaciones
         public List<Usuarios> Buscar(Usuarios entidad)
         {
             var lista = this.IConexion.Usuarios!
+                .Include(x => x._rol)
                 .Where(x => x.nombreUsuario!.Contains(entidad.nombreUsuario!))
                 .ToList();
             foreach (var item in lista)
@@ -138,13 +140,9 @@ namespace Libreria_restaurante.Implementaciones
 
         private bool Validar(Usuarios entidad)
         {
-            if (string.IsNullOrEmpty(entidad.nombreUsuario))
-                return false;
-            if (string.IsNullOrEmpty(entidad.correo))
-                return false;
-            if (entidad.rol == null || entidad.rol == 0)
-                return false;
-            return true;
+            return string.IsNullOrEmpty(entidad.nombreUsuario) ||
+                string.IsNullOrEmpty(entidad.correo) ||
+                entidad.rol == null || entidad.rol == 0;
         }
     }
 }

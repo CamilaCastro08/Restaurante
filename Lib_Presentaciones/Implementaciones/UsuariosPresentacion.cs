@@ -1,79 +1,88 @@
-using System.Text;
-using Newtonsoft.Json;
-using Lib_Presentaciones.Interfaces;
-using Lib_Presentaciones.Nucleo;
+﻿using Lib_Presentaciones.Interfaces;
 using Libreria_restaurante.Entidades;
 
 namespace Lib_Presentaciones.Implementaciones
 {
     public class UsuariosPresentacion : IUsuariosPresentacion
     {
-        private string url = Rutas.Url + "Usuarios/";
+        private IComunicaciones IComunicaciones;
 
-        public async Task<Usuarios> Insertar(Usuarios entidad)
+        public UsuariosPresentacion(IComunicaciones IComunicaciones)
         {
-            var cliente = new HttpClient();
-            var contenido = new StringContent(JsonConvert.SerializeObject(entidad), Encoding.UTF8, "application/json");
-            var respuesta = await cliente.PostAsync(this.url + "Insertar", contenido);
-            var texto = await respuesta.Content.ReadAsStringAsync();
-            if (!respuesta.IsSuccessStatusCode)
-                throw new Exception(texto);
-            return JsonConvert.DeserializeObject<Usuarios>(texto)!;
+            this.IComunicaciones = IComunicaciones;
         }
 
-        public async Task<Usuarios> Actualizar(Usuarios entidad)
+        public Usuarios Actualizar(Usuarios entidad)
         {
-            var cliente = new HttpClient();
-            var contenido = new StringContent(JsonConvert.SerializeObject(entidad), Encoding.UTF8, "application/json");
-            var respuesta = await cliente.PostAsync(this.url + "Actualizar", contenido);
-            var texto = await respuesta.Content.ReadAsStringAsync();
-            if (!respuesta.IsSuccessStatusCode)
-                throw new Exception(texto);
-            return JsonConvert.DeserializeObject<Usuarios>(texto)!;
+            if (entidad.id == 0)
+                throw new Exception("No se ha guardo");
+
+            if (Validar(entidad))
+                throw new Exception("Falta informacion");
+
+            var task = this.IComunicaciones.Ejecutar<Usuarios>(
+                "Usuarios/Actualizar",
+                entidad);
+            return task.GetAwaiter().GetResult();
         }
 
-        public async Task<List<Usuarios>> Consultar()
+        public Usuarios Borrar(Usuarios entidad)
         {
-            var cliente = new HttpClient();
-            var contenido = new StringContent("{}", Encoding.UTF8, "application/json");
-            var respuesta = await cliente.PostAsync(this.url + "Consultar", contenido);
-            var texto = await respuesta.Content.ReadAsStringAsync();
-            if (!respuesta.IsSuccessStatusCode)
-                throw new Exception(texto);
-            return JsonConvert.DeserializeObject<List<Usuarios>>(texto)!;
+            if (entidad.id == 0)
+                throw new Exception("No se ha guardo");
+
+            var task = this.IComunicaciones.Ejecutar<Usuarios>(
+                "Usuarios/Borrar",
+                entidad);
+            return task.GetAwaiter().GetResult();
         }
 
-        public async Task<List<Usuarios>> Buscar(Usuarios entidad)
+        public List<Usuarios> Buscar(Usuarios entidad)
         {
-            var cliente = new HttpClient();
-            var contenido = new StringContent(JsonConvert.SerializeObject(entidad), Encoding.UTF8, "application/json");
-            var respuesta = await cliente.PostAsync(this.url + "Buscar", contenido);
-            var texto = await respuesta.Content.ReadAsStringAsync();
-            if (!respuesta.IsSuccessStatusCode)
-                throw new Exception(texto);
-            return JsonConvert.DeserializeObject<List<Usuarios>>(texto)!;
+            var task = this.IComunicaciones.Ejecutar<List<Usuarios>>(
+                "Usuarios/Buscar",
+                entidad);
+            return task.GetAwaiter().GetResult();
         }
 
-        public async Task<Usuarios> Borrar(Usuarios entidad)
+        public List<Usuarios> Consultar()
         {
-            var cliente = new HttpClient();
-            var contenido = new StringContent(JsonConvert.SerializeObject(entidad), Encoding.UTF8, "application/json");
-            var respuesta = await cliente.PostAsync(this.url + "Borrar", contenido);
-            var texto = await respuesta.Content.ReadAsStringAsync();
-            if (!respuesta.IsSuccessStatusCode)
-                throw new Exception(texto);
-            return JsonConvert.DeserializeObject<Usuarios>(texto)!;
+            var task = this.IComunicaciones.Ejecutar<List<Usuarios>>(
+                "Usuarios/Consultar",
+                null);
+            return task.GetAwaiter().GetResult();
         }
 
-        public async Task<Usuarios> Login(Usuarios entidad)
+        public Usuarios Insertar(Usuarios entidad)
         {
-            var cliente = new HttpClient();
-            var contenido = new StringContent(JsonConvert.SerializeObject(entidad), Encoding.UTF8, "application/json");
-            var respuesta = await cliente.PostAsync(this.url + "Login", contenido);
-            var texto = await respuesta.Content.ReadAsStringAsync();
-            if (!respuesta.IsSuccessStatusCode)
-                throw new Exception(texto);
-            return JsonConvert.DeserializeObject<Usuarios>(texto)!;
+            if (entidad.id != 0)
+                throw new Exception("Ya se guardo");
+
+            if (Validar(entidad))
+                throw new Exception("Falta informacion");
+
+            if (string.IsNullOrEmpty(entidad.contraseña))
+                throw new Exception("Falta informacion");
+
+            var task = this.IComunicaciones.Ejecutar<Usuarios>(
+                "Usuarios/Insertar",
+                entidad);
+            return task.GetAwaiter().GetResult();
+        }
+
+        public Usuarios Login(Usuarios entidad)
+        {
+            var task = this.IComunicaciones.Ejecutar<Usuarios>(
+                "Usuarios/Login",
+                entidad);
+            return task.GetAwaiter().GetResult();
+        }
+
+        private bool Validar(Usuarios entidad)
+        {
+            return string.IsNullOrEmpty(entidad.nombreUsuario) ||
+                string.IsNullOrEmpty(entidad.correo) ||
+                entidad.rol == null || entidad.rol == 0;
         }
     }
 }

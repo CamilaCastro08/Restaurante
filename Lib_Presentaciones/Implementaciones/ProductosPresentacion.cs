@@ -1,68 +1,75 @@
-using System.Text;
-using Newtonsoft.Json;
-using Lib_Presentaciones.Interfaces;
-using Lib_Presentaciones.Nucleo;
+﻿using Lib_Presentaciones.Interfaces;
 using Libreria_restaurante.Entidades;
 
 namespace Lib_Presentaciones.Implementaciones
 {
     public class ProductosPresentacion : IProductosPresentacion
     {
-        private string url = Rutas.Url + "Productos/";
+        private IComunicaciones IComunicaciones;
 
-        public async Task<Productos> Insertar(Productos entidad)
+        public ProductosPresentacion(IComunicaciones IComunicaciones)
         {
-            var cliente = new HttpClient();
-            var contenido = new StringContent(JsonConvert.SerializeObject(entidad), Encoding.UTF8, "application/json");
-            var respuesta = await cliente.PostAsync(this.url + "Insertar", contenido);
-            var texto = await respuesta.Content.ReadAsStringAsync();
-            if (!respuesta.IsSuccessStatusCode)
-                throw new Exception(texto);
-            return JsonConvert.DeserializeObject<Productos>(texto)!;
+            this.IComunicaciones = IComunicaciones;
         }
 
-        public async Task<Productos> Actualizar(Productos entidad)
+        public Productos Actualizar(Productos entidad)
         {
-            var cliente = new HttpClient();
-            var contenido = new StringContent(JsonConvert.SerializeObject(entidad), Encoding.UTF8, "application/json");
-            var respuesta = await cliente.PostAsync(this.url + "Actualizar", contenido);
-            var texto = await respuesta.Content.ReadAsStringAsync();
-            if (!respuesta.IsSuccessStatusCode)
-                throw new Exception(texto);
-            return JsonConvert.DeserializeObject<Productos>(texto)!;
+            if (entidad.id == 0)
+                throw new Exception("No se ha guardo");
+
+            if (Validar(entidad))
+                throw new Exception("Falta informacion");
+
+            var task = this.IComunicaciones.Ejecutar<Productos>(
+                "Productos/Actualizar",
+                entidad);
+            return task.GetAwaiter().GetResult();
         }
 
-        public async Task<List<Productos>> Consultar()
+        public Productos Borrar(Productos entidad)
         {
-            var cliente = new HttpClient();
-            var contenido = new StringContent("{}", Encoding.UTF8, "application/json");
-            var respuesta = await cliente.PostAsync(this.url + "Consultar", contenido);
-            var texto = await respuesta.Content.ReadAsStringAsync();
-            if (!respuesta.IsSuccessStatusCode)
-                throw new Exception(texto);
-            return JsonConvert.DeserializeObject<List<Productos>>(texto)!;
+            if (entidad.id == 0)
+                throw new Exception("No se ha guardo");
+
+            var task = this.IComunicaciones.Ejecutar<Productos>(
+                "Productos/Borrar",
+                entidad);
+            return task.GetAwaiter().GetResult();
         }
 
-        public async Task<List<Productos>> Buscar(Productos entidad)
+        public List<Productos> Buscar(Productos entidad)
         {
-            var cliente = new HttpClient();
-            var contenido = new StringContent(JsonConvert.SerializeObject(entidad), Encoding.UTF8, "application/json");
-            var respuesta = await cliente.PostAsync(this.url + "Buscar", contenido);
-            var texto = await respuesta.Content.ReadAsStringAsync();
-            if (!respuesta.IsSuccessStatusCode)
-                throw new Exception(texto);
-            return JsonConvert.DeserializeObject<List<Productos>>(texto)!;
+            var task = this.IComunicaciones.Ejecutar<List<Productos>>(
+                "Productos/Buscar",
+                entidad);
+            return task.GetAwaiter().GetResult();
         }
 
-        public async Task<Productos> Borrar(Productos entidad)
+        public List<Productos> Consultar()
         {
-            var cliente = new HttpClient();
-            var contenido = new StringContent(JsonConvert.SerializeObject(entidad), Encoding.UTF8, "application/json");
-            var respuesta = await cliente.PostAsync(this.url + "Borrar", contenido);
-            var texto = await respuesta.Content.ReadAsStringAsync();
-            if (!respuesta.IsSuccessStatusCode)
-                throw new Exception(texto);
-            return JsonConvert.DeserializeObject<Productos>(texto)!;
+            var task = this.IComunicaciones.Ejecutar<List<Productos>>(
+                "Productos/Consultar",
+                null);
+            return task.GetAwaiter().GetResult();
+        }
+
+        public Productos Insertar(Productos entidad)
+        {
+            if (entidad.id != 0)
+                throw new Exception("Ya se guardo");
+
+            if (Validar(entidad))
+                throw new Exception("Falta informacion");
+
+            var task = this.IComunicaciones.Ejecutar<Productos>(
+                "Productos/Insertar",
+                entidad);
+            return task.GetAwaiter().GetResult();
+        }
+
+        private bool Validar(Productos entidad)
+        {
+            return string.IsNullOrEmpty(entidad.nombre);
         }
     }
 }

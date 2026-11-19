@@ -1,4 +1,5 @@
-﻿using Libreria_restaurante.Entidades;
+﻿using Microsoft.EntityFrameworkCore;
+using Libreria_restaurante.Entidades;
 using Libreria_restaurante.Interfaces;
 
 namespace Libreria_restaurante.Implementaciones
@@ -14,12 +15,14 @@ namespace Libreria_restaurante.Implementaciones
 
         public List<Auditorias> Consultar()
         {
-            return this.IConexion.Auditorias!.ToList();
+            return this.IConexion.Auditorias!
+                .Include(x => x._Usuario).ToList();
         }
 
         public List<Auditorias> Buscar(Auditorias entidad)
         {
             return this.IConexion.Auditorias!
+                .Include(x => x._Usuario)
                 .Where(x => x.tabla!.Contains(entidad.tabla!))
                 .ToList();
         }

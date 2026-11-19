@@ -4,6 +4,7 @@ using Lib_Presentaciones.Interfaces;
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddRazorPages();
+builder.Services.AddScoped<IComunicaciones, Comunicaciones>();
 builder.Services.AddSession(o =>
 {
     o.IdleTimeout = TimeSpan.FromMinutes(30);

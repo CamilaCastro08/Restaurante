@@ -1,10 +1,10 @@
-using Libreria_restaurante.Entidades;
+﻿using Libreria_restaurante.Entidades;
 
 namespace Lib_Presentaciones.Interfaces
 {
     public interface IAuditoriasPresentacion
     {
-        Task<List<Auditorias>> Consultar();
-        Task<List<Auditorias>> Buscar(Auditorias entidad);
+        List<Auditorias> Consultar();
+        List<Auditorias> Buscar(Auditorias entidad);
     }
 }

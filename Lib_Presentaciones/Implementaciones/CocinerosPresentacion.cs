@@ -1,68 +1,75 @@
-using System.Text;
-using Newtonsoft.Json;
-using Lib_Presentaciones.Interfaces;
-using Lib_Presentaciones.Nucleo;
+﻿using Lib_Presentaciones.Interfaces;
 using Libreria_restaurante.Entidades;
 
 namespace Lib_Presentaciones.Implementaciones
 {
     public class CocinerosPresentacion : ICocinerosPresentacion
     {
-        private string url = Rutas.Url + "Cocineros/";
+        private IComunicaciones IComunicaciones;
 
-        public async Task<Cocineros> Insertar(Cocineros entidad)
+        public CocinerosPresentacion(IComunicaciones IComunicaciones)
         {
-            var cliente = new HttpClient();
-            var contenido = new StringContent(JsonConvert.SerializeObject(entidad), Encoding.UTF8, "application/json");
-            var respuesta = await cliente.PostAsync(this.url + "Insertar", contenido);
-            var texto = await respuesta.Content.ReadAsStringAsync();
-            if (!respuesta.IsSuccessStatusCode)
-                throw new Exception(texto);
-            return JsonConvert.DeserializeObject<Cocineros>(texto)!;
+            this.IComunicaciones = IComunicaciones;
         }
 
-        public async Task<Cocineros> Actualizar(Cocineros entidad)
+        public Cocineros Actualizar(Cocineros entidad)
         {
-            var cliente = new HttpClient();
-            var contenido = new StringContent(JsonConvert.SerializeObject(entidad), Encoding.UTF8, "application/json");
-            var respuesta = await cliente.PostAsync(this.url + "Actualizar", contenido);
-            var texto = await respuesta.Content.ReadAsStringAsync();
-            if (!respuesta.IsSuccessStatusCode)
-                throw new Exception(texto);
-            return JsonConvert.DeserializeObject<Cocineros>(texto)!;
+            if (entidad.id == 0)
+                throw new Exception("No se ha guardo");
+
+            if (Validar(entidad))
+                throw new Exception("Falta informacion");
+
+            var task = this.IComunicaciones.Ejecutar<Cocineros>(
+                "Cocineros/Actualizar",
+                entidad);
+            return task.GetAwaiter().GetResult();
         }
 
-        public async Task<List<Cocineros>> Consultar()
+        public Cocineros Borrar(Cocineros entidad)
         {
-            var cliente = new HttpClient();
-            var contenido = new StringContent("{}", Encoding.UTF8, "application/json");
-            var respuesta = await cliente.PostAsync(this.url + "Consultar", contenido);
-            var texto = await respuesta.Content.ReadAsStringAsync();
-            if (!respuesta.IsSuccessStatusCode)
-                throw new Exception(texto);
-            return JsonConvert.DeserializeObject<List<Cocineros>>(texto)!;
+            if (entidad.id == 0)
+                throw new Exception("No se ha guardo");
+
+            var task = this.IComunicaciones.Ejecutar<Cocineros>(
+                "Cocineros/Borrar",
+                entidad);
+            return task.GetAwaiter().GetResult();
         }
 
-        public async Task<List<Cocineros>> Buscar(Cocineros entidad)
+        public List<Cocineros> Buscar(Cocineros entidad)
         {
-            var cliente = new HttpClient();
-            var contenido = new StringContent(JsonConvert.SerializeObject(entidad), Encoding.UTF8, "application/json");
-            var respuesta = await cliente.PostAsync(this.url + "Buscar", contenido);
-            var texto = await respuesta.Content.ReadAsStringAsync();
-            if (!respuesta.IsSuccessStatusCode)
-                throw new Exception(texto);
-            return JsonConvert.DeserializeObject<List<Cocineros>>(texto)!;
+            var task = this.IComunicaciones.Ejecutar<List<Cocineros>>(
+                "Cocineros/Buscar",
+                entidad);
+            return task.GetAwaiter().GetResult();
         }
 
-        public async Task<Cocineros> Borrar(Cocineros entidad)
+        public List<Cocineros> Consultar()
         {
-            var cliente = new HttpClient();
-            var contenido = new StringContent(JsonConvert.SerializeObject(entidad), Encoding.UTF8, "application/json");
-            var respuesta = await cliente.PostAsync(this.url + "Borrar", contenido);
-            var texto = await respuesta.Content.ReadAsStringAsync();
-            if (!respuesta.IsSuccessStatusCode)
-                throw new Exception(texto);
-            return JsonConvert.DeserializeObject<Cocineros>(texto)!;
+            var task = this.IComunicaciones.Ejecutar<List<Cocineros>>(
+                "Cocineros/Consultar",
+                null);
+            return task.GetAwaiter().GetResult();
+        }
+
+        public Cocineros Insertar(Cocineros entidad)
+        {
+            if (entidad.id != 0)
+                throw new Exception("Ya se guardo");
+
+            if (Validar(entidad))
+                throw new Exception("Falta informacion");
+
+            var task = this.IComunicaciones.Ejecutar<Cocineros>(
+                "Cocineros/Insertar",
+                entidad);
+            return task.GetAwaiter().GetResult();
+        }
+
+        private bool Validar(Cocineros entidad)
+        {
+            return string.IsNullOrEmpty(entidad.especialidad);
         }
     }
 }

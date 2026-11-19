@@ -20,11 +20,11 @@ namespace asp.presentacion.Pages.Ventanas
         public List<Auditorias> Lista { get; set; } = new();
         public string? Mensaje { get; set; }
 
-        public async Task OnGet()
+        public void OnGet()
         {
             try
             {
-                Lista = (await iPresentacion.Consultar()).OrderByDescending(x => x.id).ToList();
+                Lista = (iPresentacion.Consultar()).OrderByDescending(x => x.id).ToList();
             }
             catch (Exception ex)
             {
@@ -32,14 +32,14 @@ namespace asp.presentacion.Pages.Ventanas
             }
         }
 
-        public async Task OnPostBuscar()
+        public void OnPostBuscar()
         {
             try
             {
                 if (string.IsNullOrEmpty(Filtro.tabla))
-                    Lista = await iPresentacion.Consultar();
+                    Lista = iPresentacion.Consultar();
                 else
-                    Lista = await iPresentacion.Buscar(Filtro);
+                    Lista = iPresentacion.Buscar(Filtro);
                 Lista = Lista.OrderByDescending(x => x.id).ToList();
             }
             catch (Exception ex)

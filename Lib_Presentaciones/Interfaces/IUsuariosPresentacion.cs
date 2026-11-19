@@ -1,14 +1,14 @@
-using Libreria_restaurante.Entidades;
+﻿using Libreria_restaurante.Entidades;
 
 namespace Lib_Presentaciones.Interfaces
 {
     public interface IUsuariosPresentacion
     {
-        Task<Usuarios> Insertar(Usuarios entidad);
-        Task<Usuarios> Actualizar(Usuarios entidad);
-        Task<List<Usuarios>> Consultar();
-        Task<List<Usuarios>> Buscar(Usuarios entidad);
-        Task<Usuarios> Borrar(Usuarios entidad);
-        Task<Usuarios> Login(Usuarios entidad);
+        Usuarios Insertar(Usuarios entidad);
+        Usuarios Actualizar(Usuarios entidad);
+        List<Usuarios> Consultar();
+        List<Usuarios> Buscar(Usuarios entidad);
+        Usuarios Borrar(Usuarios entidad);
+        Usuarios Login(Usuarios entidad);
     }
 }

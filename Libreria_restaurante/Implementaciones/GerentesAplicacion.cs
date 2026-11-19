@@ -21,7 +21,7 @@ namespace Libreria_restaurante.Implementaciones
             if (entidad.id != 0)
                 throw new Exception("Ya se guardo");
 
-            if (!Validar(entidad))
+            if (Validar(entidad))
                 throw new Exception("Falta informacion");
 
             this.IConexion.Gerentes!.Add(entidad);
@@ -45,7 +45,7 @@ namespace Libreria_restaurante.Implementaciones
             if (entidad.id == 0)
                 throw new Exception("No se ha guardo");
 
-            if (!Validar(entidad))
+            if (Validar(entidad))
                 throw new Exception("Falta informacion");
 
             var anterior = this.IConexion.Gerentes!.FirstOrDefault(x => x.id == entidad.id);
@@ -70,12 +70,14 @@ namespace Libreria_restaurante.Implementaciones
 
         public List<Gerentes> Consultar()
         {
-            return this.IConexion.Gerentes!.ToList();
+            return this.IConexion.Gerentes!
+                .Include(x => x._empleado).ToList();
         }
 
         public List<Gerentes> Buscar(Gerentes entidad)
         {
             return this.IConexion.Gerentes!
+                .Include(x => x._empleado)
                 .Where(x => x.area_responsable!.Contains(entidad.area_responsable!))
                 .ToList();
         }
@@ -102,9 +104,7 @@ namespace Libreria_restaurante.Implementaciones
 
         private bool Validar(Gerentes entidad)
         {
-            if (string.IsNullOrEmpty(entidad.area_responsable))
-                return false;
-            return true;
+            return string.IsNullOrEmpty(entidad.area_responsable);
         }
     }
 }

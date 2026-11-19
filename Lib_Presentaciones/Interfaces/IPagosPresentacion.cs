@@ -1,13 +1,13 @@
-using Libreria_restaurante.Entidades;
+﻿using Libreria_restaurante.Entidades;
 
 namespace Lib_Presentaciones.Interfaces
 {
     public interface IPagosPresentacion
     {
-        Task<Pagos> Insertar(Pagos entidad);
-        Task<Pagos> Actualizar(Pagos entidad);
-        Task<List<Pagos>> Consultar();
-        Task<List<Pagos>> Buscar(Pagos entidad);
-        Task<Pagos> Borrar(Pagos entidad);
+        Pagos Insertar(Pagos entidad);
+        Pagos Actualizar(Pagos entidad);
+        List<Pagos> Consultar();
+        List<Pagos> Buscar(Pagos entidad);
+        Pagos Borrar(Pagos entidad);
     }
 }
