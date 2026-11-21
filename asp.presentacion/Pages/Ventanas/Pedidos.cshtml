@@ -2,89 +2,462 @@
 @model asp.presentacion.Pages.Ventanas.PedidosModel
 @{
     ViewData["Title"] = "Pedidos";
+    bool esAdmin = Model.RolActual.Equals("Administrador", StringComparison.OrdinalIgnoreCase);
 }
 
-<h2>Pedidos</h2>
+<div class="rt-card">
+    <div class="rt-card-head">
+        <h1>Pedidos y Comandas</h1>
+        <button type="button" class="btn btn-oro" onclick="abrirModalPedido()">+ Nuevo pedido</button>
+    </div>
 
-@if (!string.IsNullOrEmpty(Model.Mensaje))
-{
-    <div class="alert alert-danger">@Model.Mensaje</div>
-}
-@if (TempData["Mensaje"] != null)
-{
-    <div class="alert alert-success">@TempData["Mensaje"]</div>
-}
-
-<form method="post" asp-page-handler="Guardar" class="mb-4">
-    <input type="hidden" asp-for="Entidad.id" />
-    <div class="mb-2">
-        <label asp-for="Entidad.cliente" class="form-label"></label>
-        <input asp-for="Entidad.cliente" class="form-control" type="number" />
-    </div>
-    <div class="mb-2">
-        <label asp-for="Entidad.mesa" class="form-label"></label>
-        <input asp-for="Entidad.mesa" class="form-control" type="number" />
-    </div>
-    <div class="mb-2">
-        <label asp-for="Entidad.mesero" class="form-label"></label>
-        <input asp-for="Entidad.mesero" class="form-control" type="number" />
-    </div>
-    <div class="mb-2">
-        <label asp-for="Entidad.fecha_hora" class="form-label"></label>
-        <input asp-for="Entidad.fecha_hora" class="form-control" type="datetime-local" />
-    </div>
-    <div class="mb-2">
-        <label asp-for="Entidad.numero_personas" class="form-label"></label>
-        <input asp-for="Entidad.numero_personas" class="form-control" type="number" />
-    </div>
-    <div class="mb-2">
-        <label asp-for="Entidad.estado" class="form-label"></label>
-        <input asp-for="Entidad.estado" class="form-control" />
-    </div>
-    <button type="submit" class="btn btn-success">Guardar</button>
-    <a asp-page="Pedidos" class="btn btn-secondary">Nuevo</a>
-</form>
-
-<form method="post" asp-page-handler="Buscar" class="row g-2 mb-3">
-    <div class="col">
-        <input asp-for="Filtro.estado" class="form-control" placeholder="Buscar por estado" />
-    </div>
-    <div class="col-auto">
-        <button type="submit" class="btn btn-primary">Buscar</button>
-    </div>
-</form>
-
-<table class="table table-striped">
-    <thead>
-        <tr>
-            <th>Id</th>
-            <th>Cliente</th>
-            <th>Mesa</th>
-            <th>Mesero</th>
-            <th>Fecha hora</th>
-            <th>Numero personas</th>
-            <th>Estado</th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var item in Model.Lista)
+    <div class="rt-card-body">
+        @if (!string.IsNullOrEmpty(Model.Mensaje))
         {
-            <tr>
-                <td>@item.id</td>
-                <td>@item.cliente</td>
-                <td>@item.mesa</td>
-                <td>@item.mesero</td>
-                <td>@item.fecha_hora</td>
-                <td>@item.numero_personas</td>
-                <td>@item.estado</td>
-                <td>
-                    <form method="post" class="d-inline">
-                        <button type="submit" asp-page-handler="Editar" asp-route-id="@item.id" class="btn btn-sm btn-warning">Editar</button>
-                        <button type="submit" asp-page-handler="Borrar" asp-route-id="@item.id" class="btn btn-sm btn-danger" onclick="return confirm('Borrar este registro?')">Borrar</button>
-                    </form>
-                </td>
-            </tr>
+            <div class="alert alert-danger py-2">@Model.Mensaje</div>
         }
-    </tbody>
-</table>
+
+        <ul class="nav nav-tabs mb-3" role="tablist">
+            <li class="nav-item">
+                <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#tab-registros" type="button">
+                    Pedidos (@Model.Lista.Count)
+                </button>
+            </li>
+            <li class="nav-item">
+                <button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-auditoria" type="button">
+                    Auditoría (@Model.ListaAuditorias.Count)
+                </button>
+            </li>
+        </ul>
+
+        <div class="tab-content">
+            <div class="tab-pane fade show active" id="tab-registros">
+                <form method="post" asp-page-handler="Buscar" class="row g-2 mb-3">
+                    <div class="col-md-4">
+                        <input asp-for="Filtro.estado" class="form-control" placeholder="Filtrar por estado..." />
+                    </div>
+                    <div class="col-auto">
+                        <button type="submit" class="btn btn-oro">Buscar</button>
+                        <a asp-page="Pedidos" class="btn btn-fantasma">Todos</a>
+                    </div>
+                </form>
+
+                <div class="table-responsive">
+                    <table class="rt-table">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Mesa / Zona</th>
+                                <th>Mesero</th>
+                                <th>Cliente</th>
+                                <th>Cuenta actual</th>
+                                <th>Estado</th>
+                                <th class="acciones">Gestión de orden</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if (Model.Lista.Count == 0)
+                            {
+                                <tr><td colspan="7" class="text-center text-tenue py-4">Sin pedidos registrados</td></tr>
+                            }
+                            else
+                            {
+                                foreach (var item in Model.Lista)
+                                {
+                                    var meseroObj = Model.ListaMeseros.FirstOrDefault(m => m.id == item.mesero);
+                                    var nomMesero = meseroObj?._empleado?.nombre ?? $"Mesero #{item.mesero}";
+                                    var itemsPedido = Model.ListaDetalles.Where(d => d.pedido == item.id).ToList();
+                                    var totalCuenta = itemsPedido.Sum(d => d.subtotal);
+                                    var factura = Model.ListaFacturas.FirstOrDefault(f => f.pedido == item.id);
+                                    <tr>
+                                        <td><strong>#@item.id</strong><br /><span class="small text-tenue">@item.fecha_hora.ToString("HH:mm")</span></td>
+                                        <td>@(item._mesa != null ? $"Mesa {item._mesa.numero} · {item._mesa.ubicacion}" : $"Mesa #{item.mesa}")<br /><span class="small text-tenue">@item.numero_personas pers.</span></td>
+                                        <td>@nomMesero</td>
+                                        <td>@(item._cliente?.nombre ?? "Consumidor Final")</td>
+                                        <td>
+                                            <strong style="color:var(--rt-champan)">$@totalCuenta.ToString("N0")</strong>
+                                            <div class="small text-tenue">@itemsPedido.Count producto(s)</div>
+                                        </td>
+                                        <td>
+                                            <span class="estado @(factura != null ? "comp" : "pend")">@item.estado</span>
+                                            @if (factura != null)
+                                            {
+                                                <div class="small text-tenue mt-1">@factura.numero</div>
+                                            }
+                                        </td>
+                                        <td class="acciones">
+                                            <button type="button" class="btn btn-sm btn-oro"
+                                                    onclick="abrirComanda(@item.id, 'Mesa @(item._mesa?.numero ?? item.mesa)', @totalCuenta.ToString(System.Globalization.CultureInfo.InvariantCulture), @(factura != null ? "true" : "false"))">
+                                                Comanda / Cuenta
+                                            </button>
+                                            <button type="button" class="btn btn-sm btn-fantasma"
+                                                    onclick='abrirModalPedido({
+                                                        id: @item.id,
+                                                        cliente: @item.cliente,
+                                                        mesa: @item.mesa,
+                                                        mesero: @item.mesero,
+                                                        fecha_hora: "@item.fecha_hora.ToString("yyyy-MM-ddTHH:mm")",
+                                                        numero_personas: @item.numero_personas,
+                                                        estado: "@(item.estado ?? "")"
+                                                    })'>Editar</button>
+                                            @if (esAdmin)
+                                            {
+                                                <form method="post" asp-page-handler="Borrar" asp-route-id="@item.id" class="d-inline" onsubmit="return rtConfirmarBorrado(event)">
+                                                    <button type="submit" class="btn btn-sm btn-outline-danger">Borrar</button>
+                                                </form>
+                                            }
+                                        </td>
+                                    </tr>
+                                }
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="tab-pane fade" id="tab-auditoria">
+                <partial name="_AuditoriaTab" model="Model.ListaAuditorias" />
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal 1: Crear / Editar cabecera del Pedido -->
+<div class="modal fade" id="modalPedido" tabindex="-1">
+    <div class="modal-dialog">
+        <form method="post" asp-page-handler="Guardar" class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title"><span class="modo-titulo">Nuevo</span> pedido</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" name="Entidad.id" value="0" />
+
+                <div class="mb-3">
+                    <label class="form-label">Cliente (opcional)</label>
+                    <select name="Entidad.cliente" class="form-select">
+                        <option value="@Model.IdClienteGeneral">Consumidor Final (Sin cliente registrado)</option>
+                        @foreach (var c in Model.ListaClientes.Where(x => x.id != Model.IdClienteGeneral))
+                        {
+                            <option value="@c.id">@c.nombre (@c.cedula)</option>
+                        }
+                    </select>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Mesa</label>
+                    <select id="selMesaPedido" name="Entidad.mesa" class="form-select" onchange="actualizarInfoMesa()" required>
+                        <option value="" data-zona="" data-cap="99">-- Seleccione una mesa --</option>
+                        @foreach (var m in Model.ListaMesas)
+                        {
+                            <option value="@m.id" data-zona="@m.ubicacion" data-cap="@m.capacidad">
+                                Mesa @m.numero · Zona: @m.ubicacion (Cap. @m.capacidad · @m.estado)
+                            </option>
+                        }
+                    </select>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Mesero</label>
+                    <select id="selMeseroPedido" name="Entidad.mesero" class="form-select" required>
+                        <option value="">-- Seleccione un mesero --</option>
+                        @foreach (var ms in Model.ListaMeseros)
+                        {
+                            var nom = ms._empleado?.nombre ?? $"Mesero #{ms.id}";
+                            <option value="@ms.id" data-zona="@ms.zona_asignada" data-nombre="@nom">@nom · Zona: @ms.zona_asignada</option>
+                        }
+                    </select>
+                    <div id="ayudaZonaMesero" class="form-text text-tenue"></div>
+                </div>
+
+                <div class="row g-2 mb-3">
+                    <div class="col-7">
+                        <label class="form-label">Fecha y hora</label>
+                        <input name="Entidad.fecha_hora" type="datetime-local" class="form-control" required />
+                    </div>
+                    <div class="col-5">
+                        <label class="form-label">N° Personas</label>
+                        <input id="inpPersonasPedido" name="Entidad.numero_personas" type="number" min="1" value="1" class="form-control" required />
+                    </div>
+                </div>
+
+                <div class="mb-2">
+                    <label class="form-label">Estado</label>
+                    <select name="Entidad.estado" class="form-select" required>
+                        <option value="Pendiente">Pendiente</option>
+                        <option value="En preparación">En preparación</option>
+                        <option value="Entregado">Entregado</option>
+                        <option value="Facturado">Facturado</option>
+                        <option value="Cancelado">Cancelado</option>
+                    </select>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-fantasma" data-bs-dismiss="modal">Cancelar</button>
+                <button type="submit" class="btn btn-oro">Guardar</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Modal 2: Comanda múltiple + Cálculo automático + Facturación directa -->
+<div class="modal fade" id="modalComanda" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Comanda y Cuenta · <span id="lblTituloComanda" style="color:var(--rt-champan)"></span></h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <h6 class="text-tenue text-uppercase small mb-2">Productos actuales en la orden</h6>
+                <div class="table-responsive mb-3">
+                    <table class="rt-table">
+                        <thead>
+                            <tr>
+                                <th>Producto</th>
+                                <th>Cant.</th>
+                                <th>Subtotal</th>
+                                <th>Nota</th>
+                                <th class="acciones"></th>
+                            </tr>
+                        </thead>
+                        <tbody id="tbodyActualesComanda"></tbody>
+                    </table>
+                </div>
+
+                <div id="bloqueAgregarProductos">
+                    <h6 class="text-tenue text-uppercase small mb-2">Agregar nuevos productos (cálculo automático)</h6>
+                    <div class="row g-2 align-items-end mb-2">
+                        <div class="col-md-5">
+                            <label class="form-label">Producto</label>
+                            <select id="selProdComanda" class="form-select" onchange="actualizarPrecioUnitario()">
+                                @foreach (var pr in Model.ListaProductos)
+                                {
+                                    var precio = Model.ObtenerPrecioSugerido(pr);
+                                    <option value="@pr.id" data-nombre="@pr.nombre" data-precio="@precio.ToString(System.Globalization.CultureInfo.InvariantCulture)">
+                                        @pr.nombre ($@precio.ToString("N0"))
+                                    </option>
+                                }
+                            </select>
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label">Precio</label>
+                            <input id="inpPrecioUnit" type="number" min="0" step="500" class="form-control" @(esAdmin ? "" : "readonly") />
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label">Cant.</label>
+                            <input id="inpCantComanda" type="number" min="1" value="1" class="form-control" />
+                        </div>
+                        <div class="col-md-3">
+                            <button type="button" class="btn btn-fantasma w-100" onclick="agregarFilaCarrito()">+ Añadir a lista</button>
+                        </div>
+                    </div>
+                    <div class="mb-2">
+                        <input id="inpNotaComanda" class="form-control form-control-sm" placeholder="Nota de cocina opcional (ej. Sin cebolla, término medio)..." />
+                    </div>
+
+                    <form method="post" asp-page-handler="AgregarItems" id="formCarritoComanda" class="mt-3">
+                        <input type="hidden" name="pedidoId" id="hidPedidoIdCarrito" />
+                        <div id="contenedorInputsCarrito"></div>
+                        <table class="rt-table mb-2" id="tablaNuevosCarrito" style="display:none;">
+                            <thead>
+                                <tr>
+                                    <th>Por agregar</th>
+                                    <th>Cant.</th>
+                                    <th>Subtotal</th>
+                                    <th>Nota</th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            <tbody id="tbodyNuevosCarrito"></tbody>
+                        </table>
+                        <button type="submit" id="btnGuardarCarrito" class="btn btn-oro btn-sm" style="display:none;">
+                            Guardar productos en la orden
+                        </button>
+                    </form>
+                </div>
+
+                <hr style="border-color:var(--rt-borde)" />
+
+                <div class="d-flex flex-wrap justify-content-between align-items-center gap-3">
+                    <div>
+                        <div class="small text-tenue">TOTAL CONSUMO ACTUAL</div>
+                        <div class="h4 mb-0" style="color:var(--rt-champan)" id="lblTotalCuenta">$0</div>
+                    </div>
+
+                    <form method="post" asp-page-handler="Facturar" id="formFacturarDirecto" class="d-flex align-items-center gap-2">
+                        <input type="hidden" name="pedidoId" id="hidPedidoIdFacturar" />
+                        <div>
+                            <label class="small text-tenue d-block">Impuesto / Propina (%)</label>
+                            <input type="number" name="porcentajeImpuesto" value="8" min="0" max="30" class="form-control form-control-sm" style="width:90px;" @(esAdmin ? "" : "readonly") />
+                        </div>
+                        <button type="submit" class="btn btn-oro mt-3">Generar Factura</button>
+                    </form>
+                    <span id="badgeYaFacturado" class="estado comp" style="display:none;">Este pedido ya fue facturado</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="datosDetallesOcultos" style="display:none;">
+    @foreach (var d in Model.ListaDetalles)
+    {
+        var nomProd = d._producto?.nombre ?? Model.ListaProductos.FirstOrDefault(p => p.id == d.producto)?.nombre ?? $"Producto #{d.producto}";
+        <div data-pedido="@d.pedido" data-id="@d.id" data-prod="@nomProd" data-cant="@d.cantidad" data-sub="@d.subtotal.ToString("N0")" data-nota="@d.comentarios"></div>
+    }
+</div>
+
+@section Scripts {
+    <script>
+        var carritoTemporal = [];
+
+        function normalizarTexto(txt) {
+            return (txt || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').trim().toLowerCase();
+        }
+
+        function actualizarInfoMesa() {
+            var selMesa = document.getElementById('selMesaPedido');
+            var optMesa = selMesa.options[selMesa.selectedIndex];
+            var zonaRaw = (optMesa ? optMesa.getAttribute('data-zona') : '') || '';
+            var zonaNorm = normalizarTexto(zonaRaw);
+            var cap = parseInt((optMesa ? optMesa.getAttribute('data-cap') : '99') || '99');
+
+            document.getElementById('inpPersonasPedido').max = cap;
+
+            var selMesero = document.getElementById('selMeseroPedido');
+            document.getElementById('ayudaZonaMesero').textContent = zonaRaw ? ('Zona de la mesa seleccionada: ' + zonaRaw) : '';
+
+            Array.from(selMesero.options).forEach(function (opt) {
+                if (!opt.value) return;
+                opt.hidden = false;
+                opt.disabled = false;
+                var nom = opt.getAttribute('data-nombre') || '';
+                var zRaw = opt.getAttribute('data-zona') || '';
+                opt.textContent = (zonaNorm && normalizarTexto(zRaw) === zonaNorm)
+                    ? ('✓ ' + nom + ' · Zona: ' + zRaw + ' (Corresponde)')
+                    : (nom + ' · Zona: ' + zRaw);
+            });
+        }
+
+        function abrirModalPedido(datos) {
+            rtAbrirModal('modalPedido', datos);
+            if (!datos) {
+                var f = document.querySelector('#modalPedido form');
+                f.querySelector('[name="Entidad.id"]').value = '0';
+                f.querySelector('[name="Entidad.cliente"]').value = '@Model.IdClienteGeneral';
+                f.querySelector('[name="Entidad.numero_personas"]').value = '1';
+                f.querySelector('[name="Entidad.estado"]').value = 'Pendiente';
+                var ahora = new Date();
+                ahora.setMinutes(ahora.getMinutes() - ahora.getTimezoneOffset());
+                f.querySelector('[name="Entidad.fecha_hora"]').value = ahora.toISOString().slice(0, 16);
+            }
+            actualizarInfoMesa();
+        }
+
+        function actualizarPrecioUnitario() {
+            var sel = document.getElementById('selProdComanda');
+            if (!sel || sel.selectedIndex < 0) return;
+            var precio = sel.options[sel.selectedIndex].getAttribute('data-precio') || '0';
+            document.getElementById('inpPrecioUnit').value = precio;
+        }
+
+        function abrirComanda(pedidoId, tituloMesa, totalActual, yaFacturado) {
+            carritoTemporal = [];
+            renderizarCarrito();
+            actualizarPrecioUnitario();
+
+            document.getElementById('lblTituloComanda').textContent = 'Pedido #' + pedidoId + ' (' + tituloMesa + ')';
+            document.getElementById('hidPedidoIdCarrito').value = pedidoId;
+            document.getElementById('hidPedidoIdFacturar').value = pedidoId;
+            document.getElementById('lblTotalCuenta').textContent = '$' + Number(totalActual).toLocaleString('es-CO');
+
+            document.getElementById('bloqueAgregarProductos').style.display = yaFacturado ? 'none' : 'block';
+            document.getElementById('formFacturarDirecto').style.display = yaFacturado ? 'none' : 'flex';
+            document.getElementById('badgeYaFacturado').style.display = yaFacturado ? 'inline-block' : 'none';
+
+            var tbody = document.getElementById('tbodyActualesComanda');
+            tbody.innerHTML = '';
+            var nodos = document.querySelectorAll('#datosDetallesOcultos div[data-pedido="' + pedidoId + '"]');
+            if (nodos.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5" class="text-center text-tenue py-2">Aún no hay productos en este pedido</td></tr>';
+            } else {
+                nodos.forEach(function (n) {
+                    var detId = n.getAttribute('data-id');
+                    var btnQuitar = yaFacturado ? '' :
+                        '<form method="post" action="?handler=BorrarDetalle&detalleId=' + detId + '" class="d-inline">' +
+                        '@Html.AntiForgeryToken()' +
+                        '<button type="submit" class="btn btn-sm btn-outline-danger">Quitar</button></form>';
+
+                    tbody.innerHTML += '<tr>' +
+                        '<td>' + n.getAttribute('data-prod') + '</td>' +
+                        '<td>' + n.getAttribute('data-cant') + '</td>' +
+                        '<td>$' + n.getAttribute('data-sub') + '</td>' +
+                        '<td class="text-tenue small">' + (n.getAttribute('data-nota') || '') + '</td>' +
+                        '<td class="acciones">' + btnQuitar + '</td></tr>';
+                });
+            }
+
+            new bootstrap.Modal(document.getElementById('modalComanda')).show();
+        }
+
+        function agregarFilaCarrito() {
+            var sel = document.getElementById('selProdComanda');
+            var opt = sel.options[sel.selectedIndex];
+            if (!opt) return;
+
+            var prodId = parseInt(opt.value);
+            var nombre = opt.getAttribute('data-nombre');
+            var precio = parseFloat(document.getElementById('inpPrecioUnit').value || '0');
+            var cant = parseInt(document.getElementById('inpCantComanda').value || '1');
+            var nota = document.getElementById('inpNotaComanda').value || '';
+
+            if (cant <= 0) return;
+            var subtotal = precio * cant;
+
+            carritoTemporal.push({ prodId: prodId, nombre: nombre, cant: cant, subtotal: subtotal, nota: nota });
+            document.getElementById('inpCantComanda').value = '1';
+            document.getElementById('inpNotaComanda').value = '';
+            renderizarCarrito();
+        }
+
+        function quitarFilaCarrito(idx) {
+            carritoTemporal.splice(idx, 1);
+            renderizarCarrito();
+        }
+
+        function renderizarCarrito() {
+            var tabla = document.getElementById('tablaNuevosCarrito');
+            var tbody = document.getElementById('tbodyNuevosCarrito');
+            var cont = document.getElementById('contenedorInputsCarrito');
+            var btn = document.getElementById('btnGuardarCarrito');
+
+            tbody.innerHTML = '';
+            cont.innerHTML = '';
+
+            if (carritoTemporal.length === 0) {
+                tabla.style.display = 'none';
+                btn.style.display = 'none';
+                return;
+            }
+
+            tabla.style.display = 'table';
+            btn.style.display = 'inline-block';
+
+            carritoTemporal.forEach(function (it, idx) {
+                tbody.innerHTML += '<tr>' +
+                    '<td>' + it.nombre + '</td>' +
+                    '<td>' + it.cant + '</td>' +
+                    '<td>$' + it.subtotal.toLocaleString('es-CO') + '</td>' +
+                    '<td class="small text-tenue">' + it.nota + '</td>' +
+                    '<td class="acciones"><button type="button" class="btn btn-sm btn-outline-danger" onclick="quitarFilaCarrito(' + idx + ')">×</button></td></tr>';
+
+                cont.innerHTML +=
+                    '<input type="hidden" name="productoIds" value="' + it.prodId + '" />' +
+                    '<input type="hidden" name="cantidades" value="' + it.cant + '" />' +
+                    '<input type="hidden" name="subtotales" value="' + it.subtotal + '" />' +
+                    '<input type="hidden" name="comentarios" value="' + it.nota.replace(/"/g, '&quot;') + '" />';
+            });
+        }
+    </script>
+}

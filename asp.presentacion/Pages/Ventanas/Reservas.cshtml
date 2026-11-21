@@ -4,81 +4,179 @@
     ViewData["Title"] = "Reservas";
 }
 
-<h2>Reservas</h2>
+<div class="rt-card">
+    <div class="rt-card-head">
+        <h1>Reservas</h1>
+        <button type="button" class="btn btn-oro" onclick="abrirModalReserva()">+ Nueva reserva</button>
+    </div>
 
-@if (!string.IsNullOrEmpty(Model.Mensaje))
-{
-    <div class="alert alert-danger">@Model.Mensaje</div>
-}
-@if (TempData["Mensaje"] != null)
-{
-    <div class="alert alert-success">@TempData["Mensaje"]</div>
-}
-
-<form method="post" asp-page-handler="Guardar" class="mb-4">
-    <input type="hidden" asp-for="Entidad.id" />
-    <div class="mb-2">
-        <label asp-for="Entidad.cliente" class="form-label"></label>
-        <input asp-for="Entidad.cliente" type="number" class="form-control" />
-    </div>
-    <div class="mb-2">
-        <label asp-for="Entidad.mesa" class="form-label"></label>
-        <input asp-for="Entidad.mesa" type="number" class="form-control" />
-    </div>
-    <div class="mb-2">
-        <label asp-for="Entidad.fecha_hora" class="form-label"></label>
-        <input asp-for="Entidad.fecha_hora" type="datetime-local" class="form-control" />
-    </div>
-    <div class="mb-2">
-        <label asp-for="Entidad.numero_personas" class="form-label"></label>
-        <input asp-for="Entidad.numero_personas" type="number" class="form-control" />
-    </div>
-    <div class="mb-2">
-        <label asp-for="Entidad.estado" class="form-label"></label>
-        <input asp-for="Entidad.estado" class="form-control" />
-    </div>
-    <button type="submit" class="btn btn-success">Guardar</button>
-    <a asp-page="Reservas" class="btn btn-secondary">Nuevo</a>
-</form>
-
-<form method="post" asp-page-handler="Buscar" class="row g-2 mb-3">
-    <div class="col">
-        <input asp-for="Filtro.estado" class="form-control" placeholder="Buscar por estado" />
-    </div>
-    <div class="col-auto">
-        <button type="submit" class="btn btn-primary">Buscar</button>
-    </div>
-</form>
-
-<table class="table table-striped">
-    <thead>
-        <tr>
-            <th>Id</th>
-            <th>Cliente</th>
-            <th>Mesa</th>
-            <th>Fecha hora</th>
-            <th>Numero personas</th>
-            <th>Estado</th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var item in Model.Lista)
+    <div class="rt-card-body">
+        @if (!string.IsNullOrEmpty(Model.Mensaje))
         {
-            <tr>
-                <td>@item.id</td>
-                <td>@item.cliente</td>
-                <td>@item.mesa</td>
-                <td>@item.fecha_hora</td>
-                <td>@item.numero_personas</td>
-                <td>@item.estado</td>
-                <td>
-                    <form method="post" class="d-inline">
-                        <button type="submit" asp-page-handler="Editar" asp-route-id="@item.id" class="btn btn-sm btn-warning">Editar</button>
-                        <button type="submit" asp-page-handler="Borrar" asp-route-id="@item.id" class="btn btn-sm btn-danger" onclick="return confirm('Borrar este registro?')">Borrar</button>
-                    </form>
-                </td>
-            </tr>
+            <div class="alert alert-danger py-2">@Model.Mensaje</div>
         }
-    </tbody>
-</table>
+
+        <ul class="nav nav-tabs mb-3" role="tablist">
+            <li class="nav-item">
+                <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#tab-registros" type="button">
+                    Registros (@Model.Lista.Count)
+                </button>
+            </li>
+            <li class="nav-item">
+                <button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-auditoria" type="button">
+                    Auditoría (@Model.ListaAuditorias.Count)
+                </button>
+            </li>
+        </ul>
+
+        <div class="tab-content">
+            <div class="tab-pane fade show active" id="tab-registros">
+                <form method="post" asp-page-handler="Buscar" class="row g-2 mb-3">
+                    <div class="col-md-4">
+                        <input asp-for="Filtro.estado" class="form-control" placeholder="Filtrar por estado..." />
+                    </div>
+                    <div class="col-auto">
+                        <button type="submit" class="btn btn-oro">Buscar</button>
+                        <a asp-page="Reservas" class="btn btn-fantasma">Todas</a>
+                    </div>
+                </form>
+
+                <div class="table-responsive">
+                    <table class="rt-table">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Cliente</th>
+                                <th>Mesa</th>
+                                <th>Fecha y hora</th>
+                                <th>Personas</th>
+                                <th>Estado</th>
+                                <th class="acciones">Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if (Model.Lista.Count == 0)
+                            {
+                                <tr><td colspan="7" class="text-center text-tenue py-4">Sin reservas registradas</td></tr>
+                            }
+                            else
+                            {
+                                foreach (var item in Model.Lista)
+                                {
+                                    var nomCli = item._cliente?.nombre
+                                        ?? Model.ListaClientes.FirstOrDefault(c => c.id == item.cliente)?.nombre
+                                        ?? $"Cliente #{item.cliente}";
+                                    var mesaObj = item._mesa ?? Model.ListaMesas.FirstOrDefault(m => m.id == item.mesa);
+                                    <tr>
+                                        <td>#@item.id</td>
+                                        <td><strong>@nomCli</strong></td>
+                                        <td>@(mesaObj != null ? $"Mesa {mesaObj.numero} ({mesaObj.ubicacion})" : $"Mesa #{item.mesa}")</td>
+                                        <td>@item.fecha_hora.ToString("dd/MM/yyyy HH:mm")</td>
+                                        <td>@item.numero_personas</td>
+                                        <td><span class="estado conf">@item.estado</span></td>
+                                        <td class="acciones">
+                                            <button type="button" class="btn btn-sm btn-fantasma"
+                                                    onclick='abrirModalReserva({
+                                                        id: @item.id,
+                                                        cliente: @item.cliente,
+                                                        mesa: @item.mesa,
+                                                        fecha_hora: "@item.fecha_hora.ToString("yyyy-MM-ddTHH:mm")",
+                                                        numero_personas: @item.numero_personas,
+                                                        estado: "@(item.estado ?? "")"
+                                                    })'>Editar</button>
+                                            <form method="post" asp-page-handler="Borrar" asp-route-id="@item.id" class="d-inline" onsubmit="return rtConfirmarBorrado(event)">
+                                                <button type="submit" class="btn btn-sm btn-outline-danger">Borrar</button>
+                                            </form>
+                                        </td>
+                                    </tr>
+                                }
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="tab-pane fade" id="tab-auditoria">
+                <partial name="_AuditoriaTab" model="Model.ListaAuditorias" />
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modalReserva" tabindex="-1">
+    <div class="modal-dialog">
+        <form method="post" asp-page-handler="Guardar" class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title"><span class="modo-titulo">Nueva</span> reserva</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" name="Entidad.id" value="0" />
+
+                <div class="mb-3">
+                    <label class="form-label">Cliente</label>
+                    <select name="Entidad.cliente" class="form-select" required>
+                        <option value="">-- Seleccione un cliente --</option>
+                        @foreach (var c in Model.ListaClientes)
+                        {
+                            <option value="@c.id">@c.nombre · Tel: @c.telefono</option>
+                        }
+                    </select>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Mesa</label>
+                    <select name="Entidad.mesa" class="form-select" required>
+                        <option value="">-- Seleccione una mesa --</option>
+                        @foreach (var m in Model.ListaMesas)
+                        {
+                            <option value="@m.id">Mesa @m.numero · @m.ubicacion (Cap. @m.capacidad)</option>
+                        }
+                    </select>
+                </div>
+
+                <div class="row g-2 mb-3">
+                    <div class="col-7">
+                        <label class="form-label">Fecha y hora</label>
+                        <input name="Entidad.fecha_hora" type="datetime-local" class="form-control" required />
+                    </div>
+                    <div class="col-5">
+                        <label class="form-label">N° Personas</label>
+                        <input name="Entidad.numero_personas" type="number" min="1" value="2" class="form-control" required />
+                    </div>
+                </div>
+
+                <div class="mb-2">
+                    <label class="form-label">Estado</label>
+                    <select name="Entidad.estado" class="form-select" required>
+                        <option value="Confirmada">Confirmada</option>
+                        <option value="Pendiente">Pendiente</option>
+                        <option value="Completada">Completada</option>
+                        <option value="Cancelada">Cancelada</option>
+                    </select>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-fantasma" data-bs-dismiss="modal">Cancelar</button>
+                <button type="submit" class="btn btn-oro">Guardar</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function abrirModalReserva(datos) {
+            rtAbrirModal('modalReserva', datos);
+            if (!datos) {
+                var f = document.querySelector('#modalReserva form');
+                f.querySelector('[name="Entidad.id"]').value = '0';
+                f.querySelector('[name="Entidad.numero_personas"]').value = '2';
+                f.querySelector('[name="Entidad.estado"]').value = 'Confirmada';
+                var ahora = new Date();
+                ahora.setMinutes(ahora.getMinutes() - ahora.getTimezoneOffset());
+                f.querySelector('[name="Entidad.fecha_hora"]').value = ahora.toISOString().slice(0, 16);
+            }
+        }
+    </script>
+}

@@ -88,24 +88,37 @@ namespace Libreria_restaurante.Implementaciones
 
         public Pedidos Borrar(Pedidos entidad)
         {
-            if (entidad.id == 0)
-                throw new Exception("No se ha guardo");
+            if (entidad == null || entidad.id == 0)
+                throw new Exception("No se ha guardado");
 
-            this.IConexion.Pedidos!.Remove(entidad);
+            var existente = this.IConexion.Pedidos!.FirstOrDefault(x => x.id == entidad.id);
+            if (existente == null)
+                throw new Exception("El pedido no existe");
+
+            bool tieneDetalles = this.IConexion.Detalles_Pedidos!.Any(x => x.pedido == entidad.id);
+            if (tieneDetalles)
+                throw new Exception("No se puede borrar el pedido porque tiene productos asociados en Detalles de Pedidos.");
+
+            bool tieneFacturas = this.IConexion.Facturas!.Any(x => x.pedido == entidad.id);
+            if (tieneFacturas)
+                throw new Exception("No se puede borrar el pedido porque ya tiene una factura generada.");
+
+            var datosAnt = "id: " + existente.id + ", estado: " + existente.estado;
+
+            this.IConexion.Pedidos!.Remove(existente);
 
             var audit = new Auditorias
             {
                 tabla = "Pedidos",
                 accion = "Borrar",
                 fecha = DateTime.Now,
-                datosAnteriores = "id: " + entidad.id + ", estado: " + entidad.estado,
+                datosAnteriores = datosAnt,
                 datosNuevos = ""
             };
             this.IConexion.Auditorias!.Add(audit);
             this.IConexion.SaveChanges();
-            return entidad;
+            return existente;
         }
-
         private bool Validar(Pedidos entidad)
         {
             return string.IsNullOrEmpty(entidad.estado);
