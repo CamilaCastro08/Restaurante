@@ -1,14 +1,83 @@
 @page
 @model IndexModel
 @{
-    ViewData["Title"] = "Restaurante";
+    ViewData["Title"] = "Panel";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Restaurante</h1>
-    <p>Bienvenido, @Model.HttpContext.Session.GetString("nombre")</p>
-    @if (TempData["Mensaje"] != null)
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h1 class="h3 mb-1" style="color:var(--rt-champan)">Hola, @Model.NombreActual</h1>
+        <p class="text-tenue mb-0">Rol: <strong class="text-white">@Model.RolActual</strong> · @Model.CorreoActual</p>
+    </div>
+    @if (Model.TienePermiso("Pedidos"))
     {
-        <div class="alert alert-warning">@TempData["Mensaje"]</div>
+        <a asp-page="/Ventanas/Pedidos" class="btn btn-oro">+ Nuevo pedido</a>
     }
+</div>
+
+<div class="row g-3 mb-4">
+    <div class="col-6 col-md-2">
+        <div class="rt-kpi"><div class="t">Pedidos hoy</div><div class="v">@Model.TotalPedidosHoy</div></div>
+    </div>
+    <div class="col-6 col-md-2">
+        <div class="rt-kpi"><div class="t">Total pedidos</div><div class="v">@Model.TotalPedidos</div></div>
+    </div>
+    <div class="col-6 col-md-2">
+        <div class="rt-kpi"><div class="t">Reservas</div><div class="v">@Model.TotalReservas</div></div>
+    </div>
+    <div class="col-6 col-md-2">
+        <div class="rt-kpi"><div class="t">Mesas</div><div class="v">@Model.TotalMesas</div></div>
+    </div>
+    <div class="col-6 col-md-2">
+        <div class="rt-kpi"><div class="t">Productos</div><div class="v">@Model.TotalProductos</div></div>
+    </div>
+    <div class="col-6 col-md-2">
+        <div class="rt-kpi"><div class="t">Clientes</div><div class="v">@Model.TotalClientes</div></div>
+    </div>
+</div>
+
+<div class="rt-card">
+    <div class="rt-card-head">
+        <h2>Últimos pedidos</h2>
+        @if (Model.TienePermiso("Pedidos"))
+        {
+            <a asp-page="/Ventanas/Pedidos" class="btn btn-sm btn-fantasma">Ver todos</a>
+        }
+    </div>
+    <div class="rt-card-body p-0">
+        <table class="rt-table">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Fecha y hora</th>
+                    <th>Mesa</th>
+                    <th>Cliente</th>
+                    <th>Mesero</th>
+                    <th>Personas</th>
+                    <th>Estado</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (Model.UltimosPedidos.Count == 0)
+                {
+                    <tr><td colspan="7" class="text-center text-tenue py-4">Sin pedidos registrados</td></tr>
+                }
+                else
+                {
+                    foreach (var p in Model.UltimosPedidos)
+                    {
+                        <tr>
+                            <td>#@p.id</td>
+                            <td>@p.fecha_hora.ToString("dd/MM/yyyy HH:mm")</td>
+                            <td>@(p._mesa != null ? $"Mesa {p._mesa.numero}" : p.mesa.ToString())</td>
+                            <td>@(p._cliente?.nombre ?? p.cliente.ToString())</td>
+                            <td>@(p._mesero?._empleado?.nombre ?? p.mesero.ToString())</td>
+                            <td>@p.numero_personas</td>
+                            <td><span class="estado pend">@(p.estado ?? "Pendiente")</span></td>
+                        </tr>
+                    }
+                }
+            </tbody>
+        </table>
+    </div>
 </div>

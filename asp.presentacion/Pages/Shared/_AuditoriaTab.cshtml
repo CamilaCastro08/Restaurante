@@ -1,0 +1,41 @@
+﻿@model List<Libreria_restaurante.Entidades.Auditorias>
+
+<table class="rt-table">
+    <thead>
+        <tr>
+            <th>Id</th>
+            <th>Fecha</th>
+            <th>Acción</th>
+            <th>Usuario</th>
+            <th>Datos anteriores</th>
+            <th>Datos nuevos</th>
+        </tr>
+    </thead>
+    <tbody>
+        @if (Model == null || Model.Count == 0)
+        {
+            <tr><td colspan="6" class="text-center text-tenue py-4">Sin eventos registrados para esta tabla</td></tr>
+        }
+        else
+        {
+            foreach (var a in Model)
+            {
+                var clase = (a.accion ?? "").ToLower() switch
+                {
+                    var x when x.Contains("insert") || x.Contains("guardar") => "ins",
+                    var x when x.Contains("modif") || x.Contains("actualiz") => "mod",
+                    var x when x.Contains("borr") || x.Contains("elimin")   => "bor",
+                    _ => "pend"
+                };
+                <tr>
+                    <td>@a.id</td>
+                    <td>@a.fecha.ToString("dd/MM/yyyy HH:mm:ss")</td>
+                    <td><span class="estado @clase">@a.accion</span></td>
+                    <td>@(a._Usuario?.nombreUsuario ?? a.usuario?.ToString() ?? "-")</td>
+                    <td class="small text-tenue" style="max-width:260px;word-break:break-word">@a.datosAnteriores</td>
+                    <td class="small" style="max-width:260px;word-break:break-word">@a.datosNuevos</td>
+                </tr>
+            }
+        }
+    </tbody>
+</table>
