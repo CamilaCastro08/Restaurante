@@ -1,7 +1,7 @@
 using Libreria_restaurante.Entidades;
 using Libreria_restaurante.Interfaces;
 using Microsoft.EntityFrameworkCore;
-using Newtonsoft.Json;
+using System.Text.Json;
 
 namespace Libreria_restaurante.Implementaciones
 {
@@ -21,93 +21,23 @@ namespace Libreria_restaurante.Implementaciones
 
         public Usuarios Login(Usuarios entidad)
         {
-            var usuario = this.IConexion!.Usuarios!.FirstOrDefault(x => x.nombreUsuario == entidad.nombreUsuario && x.activo == true);
-            if (usuario == null || string.IsNullOrEmpty(entidad.contraseña) || entidad.contraseña != usuario.contraseña)
+            var usuario = this.IConexion!.Usuarios!
+                .FirstOrDefault(u => u.nombreUsuario == entidad.nombreUsuario
+                                  && u.contraseña == entidad.contraseña
+                                  && u.activo == true);
+
+            if (usuario == null)
                 throw new Exception("Usuario o contraseña incorrectos");
 
             usuario.contraseña = null;
             return usuario;
         }
 
-        private bool Validar(Usuarios entidad)
-        {
-            return string.IsNullOrEmpty(entidad.nombreUsuario) ||
-                string.IsNullOrEmpty(entidad.correo) ||
-                entidad.rol == null || entidad.rol == 0;
-        }
-
-        public Usuarios? Insertar(Usuarios? entidad)
-        {
-            if (entidad == null)
-                throw new Exception("lbFaltaInformacion");
-            if (entidad.id != 0)
-                throw new Exception("lbYaSeGuardo");
-            if (Validar(entidad) || string.IsNullOrEmpty(entidad.contraseña))
-                throw new Exception("lbFaltaInformacion");
-
-            var existe = this.IConexion!.Usuarios!.Any(x => x.nombreUsuario == entidad.nombreUsuario || x.correo == entidad.correo);
-            if (existe)
-                throw new Exception("El usuario o correo ya existe");
-
-            entidad.fechaCreacion = DateTime.Now;
-            this.IConexion!.Usuarios!.Add(entidad);
-            this.IConexion!.SaveChanges();
-
-            RegistrarAuditoria("Insertar", null, entidad);
-            entidad.contraseña = null;
-            return entidad;
-        }
-
-        public Usuarios? Actualizar(Usuarios? entidad)
-        {
-            if (entidad == null)
-                throw new Exception("lbFaltaInformacion");
-            if (entidad.id == 0)
-                throw new Exception("lbNoSeGuardo");
-            if (Validar(entidad))
-                throw new Exception("lbFaltaInformacion");
-
-            var anterior = this.IConexion!.Usuarios!.AsNoTracking().FirstOrDefault(x => x.id == entidad.id);
-            if (anterior == null)
-                throw new Exception("Usuario no encontrado");
-
-            if (string.IsNullOrEmpty(entidad.contraseña))
-            {
-                entidad.contraseña = anterior.contraseña;
-            }
-
-            entidad.fechaCreacion = anterior.fechaCreacion;
-
-            var entry = this.IConexion!.Entry<Usuarios>(entidad);
-            entry.State = EntityState.Modified;
-            this.IConexion!.SaveChanges();
-
-            RegistrarAuditoria("Actualizar", anterior, entidad);
-            entidad.contraseña = null;
-            return entidad;
-        }
-
-        public Usuarios? Borrar(Usuarios? entidad)
-        {
-            if (entidad == null)
-                throw new Exception("lbFaltaInformacion");
-            if (entidad.id == 0)
-                throw new Exception("lbNoSeGuardo");
-
-            var anterior = this.IConexion!.Usuarios!.AsNoTracking().FirstOrDefault(x => x.id == entidad.id);
-
-            this.IConexion!.Usuarios!.Remove(entidad);
-            this.IConexion!.SaveChanges();
-
-            RegistrarAuditoria("Borrar", anterior, null);
-            return entidad;
-        }
-
         public List<Usuarios> Consultar()
         {
             var lista = this.IConexion!.Usuarios!
                 .Include(x => x._rol)
-                .Take(20)
+                .Take(50)
                 .ToList();
 
             lista.ForEach(x => x.contraseña = null);
@@ -123,28 +53,99 @@ namespace Libreria_restaurante.Implementaciones
                 .Include(x => x._rol)
                 .Where(x => x.nombreUsuario!.Contains(entidad.nombreUsuario ?? "") &&
                             x.correo!.Contains(entidad.correo ?? ""))
-                .Take(20)
+                .Take(50)
                 .ToList();
 
             lista.ForEach(x => x.contraseña = null);
             return lista;
         }
 
-        private void RegistrarAuditoria(string accion, Usuarios? anterior, Usuarios? nuevo)
+        public Usuarios? Insertar(Usuarios? entidad)
         {
-            var antCopia = anterior == null ? null : new { anterior.id, anterior.nombreUsuario, anterior.correo, anterior.activo, anterior.rol };
-            var nueCopia = nuevo == null ? null : new { nuevo.id, nuevo.nombreUsuario, nuevo.correo, nuevo.activo, nuevo.rol };
+            if (entidad == null)
+                throw new Exception("lbFaltaInformacion");
+            if (entidad.id != 0)
+                throw new Exception("lbYaSeGuardo");
+            if (string.IsNullOrEmpty(entidad.nombreUsuario) ||
+                string.IsNullOrEmpty(entidad.correo) ||
+                string.IsNullOrEmpty(entidad.contraseña) ||
+                entidad.rol == null || entidad.rol == 0)
+                throw new Exception("lbFaltaInformacion");
 
-            var auditoria = new Auditorias
+            entidad.fechaCreacion = DateTime.Now;
+            this.IConexion!.Usuarios!.Add(entidad);
+            this.IConexion.SaveChanges();
+
+            this.IConexion!.Auditorias!.Add(new Auditorias
             {
                 tabla = "Usuarios",
-                accion = accion,
+                accion = "Insertar",
                 fecha = DateTime.Now,
-                datosAnteriores = antCopia == null ? "" : JsonConvert.SerializeObject(antCopia),
-                datosNuevos = nueCopia == null ? "" : JsonConvert.SerializeObject(nueCopia)
-            };
-            this.IConexion!.Auditorias!.Add(auditoria);
-            this.IConexion!.SaveChanges();
+                datosAnteriores = "",
+                datosNuevos = JsonSerializer.Serialize(new { entidad.id, entidad.nombreUsuario, entidad.correo, entidad.activo, entidad.rol })
+            });
+            this.IConexion.SaveChanges();
+
+            entidad.contraseña = null;
+            return entidad;
+        }
+
+        public Usuarios? Actualizar(Usuarios? entidad)
+        {
+            if (entidad == null)
+                throw new Exception("lbFaltaInformacion");
+            if (entidad.id == 0)
+                throw new Exception("lbNoSeGuardo");
+
+            var anterior = this.IConexion!.Usuarios!.AsNoTracking().FirstOrDefault(x => x.id == entidad.id);
+            if (anterior == null)
+                throw new Exception("Usuario no encontrado");
+
+            if (string.IsNullOrEmpty(entidad.contraseña))
+                entidad.contraseña = anterior.contraseña;
+
+            entidad.fechaCreacion = anterior.fechaCreacion;
+
+            this.IConexion!.Usuarios!.Update(entidad);
+            this.IConexion.SaveChanges();
+
+            this.IConexion!.Auditorias!.Add(new Auditorias
+            {
+                tabla = "Usuarios",
+                accion = "Modificar",
+                fecha = DateTime.Now,
+                datosAnteriores = JsonSerializer.Serialize(new { anterior.id, anterior.nombreUsuario, anterior.correo, anterior.activo, anterior.rol }),
+                datosNuevos = JsonSerializer.Serialize(new { entidad.id, entidad.nombreUsuario, entidad.correo, entidad.activo, entidad.rol })
+            });
+            this.IConexion.SaveChanges();
+
+            entidad.contraseña = null;
+            return entidad;
+        }
+
+        public Usuarios? Borrar(Usuarios? entidad)
+        {
+            if (entidad == null)
+                throw new Exception("lbFaltaInformacion");
+            if (entidad.id == 0)
+                throw new Exception("lbNoSeGuardo");
+
+            var anterior = this.IConexion!.Usuarios!.AsNoTracking().FirstOrDefault(x => x.id == entidad.id);
+
+            this.IConexion!.Usuarios!.Remove(entidad);
+            this.IConexion.SaveChanges();
+
+            this.IConexion!.Auditorias!.Add(new Auditorias
+            {
+                tabla = "Usuarios",
+                accion = "Borrar",
+                fecha = DateTime.Now,
+                datosAnteriores = anterior == null ? "" : JsonSerializer.Serialize(new { anterior.id, anterior.nombreUsuario, anterior.correo, anterior.activo, anterior.rol }),
+                datosNuevos = ""
+            });
+            this.IConexion.SaveChanges();
+
+            return entidad;
         }
     }
 }
