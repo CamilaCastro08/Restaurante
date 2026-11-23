@@ -48,7 +48,7 @@ namespace Libreria_restaurante.Implementaciones
             if (Validar(entidad))
                 throw new Exception("Falta informacion");
 
-            var anterior = this.IConexion.Mesas!.FirstOrDefault(x => x.id == entidad.id);
+            var anterior = this.IConexion.Mesas!.AsNoTracking().FirstOrDefault(x => x.id == entidad.id);
             if (anterior == null)
                 throw new Exception("No existe");
 
@@ -85,19 +85,29 @@ namespace Libreria_restaurante.Implementaciones
             if (entidad.id == 0)
                 throw new Exception("No se ha guardo");
 
-            this.IConexion.Mesas!.Remove(entidad);
+            var itemDb = this.IConexion.Mesas!.FirstOrDefault(x => x.id == entidad.id);
+            if (itemDb == null)
+                throw new Exception("La mesa no existe");
+
+            if (this.IConexion.Pedidos!.Any(p => p.mesa == itemDb.id))
+                throw new Exception("No se puede eliminar la mesa porque tiene pedidos asociados.");
+
+            if (this.IConexion.Reservas!.Any(r => r.mesa == itemDb.id))
+                throw new Exception("No se puede eliminar la mesa porque tiene reservas asociadas.");
+
+            this.IConexion.Mesas!.Remove(itemDb);
 
             var audit = new Auditorias
             {
                 tabla = "Mesas",
                 accion = "Borrar",
                 fecha = DateTime.Now,
-                datosAnteriores = "id: " + entidad.id + ", ubicacion: " + entidad.ubicacion,
+                datosAnteriores = "id: " + itemDb.id + ", ubicacion: " + itemDb.ubicacion,
                 datosNuevos = ""
             };
             this.IConexion.Auditorias!.Add(audit);
             this.IConexion.SaveChanges();
-            return entidad;
+            return itemDb;
         }
 
         private bool Validar(Mesas entidad)

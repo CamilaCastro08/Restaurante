@@ -21,7 +21,13 @@ namespace Libreria_restaurante.Implementaciones
             if (entidad.pedido == 0 || entidad.producto == 0 || entidad.cantidad <= 0)
                 throw new Exception("Falta informacion");
 
-       
+            var pedidoDb = this.IConexion.Pedidos!.FirstOrDefault(p => p.id == entidad.pedido);
+            if (pedidoDb == null)
+                throw new Exception("El pedido no existe.");
+
+            if (pedidoDb.estado == "Pagado" || pedidoDb.estado == "Cancelado")
+                throw new Exception("No se pueden agregar productos a un pedido cerrado.");
+
             var productoDb = this.IConexion.Productos!.FirstOrDefault(p => p.id == entidad.producto);
             if (productoDb == null)
                 throw new Exception("El producto seleccionado no existe.");
@@ -29,46 +35,53 @@ namespace Libreria_restaurante.Implementaciones
             if (productoDb.precio <= 0)
                 throw new Exception($"El producto '{productoDb.nombre}' no tiene un precio configurado.");
 
-            entidad.subtotal = Math.Round(productoDb.precio * entidad.cantidad, 2);
+            // Descontar inventario
+            AjustarInventario(entidad.producto, -entidad.cantidad);
 
-            
-            var recetasIds = this.IConexion.Recetas!
-                .Where(r => r.producto == entidad.producto)
-                .Select(r => r.id)
-                .ToList();
+            // Si ya existe el mismo producto sin comentarios diferentes en el pedido, acumular
+            var existente = this.IConexion.Detalles_Pedidos!.FirstOrDefault(d =>
+                d.pedido == entidad.pedido &&
+                d.producto == entidad.producto &&
+                (d.comentarios ?? "") == (entidad.comentarios ?? ""));
 
-            var ingredientes = this.IConexion.Ingredientes!
-                .Where(ing => recetasIds.Contains(ing.receta))
-                .ToList();
-
-            foreach (var ing in ingredientes)
+            if (existente != null)
             {
-                var inventario = this.IConexion.Inventarios!
-                    .FirstOrDefault(inv => inv.ingrediente == ing.id);
+                int cantAnterior = existente.cantidad;
+                existente.cantidad += entidad.cantidad;
+                existente.subtotal = Math.Round(productoDb.precio * existente.cantidad, 2);
+                existente._pedido = null;
+                existente._producto = null;
 
-                if (inventario != null)
+                this.IConexion.Entry(existente).State = EntityState.Modified;
+                this.IConexion.SaveChanges();
+
+                this.IConexion.Auditorias!.Add(new Auditorias
                 {
-                    if (inventario.stock_actual < entidad.cantidad)
-                        throw new Exception($"Stock insuficiente para el ingrediente: {ing.nombre}");
-
-                    inventario.stock_actual -= entidad.cantidad;
-                    inventario.fecha_actualizacion = DateTime.Now;
-                    this.IConexion.Entry(inventario).State = EntityState.Modified;
-                }
+                    tabla = "Detalles_Pedidos",
+                    accion = "Actualizar",
+                    fecha = DateTime.Now,
+                    datosAnteriores = $"id: {existente.id}, cantidad: {cantAnterior}",
+                    datosNuevos = $"id: {existente.id}, cantidad: {existente.cantidad}, subtotal: {existente.subtotal}"
+                });
+                this.IConexion.SaveChanges();
+                return existente;
             }
+
+            entidad.subtotal = Math.Round(productoDb.precio * entidad.cantidad, 2);
+            entidad._pedido = null;
+            entidad._producto = null;
 
             this.IConexion.Detalles_Pedidos!.Add(entidad);
             this.IConexion.SaveChanges();
 
-            var audit = new Auditorias
+            this.IConexion.Auditorias!.Add(new Auditorias
             {
                 tabla = "Detalles_Pedidos",
                 accion = "Insertar",
                 fecha = DateTime.Now,
                 datosAnteriores = "",
                 datosNuevos = $"id: {entidad.id}, pedido: {entidad.pedido}, producto: {entidad.producto}, cantidad: {entidad.cantidad}, subtotal: {entidad.subtotal}"
-            };
-            this.IConexion.Auditorias!.Add(audit);
+            });
             this.IConexion.SaveChanges();
             return entidad;
         }
@@ -85,18 +98,29 @@ namespace Libreria_restaurante.Implementaciones
             if (anterior == null)
                 throw new Exception("No existe");
 
+            var productoDb = this.IConexion.Productos!.FirstOrDefault(p => p.id == entidad.producto);
+            if (productoDb == null)
+                throw new Exception("El producto no existe.");
+
+            int diferencia = entidad.cantidad - anterior.cantidad;
+            if (diferencia != 0)
+                AjustarInventario(entidad.producto, -diferencia);
+
+            entidad.subtotal = Math.Round(productoDb.precio * entidad.cantidad, 2);
+            entidad._pedido = null;
+            entidad._producto = null;
+
             var entry = this.IConexion.Entry<Detalles_Pedidos>(entidad);
             entry.State = EntityState.Modified;
 
-            var audit = new Auditorias
+            this.IConexion.Auditorias!.Add(new Auditorias
             {
                 tabla = "Detalles_Pedidos",
                 accion = "Actualizar",
                 fecha = DateTime.Now,
-                datosAnteriores = "id: " + anterior.id + ", pedido: " + anterior.pedido,
-                datosNuevos = "id: " + entidad.id + ", pedido: " + entidad.pedido
-            };
-            this.IConexion.Auditorias!.Add(audit);
+                datosAnteriores = $"id: {anterior.id}, cantidad: {anterior.cantidad}",
+                datosNuevos = $"id: {entidad.id}, cantidad: {entidad.cantidad}"
+            });
             this.IConexion.SaveChanges();
             return entidad;
         }
@@ -126,8 +150,30 @@ namespace Libreria_restaurante.Implementaciones
             if (detalleDb == null)
                 throw new Exception("No existe");
 
+            var pedidoDb = this.IConexion.Pedidos!.FirstOrDefault(p => p.id == detalleDb.pedido);
+            if (pedidoDb != null && (pedidoDb.estado == "Pagado" || pedidoDb.estado == "Cancelado"))
+                throw new Exception("No se pueden quitar productos de un pedido ya cerrado.");
+
+            AjustarInventario(detalleDb.producto, detalleDb.cantidad);
+
+            this.IConexion.Detalles_Pedidos!.Remove(detalleDb);
+
+            this.IConexion.Auditorias!.Add(new Auditorias
+            {
+                tabla = "Detalles_Pedidos",
+                accion = "Borrar",
+                fecha = DateTime.Now,
+                datosAnteriores = "id: " + detalleDb.id + ", pedido: " + detalleDb.pedido,
+                datosNuevos = ""
+            });
+            this.IConexion.SaveChanges();
+            return detalleDb;
+        }
+
+        private void AjustarInventario(int productoId, int deltaCantidad)
+        {
             var recetasIds = this.IConexion.Recetas!
-                .Where(r => r.producto == detalleDb.producto)
+                .Where(r => r.producto == productoId)
                 .Select(r => r.id)
                 .ToList();
 
@@ -142,25 +188,14 @@ namespace Libreria_restaurante.Implementaciones
 
                 if (inventario != null)
                 {
-                    inventario.stock_actual += detalleDb.cantidad;
+                    if (deltaCantidad < 0 && inventario.stock_actual < Math.Abs(deltaCantidad))
+                        throw new Exception($"Stock insuficiente para el ingrediente: {ing.nombre}");
+
+                    inventario.stock_actual += deltaCantidad;
                     inventario.fecha_actualizacion = DateTime.Now;
                     this.IConexion.Entry(inventario).State = EntityState.Modified;
                 }
             }
-
-            this.IConexion.Detalles_Pedidos!.Remove(detalleDb);
-
-            var audit = new Auditorias
-            {
-                tabla = "Detalles_Pedidos",
-                accion = "Borrar",
-                fecha = DateTime.Now,
-                datosAnteriores = "id: " + detalleDb.id + ", pedido: " + detalleDb.pedido,
-                datosNuevos = ""
-            };
-            this.IConexion.Auditorias!.Add(audit);
-            this.IConexion.SaveChanges();
-            return detalleDb;
         }
     }
 }

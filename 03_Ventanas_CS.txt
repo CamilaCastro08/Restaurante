@@ -1,0 +1,2943 @@
+﻿=== Auditorias.cshtml.cs ===
+using asp.presentacion.Nucleo;
+using Lib_Presentaciones.Interfaces;
+using Libreria_restaurante.Entidades;
+using Microsoft.AspNetCore.Mvc;
+
+namespace asp.presentacion.Pages.Ventanas
+{
+    public class AuditoriasModel : PaginaProtegida
+    {
+        private readonly IAuditoriasPresentacion iPresentacion;
+
+        public AuditoriasModel(IAuditoriasPresentacion iPresentacion)
+        {
+            this.iPresentacion = iPresentacion;
+        }
+
+        protected override string Permiso => "Auditorias";
+
+        [BindProperty] public Auditorias Filtro { get; set; } = new();
+        public List<Auditorias> Lista { get; set; } = new();
+        public string? Mensaje { get; set; }
+
+        public void OnGet()
+        {
+            try
+            {
+                Lista = (iPresentacion.Consultar()).OrderByDescending(x => x.id).ToList();
+            }
+            catch (Exception ex)
+            {
+                Mensaje = ex.Message;
+            }
+        }
+
+        public void OnPostBuscar()
+        {
+            try
+            {
+                if (string.IsNullOrEmpty(Filtro.tabla))
+                    Lista = iPresentacion.Consultar();
+                else
+                    Lista = iPresentacion.Buscar(Filtro);
+                Lista = Lista.OrderByDescending(x => x.id).ToList();
+            }
+            catch (Exception ex)
+            {
+                Mensaje = ex.Message;
+            }
+        }
+    }
+}
+=== Categorias.cshtml.cs ===
+using asp.presentacion.Nucleo;
+using Lib_Presentaciones.Interfaces;
+using Libreria_restaurante.Entidades;
+using Microsoft.AspNetCore.Mvc;
+
+namespace asp.presentacion.Pages.Ventanas
+{
+    public class CategoriasModel : PaginaProtegida
+    {
+        private readonly ICategoriasPresentacion iPresentacion;
+
+        public CategoriasModel(ICategoriasPresentacion iPresentacion)
+        {
+            this.iPresentacion = iPresentacion;
+        }
+
+        protected override string Permiso => "Categorias";
+
+        [BindProperty] public Categorias Entidad { get; set; } = new();
+        [BindProperty] public Categorias Filtro { get; set; } = new();
+        public List<Categorias> Lista { get; set; } = new();
+        public string? Mensaje { get; set; }
+
+        public void OnGet()
+        {
+            Cargar();
+        }
+
+        public void OnPostBuscar()
+        {
+            try
+            {
+                if (string.IsNullOrEmpty(Filtro.nombre))
+                    Lista = iPresentacion.Consultar();
+                else
+                    Lista = iPresentacion.Buscar(Filtro);
+            }
+            catch (Exception ex)
+            {
+                Mensaje = ex.Message;
+            }
+        }
+
+        public IActionResult OnPostGuardar()
+        {
+            try
+            {
+                if (Entidad.id == 0)
+                    iPresentacion.Insertar(Entidad);
+                else
+                    iPresentacion.Actualizar(Entidad);
+                TempData["Mensaje"] = "Guardado";
+                return RedirectToPage();
+            }
+            catch (Exception ex)
+            {
+                Mensaje = ex.Message;
+                Cargar();
+                return Page();
+            }
+        }
+
+        public void OnPostEditar(int id)
+        {
+            Cargar();
+            ModelState.Clear();
+            var item = Lista.FirstOrDefault(x => x.id == id);
+            if (item != null)
+                Entidad = item;
+        }
+
+        public IActionResult OnPostBorrar(int id)
+        {
+            try
+            {
+                var lista = iPresentacion.Consultar();
+                var item = lista.FirstOrDefault(x => x.id == id);
+                if (item != null)
+                    iPresentacion.Borrar(item);
+                TempData["Mensaje"] = "Borrado";
+                return RedirectToPage();
+            }
+            catch (Exception ex)
+            {
+                Mensaje = ex.Message;
+                Cargar();
+                return Page();
+            }
+        }
+
+        private void Cargar()
+        {
+            try
+            {
+                Lista = iPresentacion.Consultar();
+            }
+            catch (Exception ex)
+            {
+                Mensaje = ex.Message;
+            }
+        }
+    }
+}
+=== Clientes.cshtml.cs ===
+using asp.presentacion.Nucleo;
+using Lib_Presentaciones.Interfaces;
+using Libreria_restaurante.Entidades;
+using Microsoft.AspNetCore.Mvc;
+
+namespace asp.presentacion.Pages.Ventanas
+{
+    public class ClientesModel : PaginaProtegida
+    {
+        private readonly IClientesPresentacion iPresentacion;
+
+        public ClientesModel(IClientesPresentacion iPresentacion)
+        {
+            this.iPresentacion = iPresentacion;
+        }
+
+        protected override string Permiso => "Clientes";
+
+        [BindProperty] public Clientes Entidad { get; set; } = new();
+        [BindProperty] public Clientes Filtro { get; set; } = new();
+        public List<Clientes> Lista { get; set; } = new();
+        public string? Mensaje { get; set; }
+
+        public void OnGet()
+        {
+            Cargar();
+        }
+
+        public void OnPostBuscar()
+        {
+            try
+            {
+                if (string.IsNullOrEmpty(Filtro.nombre))
+                    Lista = iPresentacion.Consultar();
+                else
+                    Lista = iPresentacion.Buscar(Filtro);
+            }
+            catch (Exception ex)
+            {
+                Mensaje = ex.Message;
+            }
+        }
+
+        public IActionResult OnPostGuardar()
+        {
+            try
+            {
+                if (Entidad.id == 0)
+                    iPresentacion.Insertar(Entidad);
+                else
+                    iPresentacion.Actualizar(Entidad);
+                TempData["Mensaje"] = "Guardado";
+                return RedirectToPage();
+            }
+            catch (Exception ex)
+            {
+                Mensaje = ex.Message;
+                Cargar();
+                return Page();
+            }
+        }
+
+        public void OnPostEditar(int id)
+        {
+            Cargar();
+            ModelState.Clear();
+            var item = Lista.FirstOrDefault(x => x.id == id);
+            if (item != null)
+                Entidad = item;
+        }
+
+        public IActionResult OnPostBorrar(int id)
+        {
+            try
+            {
+                var lista = iPresentacion.Consultar();
+                var item = lista.FirstOrDefault(x => x.id == id);
+                if (item != null)
+                    iPresentacion.Borrar(item);
+                TempData["Mensaje"] = "Borrado";
+                return RedirectToPage();
+            }
+            catch (Exception ex)
+            {
+                Mensaje = ex.Message;
+                Cargar();
+                return Page();
+            }
+        }
+
+        private void Cargar()
+        {
+            try
+            {
+                Lista = iPresentacion.Consultar();
+            }
+            catch (Exception ex)
+            {
+                Mensaje = ex.Message;
+            }
+        }
+    }
+}
+=== Cocineros.cshtml.cs ===
+using asp.presentacion.Nucleo;
+using Lib_Presentaciones.Interfaces;
+using Libreria_restaurante.Entidades;
+using Microsoft.AspNetCore.Mvc;
+
+namespace asp.presentacion.Pages.Ventanas
+{
+    public class CocinerosModel : PaginaProtegida
+    {
+        private readonly ICocinerosPresentacion iPresentacion;
+
+        public CocinerosModel(ICocinerosPresentacion iPresentacion)
+        {
+            this.iPresentacion = iPresentacion;
+        }
+
+        protected override string Permiso => "Cocineros";
+
+        [BindProperty] public Cocineros Entidad { get; set; } = new();
+        [BindProperty] public Cocineros Filtro { get; set; } = new();
+        public List<Cocineros> Lista { get; set; } = new();
+        public string? Mensaje { get; set; }
+
+        public void OnGet()
+        {
+            Cargar();
+        }
+
+        public void OnPostBuscar()
+        {
+            try
+            {
+                if (string.IsNullOrEmpty(Filtro.especialidad))
+                    Lista = iPresentacion.Consultar();
+                else
+                    Lista = iPresentacion.Buscar(Filtro);
+            }
+            catch (Exception ex)
+            {
+                Mensaje = ex.Message;
+            }
+        }
+
+        public IActionResult OnPostGuardar()
+        {
+            try
+            {
+                if (Entidad.id == 0)
+                    iPresentacion.Insertar(Entidad);
+                else
+                    iPresentacion.Actualizar(Entidad);
+                TempData["Mensaje"] = "Guardado";
+                return RedirectToPage();
+            }
+            catch (Exception ex)
+            {
+                Mensaje = ex.Message;
+                Cargar();
+                return Page();
+            }
+        }
+
+        public void OnPostEditar(int id)
+        {
+            Cargar();
+            ModelState.Clear();
+            var item = Lista.FirstOrDefault(x => x.id == id);
+            if (item != null)
+                Entidad = item;
+        }
+
+        public IActionResult OnPostBorrar(int id)
+        {
+            try
+            {
+                var lista = iPresentacion.Consultar();
+                var item = lista.FirstOrDefault(x => x.id == id);
+                if (item != null)
+                    iPresentacion.Borrar(item);
+                TempData["Mensaje"] = "Borrado";
+                return RedirectToPage();
+            }
+            catch (Exception ex)
+            {
+                Mensaje = ex.Message;
+                Cargar();
+                return Page();
+            }
+        }
+
+        private void Cargar()
+        {
+            try
+            {
+                Lista = iPresentacion.Consultar();
+            }
+            catch (Exception ex)
+            {
+                Mensaje = ex.Message;
+            }
+        }
+    }
+}
+=== Detalles_Pedidos.cshtml.cs ===
+using asp.presentacion.Nucleo;
+using Lib_Presentaciones.Interfaces;
+using Libreria_restaurante.Entidades;
+using Microsoft.AspNetCore.Mvc;
+
+namespace asp.presentacion.Pages.Ventanas
+{
+    public class Detalles_PedidosModel : PaginaProtegida
+    {
+        private readonly IDetalles_PedidosPresentacion iPresentacion;
+
+        public Detalles_PedidosModel(IDetalles_PedidosPresentacion iPresentacion)
+        {
+            this.iPresentacion = iPresentacion;
+        }
+
+        protected override string Permiso => "Detalles_Pedidos";
+
+        [BindProperty] public Detalles_Pedidos Entidad { get; set; } = new();
+        [BindProperty] public Detalles_Pedidos Filtro { get; set; } = new();
+        public List<Detalles_Pedidos> Lista { get; set; } = new();
+        public string? Mensaje { get; set; }
+
+        public void OnGet()
+        {
+            Cargar();
+        }
+
+        public void OnPostBuscar()
+        {
+            try
+            {
+                if (Filtro.pedido == 0)
+                    Lista = iPresentacion.Consultar();
+                else
+                    Lista = iPresentacion.Buscar(Filtro);
+            }
+            catch (Exception ex)
+            {
+                Mensaje = ex.Message;
+            }
+        }
+
+        public IActionResult OnPostGuardar()
+        {
+            try
+            {
+                if (Entidad.id == 0)
+                    iPresentacion.Insertar(Entidad);
+                else
+                    iPresentacion.Actualizar(Entidad);
+                TempData["Mensaje"] = "Guardado";
+                return RedirectToPage();
+            }
+            catch (Exception ex)
+            {
+                Mensaje = ex.Message;
+                Cargar();
+                return Page();
+            }
+        }
+
+        public void OnPostEditar(int id)
+        {
+            Cargar();
+            ModelState.Clear();
+            var item = Lista.FirstOrDefault(x => x.id == id);
+            if (item != null)
+                Entidad = item;
+        }
+
+        public IActionResult OnPostBorrar(int id)
+        {
+            try
+            {
+                var lista = iPresentacion.Consultar();
+                var item = lista.FirstOrDefault(x => x.id == id);
+                if (item != null)
+                    iPresentacion.Borrar(item);
+                TempData["Mensaje"] = "Borrado";
+                return RedirectToPage();
+            }
+            catch (Exception ex)
+            {
+                Mensaje = ex.Message;
+                Cargar();
+                return Page();
+            }
+        }
+
+        private void Cargar()
+        {
+            try
+            {
+                Lista = iPresentacion.Consultar();
+            }
+            catch (Exception ex)
+            {
+                Mensaje = ex.Message;
+            }
+        }
+    }
+}
+=== Empleados.cshtml.cs ===
+using asp.presentacion.Nucleo;
+using Lib_Presentaciones.Interfaces;
+using Libreria_restaurante.Entidades;
+using Microsoft.AspNetCore.Mvc;
+
+namespace asp.presentacion.Pages.Ventanas
+{
+    public class EmpleadosModel : PaginaProtegida
+    {
+        private readonly IEmpleadosPresentacion iPresentacion;
+
+        public EmpleadosModel(IEmpleadosPresentacion iPresentacion)
+        {
+            this.iPresentacion = iPresentacion;
+        }
+
+        protected override string Permiso => "Empleados";
+
+        [BindProperty] public Empleados Entidad { get; set; } = new() { fecha_contratacion = DateTime.Now };
+        [BindProperty] public Empleados Filtro { get; set; } = new();
+        public List<Empleados> Lista { get; set; } = new();
+        public string? Mensaje { get; set; }
+
+        public void OnGet()
+        {
+            Cargar();
+        }
+
+        public void OnPostBuscar()
+        {
+            try
+            {
+                if (string.IsNullOrEmpty(Filtro.nombre))
+                    Lista = iPresentacion.Consultar();
+                else
+                    Lista = iPresentacion.Buscar(Filtro);
+            }
+            catch (Exception ex)
+            {
+                Mensaje = ex.Message;
+            }
+        }
+
+        public IActionResult OnPostGuardar()
+        {
+            try
+            {
+                if (Entidad.id == 0)
+                    iPresentacion.Insertar(Entidad);
+                else
+                    iPresentacion.Actualizar(Entidad);
+                TempData["Mensaje"] = "Guardado";
+                return RedirectToPage();
+            }
+            catch (Exception ex)
+            {
+                Mensaje = ex.Message;
+                Cargar();
+                return Page();
+            }
+        }
+
+        public void OnPostEditar(int id)
+        {
+            Cargar();
+            ModelState.Clear();
+            var item = Lista.FirstOrDefault(x => x.id == id);
+            if (item != null)
+                Entidad = item;
+        }
+
+        public IActionResult OnPostBorrar(int id)
+        {
+            try
+            {
+                var lista = iPresentacion.Consultar();
+                var item = lista.FirstOrDefault(x => x.id == id);
+                if (item != null)
+                    iPresentacion.Borrar(item);
+                TempData["Mensaje"] = "Borrado";
+                return RedirectToPage();
+            }
+            catch (Exception ex)
+            {
+                Mensaje = ex.Message;
+                Cargar();
+                return Page();
+            }
+        }
+
+        private void Cargar()
+        {
+            try
+            {
+                Lista = iPresentacion.Consultar();
+            }
+            catch (Exception ex)
+            {
+                Mensaje = ex.Message;
+            }
+        }
+    }
+}
+=== Facturas.cshtml.cs ===
+using asp.presentacion.Nucleo;
+using Lib_Presentaciones.Interfaces;
+using Libreria_restaurante.Entidades;
+using Microsoft.AspNetCore.Mvc;
+
+namespace asp.presentacion.Pages.Ventanas
+{
+    public class FacturasModel : PaginaProtegida
+    {
+        private readonly IFacturasPresentacion iPresentacion;
+
+        public FacturasModel(IFacturasPresentacion iPresentacion)
+        {
+            this.iPresentacion = iPresentacion;
+        }
+
+        protected override string Permiso => "Facturas";
+
+        [BindProperty] public Facturas Entidad { get; set; } = new() { fecha_emision = DateTime.Now };
+        [BindProperty] public Facturas Filtro { get; set; } = new();
+        public List<Facturas> Lista { get; set; } = new();
+        public string? Mensaje { get; set; }
+
+        public void OnGet()
+        {
+            Cargar();
+        }
+
+        public void OnPostBuscar()
+        {
+            try
+            {
+                if (string.IsNullOrEmpty(Filtro.numero))
+                    Lista = iPresentacion.Consultar();
+                else
+                    Lista = iPresentacion.Buscar(Filtro);
+            }
+            catch (Exception ex)
+            {
+                Mensaje = ex.Message;
+            }
+        }
+
+        public IActionResult OnPostGuardar()
+        {
+            try
+            {
+                if (Entidad.id == 0)
+                    iPresentacion.Insertar(Entidad);
+                else
+                    iPresentacion.Actualizar(Entidad);
+                TempData["Mensaje"] = "Guardado";
+                return RedirectToPage();
+            }
+            catch (Exception ex)
+            {
+                Mensaje = ex.Message;
+                Cargar();
+                return Page();
+            }
+        }
+
+        public void OnPostEditar(int id)
+        {
+            Cargar();
+            ModelState.Clear();
+            var item = Lista.FirstOrDefault(x => x.id == id);
+            if (item != null)
+                Entidad = item;
+        }
+
+        public IActionResult OnPostBorrar(int id)
+        {
+            try
+            {
+                var lista = iPresentacion.Consultar();
+                var item = lista.FirstOrDefault(x => x.id == id);
+                if (item != null)
+                    iPresentacion.Borrar(item);
+                TempData["Mensaje"] = "Borrado";
+                return RedirectToPage();
+            }
+            catch (Exception ex)
+            {
+                Mensaje = ex.Message;
+                Cargar();
+                return Page();
+            }
+        }
+
+        private void Cargar()
+        {
+            try
+            {
+                Lista = iPresentacion.Consultar();
+            }
+            catch (Exception ex)
+            {
+                Mensaje = ex.Message;
+            }
+        }
+    }
+}
+=== Gerentes.cshtml.cs ===
+using asp.presentacion.Nucleo;
+using Lib_Presentaciones.Interfaces;
+using Libreria_restaurante.Entidades;
+using Microsoft.AspNetCore.Mvc;
+
+namespace asp.presentacion.Pages.Ventanas
+{
+    public class GerentesModel : PaginaProtegida
+    {
+        private readonly IGerentesPresentacion iPresentacion;
+
+        public GerentesModel(IGerentesPresentacion iPresentacion)
+        {
+            this.iPresentacion = iPresentacion;
+        }
+
+        protected override string Permiso => "Gerentes";
+
+        [BindProperty] public Gerentes Entidad { get; set; } = new();
+        [BindProperty] public Gerentes Filtro { get; set; } = new();
+        public List<Gerentes> Lista { get; set; } = new();
+        public string? Mensaje { get; set; }
+
+        public void OnGet()
+        {
+            Cargar();
+        }
+
+        public void OnPostBuscar()
+        {
+            try
+            {
+                if (string.IsNullOrEmpty(Filtro.area_responsable))
+                    Lista = iPresentacion.Consultar();
+                else
+                    Lista = iPresentacion.Buscar(Filtro);
+            }
+            catch (Exception ex)
+            {
+                Mensaje = ex.Message;
+            }
+        }
+
+        public IActionResult OnPostGuardar()
+        {
+            try
+            {
+                if (Entidad.id == 0)
+                    iPresentacion.Insertar(Entidad);
+                else
+                    iPresentacion.Actualizar(Entidad);
+                TempData["Mensaje"] = "Guardado";
+                return RedirectToPage();
+            }
+            catch (Exception ex)
+            {
+                Mensaje = ex.Message;
+                Cargar();
+                return Page();
+            }
+        }
+
+        public void OnPostEditar(int id)
+        {
+            Cargar();
+            ModelState.Clear();
+            var item = Lista.FirstOrDefault(x => x.id == id);
+            if (item != null)
+                Entidad = item;
+        }
+
+        public IActionResult OnPostBorrar(int id)
+        {
+            try
+            {
+                var lista = iPresentacion.Consultar();
+                var item = lista.FirstOrDefault(x => x.id == id);
+                if (item != null)
+                    iPresentacion.Borrar(item);
+                TempData["Mensaje"] = "Borrado";
+                return RedirectToPage();
+            }
+            catch (Exception ex)
+            {
+                Mensaje = ex.Message;
+                Cargar();
+                return Page();
+            }
+        }
+
+        private void Cargar()
+        {
+            try
+            {
+                Lista = iPresentacion.Consultar();
+            }
+            catch (Exception ex)
+            {
+                Mensaje = ex.Message;
+            }
+        }
+    }
+}
+=== Impresion.cshtml.cs ===
+using asp.presentacion.Nucleo;
+using Lib_Presentaciones.Interfaces;
+using Libreria_restaurante.Entidades;
+using Microsoft.AspNetCore.Mvc;
+
+namespace asp.presentacion.Pages.Ventanas
+{
+    public class ImpresionModel : PaginaProtegida
+    {
+        private readonly IPedidosPresentacion pedidosPres;
+        private readonly IDetalles_PedidosPresentacion detallesPres;
+        private readonly IFacturasPresentacion facturasPres;
+        private readonly IProductosPresentacion productosPres;
+        private readonly IClientesPresentacion clientesPres;
+        private readonly IMesasPresentacion mesasPres;
+        private readonly IMeserosPresentacion meserosPres;
+        private readonly IEmpleadosPresentacion empleadosPres;
+
+        public ImpresionModel(
+            IPedidosPresentacion pedidosPres,
+            IDetalles_PedidosPresentacion detallesPres,
+            IFacturasPresentacion facturasPres,
+            IProductosPresentacion productosPres,
+            IClientesPresentacion clientesPres,
+            IMesasPresentacion mesasPres,
+            IMeserosPresentacion meserosPres,
+            IEmpleadosPresentacion empleadosPres)
+        {
+            this.pedidosPres = pedidosPres;
+            this.detallesPres = detallesPres;
+            this.facturasPres = facturasPres;
+            this.productosPres = productosPres;
+            this.clientesPres = clientesPres;
+            this.mesasPres = mesasPres;
+            this.meserosPres = meserosPres;
+            this.empleadosPres = empleadosPres;
+        }
+
+        protected override string Permiso => "Impresion";
+
+        [BindProperty(SupportsGet = true)]
+        public int? PedidoId { get; set; }
+
+        public List<Pedidos> ListaPedidos { get; set; } = new();
+        public Pedidos? PedidoSeleccionado { get; set; }
+        public List<Detalles_Pedidos> DetallesPedido { get; set; } = new();
+        public Facturas? FacturaAsociada { get; set; }
+        public Clientes? ClienteAsociado { get; set; }
+        public Mesas? MesaAsociada { get; set; }
+        public Empleados? EmpleadoMesero { get; set; }
+        public Dictionary<int, string> NombresProductos { get; set; } = new();
+
+        public string? Mensaje { get; set; }
+
+        public void OnGet()
+        {
+            Cargar();
+        }
+
+        private void Cargar()
+        {
+            try
+            {
+                ListaPedidos = pedidosPres.Consultar() ?? new();
+                var productos = productosPres.Consultar() ?? new();
+                NombresProductos = productos.ToDictionary(p => p.id, p => p.nombre ?? $"Producto #{p.id}");
+
+                if (PedidoId.HasValue && PedidoId.Value > 0)
+                {
+                    PedidoSeleccionado = ListaPedidos.FirstOrDefault(p => p.id == PedidoId.Value);
+                }
+                else if (ListaPedidos.Any())
+                {
+                    PedidoSeleccionado = ListaPedidos.First();
+                    PedidoId = PedidoSeleccionado.id;
+                }
+
+                if (PedidoSeleccionado != null)
+                {
+                    var todosDetalles = detallesPres.Consultar() ?? new();
+                    DetallesPedido = todosDetalles.Where(d => d.pedido == PedidoSeleccionado.id).ToList();
+
+                    var facturas = facturasPres.Consultar() ?? new();
+                    FacturaAsociada = facturas.FirstOrDefault(f => f.pedido == PedidoSeleccionado.id);
+
+                    var clientes = clientesPres.Consultar() ?? new();
+                    ClienteAsociado = clientes.FirstOrDefault(c => c.id == PedidoSeleccionado.cliente);
+
+                    var mesas = mesasPres.Consultar() ?? new();
+                    MesaAsociada = mesas.FirstOrDefault(m => m.id == PedidoSeleccionado.mesa);
+
+                    var meseros = meserosPres.Consultar() ?? new();
+                    var mesero = meseros.FirstOrDefault(m => m.id == PedidoSeleccionado.mesero);
+                    if (mesero != null)
+                    {
+                        var empleados = empleadosPres.Consultar() ?? new();
+                        EmpleadoMesero = empleados.FirstOrDefault(e => e.id == mesero.empleado);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Mensaje = "Error al cargar datos de impresiÃ³n: " + ex.Message;
+            }
+        }
+    }
+}
+=== Ingredientes.cshtml.cs ===
+using asp.presentacion.Nucleo;
+using Lib_Presentaciones.Interfaces;
+using Libreria_restaurante.Entidades;
+using Microsoft.AspNetCore.Mvc;
+
+namespace asp.presentacion.Pages.Ventanas
+{
+    public class IngredientesModel : PaginaProtegida
+    {
+        private readonly IIngredientesPresentacion iPresentacion;
+
+        public IngredientesModel(IIngredientesPresentacion iPresentacion)
+        {
+            this.iPresentacion = iPresentacion;
+        }
+
+        protected override string Permiso => "Ingredientes";
+
+        [BindProperty] public Ingredientes Entidad { get; set; } = new();
+        [BindProperty] public Ingredientes Filtro { get; set; } = new();
+        public List<Ingredientes> Lista { get; set; } = new();
+        public string? Mensaje { get; set; }
+
+        public void OnGet()
+        {
+            Cargar();
+        }
+
+        public void OnPostBuscar()
+        {
+            try
+            {
+                if (string.IsNullOrEmpty(Filtro.nombre))
+                    Lista = iPresentacion.Consultar();
+                else
+                    Lista = iPresentacion.Buscar(Filtro);
+            }
+            catch (Exception ex)
+            {
+                Mensaje = ex.Message;
+            }
+        }
+
+        public IActionResult OnPostGuardar()
+        {
+            try
+            {
+                if (Entidad.id == 0)
+                    iPresentacion.Insertar(Entidad);
+                else
+                    iPresentacion.Actualizar(Entidad);
+                TempData["Mensaje"] = "Guardado";
+                return RedirectToPage();
+            }
+            catch (Exception ex)
+            {
+                Mensaje = ex.Message;
+                Cargar();
+                return Page();
+            }
+        }
+
+        public void OnPostEditar(int id)
+        {
+            Cargar();
+            ModelState.Clear();
+            var item = Lista.FirstOrDefault(x => x.id == id);
+            if (item != null)
+                Entidad = item;
+        }
+
+        public IActionResult OnPostBorrar(int id)
+        {
+            try
+            {
+                var lista = iPresentacion.Consultar();
+                var item = lista.FirstOrDefault(x => x.id == id);
+                if (item != null)
+                    iPresentacion.Borrar(item);
+                TempData["Mensaje"] = "Borrado";
+                return RedirectToPage();
+            }
+            catch (Exception ex)
+            {
+                Mensaje = ex.Message;
+                Cargar();
+                return Page();
+            }
+        }
+
+        private void Cargar()
+        {
+            try
+            {
+                Lista = iPresentacion.Consultar();
+            }
+            catch (Exception ex)
+            {
+                Mensaje = ex.Message;
+            }
+        }
+    }
+}
+=== Inventarios.cshtml.cs ===
+using asp.presentacion.Nucleo;
+using Lib_Presentaciones.Interfaces;
+using Libreria_restaurante.Entidades;
+using Microsoft.AspNetCore.Mvc;
+
+namespace asp.presentacion.Pages.Ventanas
+{
+    public class InventariosModel : PaginaProtegida
+    {
+        private readonly IInventariosPresentacion iPresentacion;
+
+        public InventariosModel(IInventariosPresentacion iPresentacion)
+        {
+            this.iPresentacion = iPresentacion;
+        }
+
+        protected override string Permiso => "Inventarios";
+
+        [BindProperty] public Inventarios Entidad { get; set; } = new() { fecha_actualizacion = DateTime.Now };
+        [BindProperty] public Inventarios Filtro { get; set; } = new();
+        public List<Inventarios> Lista { get; set; } = new();
+        public string? Mensaje { get; set; }
+
+        public void OnGet()
+        {
+            Cargar();
+        }
+
+        public void OnPostBuscar()
+        {
+            try
+            {
+                if (Filtro.ingrediente == 0)
+                    Lista = iPresentacion.Consultar();
+                else
+                    Lista = iPresentacion.Buscar(Filtro);
+            }
+            catch (Exception ex)
+            {
+                Mensaje = ex.Message;
+            }
+        }
+
+        public IActionResult OnPostGuardar()
+        {
+            try
+            {
+                if (Entidad.id == 0)
+                    iPresentacion.Insertar(Entidad);
+                else
+                    iPresentacion.Actualizar(Entidad);
+                TempData["Mensaje"] = "Guardado";
+                return RedirectToPage();
+            }
+            catch (Exception ex)
+            {
+                Mensaje = ex.Message;
+                Cargar();
+                return Page();
+            }
+        }
+
+        public void OnPostEditar(int id)
+        {
+            Cargar();
+            ModelState.Clear();
+            var item = Lista.FirstOrDefault(x => x.id == id);
+            if (item != null)
+                Entidad = item;
+        }
+
+        public IActionResult OnPostBorrar(int id)
+        {
+            try
+            {
+                var lista = iPresentacion.Consultar();
+                var item = lista.FirstOrDefault(x => x.id == id);
+                if (item != null)
+                    iPresentacion.Borrar(item);
+                TempData["Mensaje"] = "Borrado";
+                return RedirectToPage();
+            }
+            catch (Exception ex)
+            {
+                Mensaje = ex.Message;
+                Cargar();
+                return Page();
+            }
+        }
+
+        private void Cargar()
+        {
+            try
+            {
+                Lista = iPresentacion.Consultar();
+            }
+            catch (Exception ex)
+            {
+                Mensaje = ex.Message;
+            }
+        }
+    }
+}
+=== MapaMesas.cshtml.cs ===
+using asp.presentacion.Nucleo;
+using Lib_Presentaciones.Interfaces;
+using Libreria_restaurante.Entidades;
+using Microsoft.AspNetCore.Mvc;
+
+namespace asp.presentacion.Pages.Ventanas
+{
+    public class MapaMesasModel : PaginaProtegida
+    {
+        private readonly IMesasPresentacion mesasPres;
+        private readonly IReservasPresentacion reservasPres;
+
+        public MapaMesasModel(IMesasPresentacion mesasPres, IReservasPresentacion reservasPres)
+        {
+            this.mesasPres = mesasPres;
+            this.reservasPres = reservasPres;
+        }
+
+        protected override string Permiso => "MapaMesas";
+
+        public List<Mesas> ListaMesas { get; set; } = new();
+        public List<Reservas> ListaReservas { get; set; } = new();
+
+        public int MesasDisponibles => ListaMesas.Count(m => m.estado == "Disponible");
+        public int MesasOcupadas => ListaMesas.Count(m => m.estado == "Ocupada");
+        public int MesasReservadas => ListaMesas.Count(m => m.estado == "Reservada");
+        public int CapacidadTotal => ListaMesas.Sum(m => m.capacidad);
+
+        public string? Mensaje { get; set; }
+
+        public void OnGet()
+        {
+            CargarDatos();
+        }
+
+        public IActionResult OnPostCambiarEstado(int mesaId, string nuevoEstado)
+        {
+            try
+            {
+                var mesas = mesasPres.Consultar() ?? new();
+                var mesa = mesas.FirstOrDefault(m => m.id == mesaId);
+                if (mesa != null)
+                {
+                    mesa.estado = nuevoEstado;
+                    mesasPres.Actualizar(mesa);
+                    TempData["Mensaje"] = $"Estado de Mesa {mesa.numero} actualizado a '{nuevoEstado}'.";
+                }
+            }
+            catch (Exception ex)
+            {
+                Mensaje = "Error al actualizar estado: " + ex.Message;
+            }
+
+            return RedirectToPage();
+        }
+
+        private void CargarDatos()
+        {
+            try
+            {
+                ListaMesas = mesasPres.Consultar() ?? new();
+                ListaReservas = reservasPres.Consultar() ?? new();
+            }
+            catch (Exception ex)
+            {
+                Mensaje = "Error al cargar mesas: " + ex.Message;
+            }
+        }
+    }
+}
+=== Menus.cshtml.cs ===
+using asp.presentacion.Nucleo;
+using Lib_Presentaciones.Interfaces;
+using Libreria_restaurante.Entidades;
+using Microsoft.AspNetCore.Mvc;
+
+namespace asp.presentacion.Pages.Ventanas
+{
+    public class MenusModel : PaginaProtegida
+    {
+        private readonly IMenusPresentacion iPresentacion;
+
+        public MenusModel(IMenusPresentacion iPresentacion)
+        {
+            this.iPresentacion = iPresentacion;
+        }
+
+        protected override string Permiso => "Menus";
+
+        [BindProperty] public Menus Entidad { get; set; } = new() { vigencia_desde = DateTime.Now, vigencia_hasta = DateTime.Now };
+        [BindProperty] public Menus Filtro { get; set; } = new();
+        public List<Menus> Lista { get; set; } = new();
+        public string? Mensaje { get; set; }
+
+        public void OnGet()
+        {
+            Cargar();
+        }
+
+        public void OnPostBuscar()
+        {
+            try
+            {
+                if (string.IsNullOrEmpty(Filtro.nombre))
+                    Lista = iPresentacion.Consultar();
+                else
+                    Lista = iPresentacion.Buscar(Filtro);
+            }
+            catch (Exception ex)
+            {
+                Mensaje = ex.Message;
+            }
+        }
+
+        public IActionResult OnPostGuardar()
+        {
+            try
+            {
+                if (Entidad.id == 0)
+                    iPresentacion.Insertar(Entidad);
+                else
+                    iPresentacion.Actualizar(Entidad);
+                TempData["Mensaje"] = "Guardado";
+                return RedirectToPage();
+            }
+            catch (Exception ex)
+            {
+                Mensaje = ex.Message;
+                Cargar();
+                return Page();
+            }
+        }
+
+        public void OnPostEditar(int id)
+        {
+            Cargar();
+            ModelState.Clear();
+            var item = Lista.FirstOrDefault(x => x.id == id);
+            if (item != null)
+                Entidad = item;
+        }
+
+        public IActionResult OnPostBorrar(int id)
+        {
+            try
+            {
+                var lista = iPresentacion.Consultar();
+                var item = lista.FirstOrDefault(x => x.id == id);
+                if (item != null)
+                    iPresentacion.Borrar(item);
+                TempData["Mensaje"] = "Borrado";
+                return RedirectToPage();
+            }
+            catch (Exception ex)
+            {
+                Mensaje = ex.Message;
+                Cargar();
+                return Page();
+            }
+        }
+
+        private void Cargar()
+        {
+            try
+            {
+                Lista = iPresentacion.Consultar();
+            }
+            catch (Exception ex)
+            {
+                Mensaje = ex.Message;
+            }
+        }
+    }
+}
+=== Mesas.cshtml.cs ===
+using asp.presentacion.Nucleo;
+using Lib_Presentaciones.Interfaces;
+using Libreria_restaurante.Entidades;
+using Microsoft.AspNetCore.Mvc;
+
+namespace asp.presentacion.Pages.Ventanas
+{
+    public class MesasModel : PaginaProtegida
+    {
+        private readonly IMesasPresentacion iPresentacion;
+
+        public MesasModel(IMesasPresentacion iPresentacion)
+        {
+            this.iPresentacion = iPresentacion;
+        }
+
+        protected override string Permiso => "Mesas";
+
+        [BindProperty] public Mesas Entidad { get; set; } = new();
+        [BindProperty] public Mesas Filtro { get; set; } = new();
+        public List<Mesas> Lista { get; set; } = new();
+        public string? Mensaje { get; set; }
+
+        public void OnGet()
+        {
+            Cargar();
+        }
+
+        public void OnPostBuscar()
+        {
+            try
+            {
+                if (string.IsNullOrEmpty(Filtro.ubicacion))
+                    Lista = iPresentacion.Consultar();
+                else
+                    Lista = iPresentacion.Buscar(Filtro);
+            }
+            catch (Exception ex)
+            {
+                Mensaje = ex.Message;
+            }
+        }
+
+        public IActionResult OnPostGuardar()
+        {
+            try
+            {
+                if (Entidad.id == 0)
+                    iPresentacion.Insertar(Entidad);
+                else
+                    iPresentacion.Actualizar(Entidad);
+                TempData["Mensaje"] = "Guardado";
+                return RedirectToPage();
+            }
+            catch (Exception ex)
+            {
+                Mensaje = ex.Message;
+                Cargar();
+                return Page();
+            }
+        }
+
+        public void OnPostEditar(int id)
+        {
+            Cargar();
+            ModelState.Clear();
+            var item = Lista.FirstOrDefault(x => x.id == id);
+            if (item != null)
+                Entidad = item;
+        }
+
+        public IActionResult OnPostBorrar(int id)
+        {
+            try
+            {
+                var lista = iPresentacion.Consultar();
+                var item = lista.FirstOrDefault(x => x.id == id);
+                if (item != null)
+                    iPresentacion.Borrar(item);
+                TempData["Mensaje"] = "Borrado";
+                return RedirectToPage();
+            }
+            catch (Exception ex)
+            {
+                Mensaje = ex.Message;
+                Cargar();
+                return Page();
+            }
+        }
+
+        private void Cargar()
+        {
+            try
+            {
+                Lista = iPresentacion.Consultar();
+            }
+            catch (Exception ex)
+            {
+                Mensaje = ex.Message;
+            }
+        }
+    }
+}
+=== Meseros.cshtml.cs ===
+using asp.presentacion.Nucleo;
+using Lib_Presentaciones.Interfaces;
+using Libreria_restaurante.Entidades;
+using Microsoft.AspNetCore.Mvc;
+
+namespace asp.presentacion.Pages.Ventanas
+{
+    public class MeserosModel : PaginaProtegida
+    {
+        private readonly IMeserosPresentacion iPresentacion;
+
+        public MeserosModel(IMeserosPresentacion iPresentacion)
+        {
+            this.iPresentacion = iPresentacion;
+        }
+
+        protected override string Permiso => "Meseros";
+
+        [BindProperty] public Meseros Entidad { get; set; } = new();
+        [BindProperty] public Meseros Filtro { get; set; } = new();
+        public List<Meseros> Lista { get; set; } = new();
+        public string? Mensaje { get; set; }
+
+        public void OnGet()
+        {
+            Cargar();
+        }
+
+        public void OnPostBuscar()
+        {
+            try
+            {
+                if (string.IsNullOrEmpty(Filtro.zona_asignada))
+                    Lista = iPresentacion.Consultar();
+                else
+                    Lista = iPresentacion.Buscar(Filtro);
+            }
+            catch (Exception ex)
+            {
+                Mensaje = ex.Message;
+            }
+        }
+
+        public IActionResult OnPostGuardar()
+        {
+            try
+            {
+                if (Entidad.id == 0)
+                    iPresentacion.Insertar(Entidad);
+                else
+                    iPresentacion.Actualizar(Entidad);
+                TempData["Mensaje"] = "Guardado";
+                return RedirectToPage();
+            }
+            catch (Exception ex)
+            {
+                Mensaje = ex.Message;
+                Cargar();
+                return Page();
+            }
+        }
+
+        public void OnPostEditar(int id)
+        {
+            Cargar();
+            ModelState.Clear();
+            var item = Lista.FirstOrDefault(x => x.id == id);
+            if (item != null)
+                Entidad = item;
+        }
+
+        public IActionResult OnPostBorrar(int id)
+        {
+            try
+            {
+                var lista = iPresentacion.Consultar();
+                var item = lista.FirstOrDefault(x => x.id == id);
+                if (item != null)
+                    iPresentacion.Borrar(item);
+                TempData["Mensaje"] = "Borrado";
+                return RedirectToPage();
+            }
+            catch (Exception ex)
+            {
+                Mensaje = ex.Message;
+                Cargar();
+                return Page();
+            }
+        }
+
+        private void Cargar()
+        {
+            try
+            {
+                Lista = iPresentacion.Consultar();
+            }
+            catch (Exception ex)
+            {
+                Mensaje = ex.Message;
+            }
+        }
+    }
+}
+=== MetodosPagos.cshtml.cs ===
+using asp.presentacion.Nucleo;
+using Lib_Presentaciones.Interfaces;
+using Libreria_restaurante.Entidades;
+using Microsoft.AspNetCore.Mvc;
+
+namespace asp.presentacion.Pages.Ventanas
+{
+    public class MetodosPagosModel : PaginaProtegida
+    {
+        private readonly IMetodosPagosPresentacion iPresentacion;
+
+        public MetodosPagosModel(IMetodosPagosPresentacion iPresentacion)
+        {
+            this.iPresentacion = iPresentacion;
+        }
+
+        protected override string Permiso => "MetodosPagos";
+
+        [BindProperty] public MetodosPagos Entidad { get; set; } = new();
+        [BindProperty] public MetodosPagos Filtro { get; set; } = new();
+        public List<MetodosPagos> Lista { get; set; } = new();
+        public string? Mensaje { get; set; }
+
+        public void OnGet()
+        {
+            Cargar();
+        }
+
+        public void OnPostBuscar()
+        {
+            try
+            {
+                if (string.IsNullOrEmpty(Filtro.tipo))
+                    Lista = iPresentacion.Consultar();
+                else
+                    Lista = iPresentacion.Buscar(Filtro);
+            }
+            catch (Exception ex)
+            {
+                Mensaje = ex.Message;
+            }
+        }
+
+        public IActionResult OnPostGuardar()
+        {
+            try
+            {
+                if (Entidad.id == 0)
+                    iPresentacion.Insertar(Entidad);
+                else
+                    iPresentacion.Actualizar(Entidad);
+                TempData["Mensaje"] = "Guardado";
+                return RedirectToPage();
+            }
+            catch (Exception ex)
+            {
+                Mensaje = ex.Message;
+                Cargar();
+                return Page();
+            }
+        }
+
+        public void OnPostEditar(int id)
+        {
+            Cargar();
+            ModelState.Clear();
+            var item = Lista.FirstOrDefault(x => x.id == id);
+            if (item != null)
+                Entidad = item;
+        }
+
+        public IActionResult OnPostBorrar(int id)
+        {
+            try
+            {
+                var lista = iPresentacion.Consultar();
+                var item = lista.FirstOrDefault(x => x.id == id);
+                if (item != null)
+                    iPresentacion.Borrar(item);
+                TempData["Mensaje"] = "Borrado";
+                return RedirectToPage();
+            }
+            catch (Exception ex)
+            {
+                Mensaje = ex.Message;
+                Cargar();
+                return Page();
+            }
+        }
+
+        private void Cargar()
+        {
+            try
+            {
+                Lista = iPresentacion.Consultar();
+            }
+            catch (Exception ex)
+            {
+                Mensaje = ex.Message;
+            }
+        }
+    }
+}
+=== Pagos.cshtml.cs ===
+using asp.presentacion.Nucleo;
+using Lib_Presentaciones.Interfaces;
+using Libreria_restaurante.Entidades;
+using Microsoft.AspNetCore.Mvc;
+
+namespace asp.presentacion.Pages.Ventanas
+{
+    public class PagosModel : PaginaProtegida
+    {
+        private readonly IPagosPresentacion iPresentacion;
+
+        public PagosModel(IPagosPresentacion iPresentacion)
+        {
+            this.iPresentacion = iPresentacion;
+        }
+
+        protected override string Permiso => "Pagos";
+
+        [BindProperty] public Pagos Entidad { get; set; } = new() { fecha = DateTime.Now };
+        [BindProperty] public Pagos Filtro { get; set; } = new();
+        public List<Pagos> Lista { get; set; } = new();
+        public string? Mensaje { get; set; }
+
+        public void OnGet()
+        {
+            Cargar();
+        }
+
+        public void OnPostBuscar()
+        {
+            try
+            {
+                if (string.IsNullOrEmpty(Filtro.referencia))
+                    Lista = iPresentacion.Consultar();
+                else
+                    Lista = iPresentacion.Buscar(Filtro);
+            }
+            catch (Exception ex)
+            {
+                Mensaje = ex.Message;
+            }
+        }
+
+        public IActionResult OnPostGuardar()
+        {
+            try
+            {
+                if (Entidad.id == 0)
+                    iPresentacion.Insertar(Entidad);
+                else
+                    iPresentacion.Actualizar(Entidad);
+                TempData["Mensaje"] = "Guardado";
+                return RedirectToPage();
+            }
+            catch (Exception ex)
+            {
+                Mensaje = ex.Message;
+                Cargar();
+                return Page();
+            }
+        }
+
+        public void OnPostEditar(int id)
+        {
+            Cargar();
+            ModelState.Clear();
+            var item = Lista.FirstOrDefault(x => x.id == id);
+            if (item != null)
+                Entidad = item;
+        }
+
+        public IActionResult OnPostBorrar(int id)
+        {
+            try
+            {
+                var lista = iPresentacion.Consultar();
+                var item = lista.FirstOrDefault(x => x.id == id);
+                if (item != null)
+                    iPresentacion.Borrar(item);
+                TempData["Mensaje"] = "Borrado";
+                return RedirectToPage();
+            }
+            catch (Exception ex)
+            {
+                Mensaje = ex.Message;
+                Cargar();
+                return Page();
+            }
+        }
+
+        private void Cargar()
+        {
+            try
+            {
+                Lista = iPresentacion.Consultar();
+            }
+            catch (Exception ex)
+            {
+                Mensaje = ex.Message;
+            }
+        }
+    }
+}
+=== Pedidos.cshtml.cs ===
+using asp.presentacion.Nucleo;
+using Lib_Presentaciones.Interfaces;
+using Libreria_restaurante.Entidades;
+using Microsoft.AspNetCore.Mvc;
+
+namespace asp.presentacion.Pages.Ventanas
+{
+    public class PedidosModel : PaginaProtegida
+    {
+        private readonly IPedidosPresentacion iPresentacion;
+        private readonly IClientesPresentacion clientesPres;
+        private readonly IMesasPresentacion mesasPres;
+        private readonly IMeserosPresentacion meserosPres;
+        private readonly IEmpleadosPresentacion empleadosPres;
+        private readonly IProductosPresentacion productosPres;
+        private readonly IRecetasPresentacion recetasPres;
+        private readonly IDetalles_PedidosPresentacion detallesPres;
+        private readonly IFacturasPresentacion facturasPres;
+
+        public PedidosModel(
+            IPedidosPresentacion iPresentacion,
+            IClientesPresentacion clientesPres,
+            IMesasPresentacion mesasPres,
+            IMeserosPresentacion meserosPres,
+            IEmpleadosPresentacion empleadosPres,
+            IProductosPresentacion productosPres,
+            IRecetasPresentacion recetasPres,
+            IDetalles_PedidosPresentacion detallesPres,
+            IFacturasPresentacion facturasPres)
+        {
+            this.iPresentacion = iPresentacion;
+            this.clientesPres = clientesPres;
+            this.mesasPres = mesasPres;
+            this.meserosPres = meserosPres;
+            this.empleadosPres = empleadosPres;
+            this.productosPres = productosPres;
+            this.recetasPres = recetasPres;
+            this.detallesPres = detallesPres;
+            this.facturasPres = facturasPres;
+        }
+
+        protected override string Permiso => "Pedidos";
+
+        [BindProperty] public Pedidos Entidad { get; set; } = new() { fecha_hora = DateTime.Now, numero_personas = 2, estado = "En preparaciÃ³n" };
+        [BindProperty] public Pedidos Filtro { get; set; } = new();
+        [BindProperty] public Detalles_Pedidos NuevoDetalle { get; set; } = new() { cantidad = 1 };
+
+        public List<Pedidos> Lista { get; set; } = new();
+        public List<Clientes> ListaClientes { get; set; } = new();
+        public List<Mesas> ListaMesas { get; set; } = new();
+        public List<Meseros> ListaMeseros { get; set; } = new();
+        public List<Empleados> ListaEmpleados { get; set; } = new();
+        public List<Productos> ListaProductos { get; set; } = new();
+        public List<Recetas> ListaRecetas { get; set; } = new();
+        public List<Detalles_Pedidos> DetallesPedidoActual { get; set; } = new();
+
+        public string? Mensaje { get; set; }
+
+        public void OnGet(int? id, int? mesaId)
+        {
+            CargarListasAuxiliares();
+
+            if (mesaId.HasValue && mesaId.Value > 0)
+            {
+                var pedidoActivo = Lista.FirstOrDefault(p => p.mesa == mesaId.Value && (p.estado == "En preparaciÃ³n" || p.estado == "Servido"));
+                if (pedidoActivo != null)
+                {
+                    Entidad = pedidoActivo;
+                    CargarDetalles(pedidoActivo.id);
+                    return;
+                }
+                Entidad.mesa = mesaId.Value;
+            }
+
+            if (id.HasValue && id.Value > 0)
+            {
+                var item = Lista.FirstOrDefault(x => x.id == id.Value);
+                if (item != null)
+                {
+                    Entidad = item;
+                    CargarDetalles(item.id);
+                }
+            }
+        }
+
+        public void OnPostBuscar()
+        {
+            try
+            {
+                CargarListasAuxiliares();
+                if (!string.IsNullOrEmpty(Filtro.estado))
+                    Lista = iPresentacion.Buscar(Filtro);
+            }
+            catch (Exception ex)
+            {
+                Mensaje = ex.Message;
+            }
+        }
+
+        public IActionResult OnPostGuardar()
+        {
+            try
+            {
+                if (Entidad.id == 0)
+                {
+                    var creado = iPresentacion.Insertar(Entidad);
+                    TempData["Mensaje"] = $"Pedido #{creado.id} abierto. Agrega los platos en el panel derecho.";
+                    return RedirectToPage(new { id = creado.id });
+                }
+                else
+                {
+                    iPresentacion.Actualizar(Entidad);
+                    TempData["Mensaje"] = $"Datos del pedido #{Entidad.id} actualizados.";
+                    return RedirectToPage(new { id = Entidad.id });
+                }
+            }
+            catch (Exception ex)
+            {
+                Mensaje = ex.Message;
+                CargarListasAuxiliares();
+                if (Entidad.id > 0) CargarDetalles(Entidad.id);
+                return Page();
+            }
+        }
+
+        public IActionResult OnPostCambiarEstadoPedido(int pedidoId, string nuevoEstado)
+        {
+            try
+            {
+                var todos = iPresentacion.Consultar();
+                var pedido = todos.FirstOrDefault(p => p.id == pedidoId);
+                if (pedido != null)
+                {
+                    pedido.estado = nuevoEstado;
+                    iPresentacion.Actualizar(pedido);
+                    TempData["Mensaje"] = $"Pedido #{pedidoId} marcado como '{nuevoEstado}'.";
+                }
+                return RedirectToPage(new { id = pedidoId });
+            }
+            catch (Exception ex)
+            {
+                Mensaje = ex.Message;
+                return RedirectToPage(new { id = pedidoId });
+            }
+        }
+
+        public IActionResult OnPostAgregarProducto()
+        {
+            try
+            {
+                if (NuevoDetalle.pedido == 0)
+                    throw new Exception("Primero abre el pedido antes de agregar productos.");
+
+                NuevoDetalle.id = 0;
+                detallesPres.Insertar(NuevoDetalle);
+                TempData["Mensaje"] = "Producto agregado al pedido.";
+                return RedirectToPage(new { id = NuevoDetalle.pedido });
+            }
+            catch (Exception ex)
+            {
+                Mensaje = ex.Message;
+                CargarListasAuxiliares();
+                var pedido = Lista.FirstOrDefault(x => x.id == NuevoDetalle.pedido);
+                if (pedido != null)
+                {
+                    Entidad = pedido;
+                    CargarDetalles(pedido.id);
+                }
+                return Page();
+            }
+        }
+
+        public IActionResult OnPostQuitarProducto(int detalleId, int pedidoId)
+        {
+            try
+            {
+                var todos = detallesPres.Consultar();
+                var item = todos.FirstOrDefault(x => x.id == detalleId);
+                if (item != null)
+                    detallesPres.Borrar(item);
+
+                TempData["Mensaje"] = "Producto quitado del pedido.";
+                return RedirectToPage(new { id = pedidoId });
+            }
+            catch (Exception ex)
+            {
+                Mensaje = ex.Message;
+                return RedirectToPage(new { id = pedidoId });
+            }
+        }
+
+        public IActionResult OnPostFacturarPedido(int pedidoId)
+        {
+            try
+            {
+                var factura = new Facturas
+                {
+                    pedido = pedidoId,
+                    fecha_emision = DateTime.Now
+                };
+                facturasPres.Insertar(factura);
+                TempData["Mensaje"] = $"Pedido #{pedidoId} cobrado y mesa liberada.";
+                return RedirectToPage("/Ventanas/Impresion", new { PedidoId = pedidoId });
+            }
+            catch (Exception ex)
+            {
+                Mensaje = ex.Message;
+                return RedirectToPage(new { id = pedidoId });
+            }
+        }
+
+        public IActionResult OnPostBorrar(int id)
+        {
+            try
+            {
+                var lista = iPresentacion.Consultar();
+                var item = lista.FirstOrDefault(x => x.id == id);
+                if (item != null)
+                    iPresentacion.Borrar(item);
+                TempData["Mensaje"] = "Pedido eliminado y mesa liberada.";
+                return RedirectToPage();
+            }
+            catch (Exception ex)
+            {
+                Mensaje = ex.Message;
+                CargarListasAuxiliares();
+                return Page();
+            }
+        }
+
+        public string NombreMesero(int meseroId)
+        {
+            var mesero = ListaMeseros.FirstOrDefault(m => m.id == meseroId);
+            if (mesero == null) return $"Mesero #{meseroId}";
+            var emp = ListaEmpleados.FirstOrDefault(e => e.id == mesero.empleado);
+            return emp != null ? emp.nombre! : $"Mesero #{meseroId}";
+        }
+
+        private void CargarListasAuxiliares()
+        {
+            try
+            {
+                Lista = (iPresentacion.Consultar() ?? new()).OrderByDescending(x => x.id).ToList();
+                ListaClientes = clientesPres.Consultar() ?? new();
+                ListaMesas = mesasPres.Consultar() ?? new();
+                ListaMeseros = meserosPres.Consultar() ?? new();
+                ListaEmpleados = empleadosPres.Consultar() ?? new();
+                ListaProductos = productosPres.Consultar() ?? new();
+                ListaRecetas = recetasPres.Consultar() ?? new();
+            }
+            catch (Exception ex)
+            {
+                Mensaje = ex.Message;
+            }
+        }
+
+        private void CargarDetalles(int pedidoId)
+        {
+            var todos = detallesPres.Consultar() ?? new();
+            DetallesPedidoActual = todos.Where(d => d.pedido == pedidoId).ToList();
+            NuevoDetalle.pedido = pedidoId;
+        }
+    }
+}
+=== Permisos.cshtml.cs ===
+using asp.presentacion.Nucleo;
+using Lib_Presentaciones.Interfaces;
+using Libreria_restaurante.Entidades;
+using Microsoft.AspNetCore.Mvc;
+
+namespace asp.presentacion.Pages.Ventanas
+{
+    public class PermisosModel : PaginaProtegida
+    {
+        private readonly IPermisosPresentacion iPresentacion;
+
+        public PermisosModel(IPermisosPresentacion iPresentacion)
+        {
+            this.iPresentacion = iPresentacion;
+        }
+
+        protected override string Permiso => "Permisos";
+
+        [BindProperty] public Permisos Entidad { get; set; } = new();
+        [BindProperty] public Permisos Filtro { get; set; } = new();
+        public List<Permisos> Lista { get; set; } = new();
+        public string? Mensaje { get; set; }
+
+        public void OnGet()
+        {
+            Cargar();
+        }
+
+        public void OnPostBuscar()
+        {
+            try
+            {
+                if (string.IsNullOrEmpty(Filtro.nombre))
+                    Lista = iPresentacion.Consultar();
+                else
+                    Lista = iPresentacion.Buscar(Filtro);
+            }
+            catch (Exception ex)
+            {
+                Mensaje = ex.Message;
+            }
+        }
+
+        public IActionResult OnPostGuardar()
+        {
+            try
+            {
+                if (Entidad.id == 0)
+                    iPresentacion.Insertar(Entidad);
+                else
+                    iPresentacion.Actualizar(Entidad);
+                TempData["Mensaje"] = "Guardado";
+                return RedirectToPage();
+            }
+            catch (Exception ex)
+            {
+                Mensaje = ex.Message;
+                Cargar();
+                return Page();
+            }
+        }
+
+        public void OnPostEditar(int id)
+        {
+            Cargar();
+            ModelState.Clear();
+            var item = Lista.FirstOrDefault(x => x.id == id);
+            if (item != null)
+                Entidad = item;
+        }
+
+        public IActionResult OnPostBorrar(int id)
+        {
+            try
+            {
+                var lista = iPresentacion.Consultar();
+                var item = lista.FirstOrDefault(x => x.id == id);
+                if (item != null)
+                    iPresentacion.Borrar(item);
+                TempData["Mensaje"] = "Borrado";
+                return RedirectToPage();
+            }
+            catch (Exception ex)
+            {
+                Mensaje = ex.Message;
+                Cargar();
+                return Page();
+            }
+        }
+
+        private void Cargar()
+        {
+            try
+            {
+                Lista = iPresentacion.Consultar();
+            }
+            catch (Exception ex)
+            {
+                Mensaje = ex.Message;
+            }
+        }
+    }
+}
+=== Productos.cshtml.cs ===
+using asp.presentacion.Nucleo;
+using Lib_Presentaciones.Interfaces;
+using Libreria_restaurante.Entidades;
+using Microsoft.AspNetCore.Mvc;
+
+namespace asp.presentacion.Pages.Ventanas
+{
+    public class ProductosModel : PaginaProtegida
+    {
+        private readonly IProductosPresentacion iPresentacion;
+        private readonly ICategoriasPresentacion categoriasPres;
+        private readonly IMenusPresentacion menusPres;
+
+        public ProductosModel(IProductosPresentacion iPresentacion, ICategoriasPresentacion categoriasPres, IMenusPresentacion menusPres)
+        {
+            this.iPresentacion = iPresentacion;
+            this.categoriasPres = categoriasPres;
+            this.menusPres = menusPres;
+        }
+
+        protected override string Permiso => "Productos";
+
+        [BindProperty] public Productos Entidad { get; set; } = new() { vigencia_desde = DateTime.Now, vigencia_hasta = DateTime.Now.AddYears(1) };
+        [BindProperty] public Productos Filtro { get; set; } = new();
+        public List<Productos> Lista { get; set; } = new();
+        public List<Categorias> ListaCategorias { get; set; } = new();
+        public List<Menus> ListaMenus { get; set; } = new();
+        public string? Mensaje { get; set; }
+
+        public void OnGet()
+        {
+            Cargar();
+        }
+
+        public void OnPostBuscar()
+        {
+            try
+            {
+                ListaCategorias = categoriasPres.Consultar() ?? new();
+                ListaMenus = menusPres.Consultar() ?? new();
+                if (string.IsNullOrEmpty(Filtro.nombre))
+                    Lista = iPresentacion.Consultar();
+                else
+                    Lista = iPresentacion.Buscar(Filtro);
+            }
+            catch (Exception ex)
+            {
+                Mensaje = ex.Message;
+            }
+        }
+
+        public IActionResult OnPostGuardar()
+        {
+            try
+            {
+                if (Entidad.id == 0)
+                    iPresentacion.Insertar(Entidad);
+                else
+                    iPresentacion.Actualizar(Entidad);
+                TempData["Mensaje"] = "Guardado";
+                return RedirectToPage();
+            }
+            catch (Exception ex)
+            {
+                Mensaje = ex.Message;
+                Cargar();
+                return Page();
+            }
+        }
+
+        public void OnPostEditar(int id)
+        {
+            Cargar();
+            ModelState.Clear();
+            var item = Lista.FirstOrDefault(x => x.id == id);
+            if (item != null)
+                Entidad = item;
+        }
+
+        public IActionResult OnPostBorrar(int id)
+        {
+            try
+            {
+                var lista = iPresentacion.Consultar();
+                var item = lista.FirstOrDefault(x => x.id == id);
+                if (item != null)
+                    iPresentacion.Borrar(item);
+                TempData["Mensaje"] = "Borrado";
+                return RedirectToPage();
+            }
+            catch (Exception ex)
+            {
+                Mensaje = ex.Message;
+                Cargar();
+                return Page();
+            }
+        }
+
+        private void Cargar()
+        {
+            try
+            {
+                Lista = iPresentacion.Consultar() ?? new();
+                ListaCategorias = categoriasPres.Consultar() ?? new();
+                ListaMenus = menusPres.Consultar() ?? new();
+            }
+            catch (Exception ex)
+            {
+                Mensaje = ex.Message;
+            }
+        }
+    }
+}
+=== Proveedores.cshtml.cs ===
+using asp.presentacion.Nucleo;
+using Lib_Presentaciones.Interfaces;
+using Libreria_restaurante.Entidades;
+using Microsoft.AspNetCore.Mvc;
+
+namespace asp.presentacion.Pages.Ventanas
+{
+    public class ProveedoresModel : PaginaProtegida
+    {
+        private readonly IProveedoresPresentacion iPresentacion;
+
+        public ProveedoresModel(IProveedoresPresentacion iPresentacion)
+        {
+            this.iPresentacion = iPresentacion;
+        }
+
+        protected override string Permiso => "Proveedores";
+
+        [BindProperty] public Proveedores Entidad { get; set; } = new();
+        [BindProperty] public Proveedores Filtro { get; set; } = new();
+        public List<Proveedores> Lista { get; set; } = new();
+        public string? Mensaje { get; set; }
+
+        public void OnGet()
+        {
+            Cargar();
+        }
+
+        public void OnPostBuscar()
+        {
+            try
+            {
+                if (string.IsNullOrEmpty(Filtro.nombre))
+                    Lista = iPresentacion.Consultar();
+                else
+                    Lista = iPresentacion.Buscar(Filtro);
+            }
+            catch (Exception ex)
+            {
+                Mensaje = ex.Message;
+            }
+        }
+
+        public IActionResult OnPostGuardar()
+        {
+            try
+            {
+                if (Entidad.id == 0)
+                    iPresentacion.Insertar(Entidad);
+                else
+                    iPresentacion.Actualizar(Entidad);
+                TempData["Mensaje"] = "Guardado";
+                return RedirectToPage();
+            }
+            catch (Exception ex)
+            {
+                Mensaje = ex.Message;
+                Cargar();
+                return Page();
+            }
+        }
+
+        public void OnPostEditar(int id)
+        {
+            Cargar();
+            ModelState.Clear();
+            var item = Lista.FirstOrDefault(x => x.id == id);
+            if (item != null)
+                Entidad = item;
+        }
+
+        public IActionResult OnPostBorrar(int id)
+        {
+            try
+            {
+                var lista = iPresentacion.Consultar();
+                var item = lista.FirstOrDefault(x => x.id == id);
+                if (item != null)
+                    iPresentacion.Borrar(item);
+                TempData["Mensaje"] = "Borrado";
+                return RedirectToPage();
+            }
+            catch (Exception ex)
+            {
+                Mensaje = ex.Message;
+                Cargar();
+                return Page();
+            }
+        }
+
+        private void Cargar()
+        {
+            try
+            {
+                Lista = iPresentacion.Consultar();
+            }
+            catch (Exception ex)
+            {
+                Mensaje = ex.Message;
+            }
+        }
+    }
+}
+=== Recetas.cshtml.cs ===
+using asp.presentacion.Nucleo;
+using Lib_Presentaciones.Interfaces;
+using Libreria_restaurante.Entidades;
+using Microsoft.AspNetCore.Mvc;
+
+namespace asp.presentacion.Pages.Ventanas
+{
+    public class RecetasModel : PaginaProtegida
+    {
+        private readonly IRecetasPresentacion iPresentacion;
+
+        public RecetasModel(IRecetasPresentacion iPresentacion)
+        {
+            this.iPresentacion = iPresentacion;
+        }
+
+        protected override string Permiso => "Recetas";
+
+        [BindProperty] public Recetas Entidad { get; set; } = new() { tiempo_preparacion = DateTime.Now };
+        [BindProperty] public Recetas Filtro { get; set; } = new();
+        public List<Recetas> Lista { get; set; } = new();
+        public string? Mensaje { get; set; }
+
+        public void OnGet()
+        {
+            Cargar();
+        }
+
+        public void OnPostBuscar()
+        {
+            try
+            {
+                if (string.IsNullOrEmpty(Filtro.instrucciones))
+                    Lista = iPresentacion.Consultar();
+                else
+                    Lista = iPresentacion.Buscar(Filtro);
+            }
+            catch (Exception ex)
+            {
+                Mensaje = ex.Message;
+            }
+        }
+
+        public IActionResult OnPostGuardar()
+        {
+            try
+            {
+                if (Entidad.id == 0)
+                    iPresentacion.Insertar(Entidad);
+                else
+                    iPresentacion.Actualizar(Entidad);
+                TempData["Mensaje"] = "Guardado";
+                return RedirectToPage();
+            }
+            catch (Exception ex)
+            {
+                Mensaje = ex.Message;
+                Cargar();
+                return Page();
+            }
+        }
+
+        public void OnPostEditar(int id)
+        {
+            Cargar();
+            ModelState.Clear();
+            var item = Lista.FirstOrDefault(x => x.id == id);
+            if (item != null)
+                Entidad = item;
+        }
+
+        public IActionResult OnPostBorrar(int id)
+        {
+            try
+            {
+                var lista = iPresentacion.Consultar();
+                var item = lista.FirstOrDefault(x => x.id == id);
+                if (item != null)
+                    iPresentacion.Borrar(item);
+                TempData["Mensaje"] = "Borrado";
+                return RedirectToPage();
+            }
+            catch (Exception ex)
+            {
+                Mensaje = ex.Message;
+                Cargar();
+                return Page();
+            }
+        }
+
+        private void Cargar()
+        {
+            try
+            {
+                Lista = iPresentacion.Consultar();
+            }
+            catch (Exception ex)
+            {
+                Mensaje = ex.Message;
+            }
+        }
+    }
+}
+=== Reportes.cshtml.cs ===
+using System.Text;
+using asp.presentacion.Nucleo;
+using Lib_Presentaciones.Interfaces;
+using Libreria_restaurante.Entidades;
+using Microsoft.AspNetCore.Mvc;
+
+namespace asp.presentacion.Pages.Ventanas
+{
+    public class ReportesModel : PaginaProtegida
+    {
+        private readonly IFacturasPresentacion facturasPres;
+        private readonly IInventariosPresentacion inventariosPres;
+        private readonly IIngredientesPresentacion ingredientesPres;
+        private readonly IMesasPresentacion mesasPres;
+        private readonly IPedidosPresentacion pedidosPres;
+
+        public ReportesModel(
+            IFacturasPresentacion facturasPres,
+            IInventariosPresentacion inventariosPres,
+            IIngredientesPresentacion ingredientesPres,
+            IMesasPresentacion mesasPres,
+            IPedidosPresentacion pedidosPres)
+        {
+            this.facturasPres = facturasPres;
+            this.inventariosPres = inventariosPres;
+            this.ingredientesPres = ingredientesPres;
+            this.mesasPres = mesasPres;
+            this.pedidosPres = pedidosPres;
+        }
+
+        protected override string Permiso => "Reportes";
+
+        [BindProperty(SupportsGet = true)]
+        public string TipoReporte { get; set; } = "Ventas";
+
+        [BindProperty(SupportsGet = true)]
+        public DateTime? FechaDesde { get; set; }
+
+        [BindProperty(SupportsGet = true)]
+        public DateTime? FechaHasta { get; set; }
+
+        public List<Facturas> ListaFacturas { get; set; } = new();
+        public List<Inventarios> ListaInventarios { get; set; } = new();
+        public List<Mesas> ListaMesas { get; set; } = new();
+
+        public decimal TotalVentas { get; set; }
+        public decimal PromedioVentas { get; set; }
+        public int TotalItems { get; set; }
+        public string? Mensaje { get; set; }
+
+        public void OnGet()
+        {
+            CargarDatos();
+        }
+
+        public IActionResult OnGetExportarExcel(string tipo, DateTime? desde, DateTime? hasta)
+        {
+            TipoReporte = tipo ?? "Ventas";
+            FechaDesde = desde;
+            FechaHasta = hasta;
+            CargarDatos();
+
+            var sb = new StringBuilder();
+
+            if (TipoReporte == "Ventas")
+            {
+                sb.AppendLine("ID;Numero Factura;Fecha Emision;Subtotal;Total");
+                foreach (var f in ListaFacturas)
+                {
+                    sb.AppendLine($"{f.id};{f.numero};{f.fecha_emision:yyyy-MM-dd HH:mm};{f.subtotal:F2};{f.total:F2}");
+                }
+                sb.AppendLine($";;;TOTAL;{TotalVentas:F2}");
+                var bytes = Encoding.UTF8.GetPreamble().Concat(Encoding.UTF8.GetBytes(sb.ToString())).ToArray();
+                return File(bytes, "text/csv; charset=utf-8", $"Reporte_Ventas_{DateTime.Now:yyyyMMdd_HHmm}.csv");
+            }
+            else if (TipoReporte == "Inventario")
+            {
+                sb.AppendLine("ID;ID Ingrediente;Stock Actual;Stock Minimo;Fecha Actualizacion;Alerta");
+                foreach (var inv in ListaInventarios)
+                {
+                    string alerta = inv.stock_actual <= inv.stock_minimo ? "CRITICO" : "OPTIMO";
+                    sb.AppendLine($"{inv.id};{inv.ingrediente};{inv.stock_actual:F2};{inv.stock_minimo:F2};{inv.fecha_actualizacion:yyyy-MM-dd HH:mm};{alerta}");
+                }
+                var bytes = Encoding.UTF8.GetPreamble().Concat(Encoding.UTF8.GetBytes(sb.ToString())).ToArray();
+                return File(bytes, "text/csv; charset=utf-8", $"Reporte_Inventario_{DateTime.Now:yyyyMMdd_HHmm}.csv");
+            }
+            else
+            {
+                sb.AppendLine("ID;Numero Mesa;Capacidad Personas;Estado;Ubicacion");
+                foreach (var m in ListaMesas)
+                {
+                    sb.AppendLine($"{m.id};{m.numero};{m.capacidad};{m.estado};{m.ubicacion}");
+                }
+                var bytes = Encoding.UTF8.GetPreamble().Concat(Encoding.UTF8.GetBytes(sb.ToString())).ToArray();
+                return File(bytes, "text/csv; charset=utf-8", $"Reporte_Mesas_{DateTime.Now:yyyyMMdd_HHmm}.csv");
+            }
+        }
+
+        private void CargarDatos()
+        {
+            try
+            {
+                if (TipoReporte == "Ventas")
+                {
+                    var facturas = facturasPres.Consultar() ?? new();
+                    if (FechaDesde.HasValue)
+                        facturas = facturas.Where(x => x.fecha_emision >= FechaDesde.Value).ToList();
+                    if (FechaHasta.HasValue)
+                        facturas = facturas.Where(x => x.fecha_emision <= FechaHasta.Value.AddDays(1)).ToList();
+
+                    ListaFacturas = facturas.OrderByDescending(x => x.fecha_emision).ToList();
+                    TotalVentas = ListaFacturas.Sum(x => x.total);
+                    TotalItems = ListaFacturas.Count;
+                    PromedioVentas = TotalItems > 0 ? TotalVentas / TotalItems : 0;
+                }
+                else if (TipoReporte == "Inventario")
+                {
+                    ListaInventarios = inventariosPres.Consultar() ?? new();
+                    TotalItems = ListaInventarios.Count;
+                }
+                else if (TipoReporte == "Mesas")
+                {
+                    ListaMesas = mesasPres.Consultar() ?? new();
+                    TotalItems = ListaMesas.Count;
+                }
+            }
+            catch (Exception ex)
+            {
+                Mensaje = "Error al cargar reporte: " + ex.Message;
+            }
+        }
+    }
+}
+=== Reservas.cshtml.cs ===
+using asp.presentacion.Nucleo;
+using Lib_Presentaciones.Interfaces;
+using Libreria_restaurante.Entidades;
+using Microsoft.AspNetCore.Mvc;
+
+namespace asp.presentacion.Pages.Ventanas
+{
+    public class ReservasModel : PaginaProtegida
+    {
+        private readonly IReservasPresentacion iPresentacion;
+        private readonly IClientesPresentacion clientesPres;
+        private readonly IMesasPresentacion mesasPres;
+
+        public ReservasModel(IReservasPresentacion iPresentacion, IClientesPresentacion clientesPres, IMesasPresentacion mesasPres)
+        {
+            this.iPresentacion = iPresentacion;
+            this.clientesPres = clientesPres;
+            this.mesasPres = mesasPres;
+        }
+
+        protected override string Permiso => "Reservas";
+
+        [BindProperty] public Reservas Entidad { get; set; } = new() { fecha_hora = DateTime.Now, numero_personas = 2, estado = "Confirmada" };
+        [BindProperty] public Reservas Filtro { get; set; } = new();
+        public List<Reservas> Lista { get; set; } = new();
+        public List<Clientes> ListaClientes { get; set; } = new();
+        public List<Mesas> ListaMesas { get; set; } = new();
+        public string? Mensaje { get; set; }
+
+        public void OnGet()
+        {
+            Cargar();
+        }
+
+        public void OnPostBuscar()
+        {
+            try
+            {
+                ListaClientes = clientesPres.Consultar() ?? new();
+                ListaMesas = mesasPres.Consultar() ?? new();
+                if (string.IsNullOrEmpty(Filtro.estado))
+                    Lista = iPresentacion.Consultar();
+                else
+                    Lista = iPresentacion.Buscar(Filtro);
+            }
+            catch (Exception ex)
+            {
+                Mensaje = ex.Message;
+            }
+        }
+
+        public IActionResult OnPostGuardar()
+        {
+            try
+            {
+                if (Entidad.id == 0)
+                    iPresentacion.Insertar(Entidad);
+                else
+                    iPresentacion.Actualizar(Entidad);
+                TempData["Mensaje"] = "Guardado";
+                return RedirectToPage();
+            }
+            catch (Exception ex)
+            {
+                Mensaje = ex.Message;
+                Cargar();
+                return Page();
+            }
+        }
+
+        public void OnPostEditar(int id)
+        {
+            Cargar();
+            ModelState.Clear();
+            var item = Lista.FirstOrDefault(x => x.id == id);
+            if (item != null)
+                Entidad = item;
+        }
+
+        public IActionResult OnPostBorrar(int id)
+        {
+            try
+            {
+                var lista = iPresentacion.Consultar();
+                var item = lista.FirstOrDefault(x => x.id == id);
+                if (item != null)
+                    iPresentacion.Borrar(item);
+                TempData["Mensaje"] = "Borrado";
+                return RedirectToPage();
+            }
+            catch (Exception ex)
+            {
+                Mensaje = ex.Message;
+                Cargar();
+                return Page();
+            }
+        }
+
+        private void Cargar()
+        {
+            try
+            {
+                Lista = iPresentacion.Consultar() ?? new();
+                ListaClientes = clientesPres.Consultar() ?? new();
+                ListaMesas = mesasPres.Consultar() ?? new();
+            }
+            catch (Exception ex)
+            {
+                Mensaje = ex.Message;
+            }
+        }
+    }
+}
+=== Roles.cshtml.cs ===
+using asp.presentacion.Nucleo;
+using Lib_Presentaciones.Interfaces;
+using Libreria_restaurante.Entidades;
+using Microsoft.AspNetCore.Mvc;
+
+namespace asp.presentacion.Pages.Ventanas
+{
+    public class RolesModel : PaginaProtegida
+    {
+        private readonly IRolesPresentacion iPresentacion;
+
+        public RolesModel(IRolesPresentacion iPresentacion)
+        {
+            this.iPresentacion = iPresentacion;
+        }
+
+        protected override string Permiso => "Roles";
+
+        [BindProperty] public Roles Entidad { get; set; } = new() { activo = true };
+        [BindProperty] public Roles Filtro { get; set; } = new();
+        public List<Roles> Lista { get; set; } = new();
+        public string? Mensaje { get; set; }
+
+        public void OnGet()
+        {
+            Cargar();
+        }
+
+        public void OnPostBuscar()
+        {
+            try
+            {
+                if (string.IsNullOrEmpty(Filtro.nombre))
+                    Lista = iPresentacion.Consultar();
+                else
+                    Lista = iPresentacion.Buscar(Filtro);
+            }
+            catch (Exception ex)
+            {
+                Mensaje = ex.Message;
+            }
+        }
+
+        public IActionResult OnPostGuardar()
+        {
+            try
+            {
+                if (Entidad.id == 0)
+                    iPresentacion.Insertar(Entidad);
+                else
+                    iPresentacion.Actualizar(Entidad);
+                TempData["Mensaje"] = "Guardado";
+                return RedirectToPage();
+            }
+            catch (Exception ex)
+            {
+                Mensaje = ex.Message;
+                Cargar();
+                return Page();
+            }
+        }
+
+        public void OnPostEditar(int id)
+        {
+            Cargar();
+            ModelState.Clear();
+            var item = Lista.FirstOrDefault(x => x.id == id);
+            if (item != null)
+                Entidad = item;
+        }
+
+        public IActionResult OnPostBorrar(int id)
+        {
+            try
+            {
+                var lista = iPresentacion.Consultar();
+                var item = lista.FirstOrDefault(x => x.id == id);
+                if (item != null)
+                    iPresentacion.Borrar(item);
+                TempData["Mensaje"] = "Borrado";
+                return RedirectToPage();
+            }
+            catch (Exception ex)
+            {
+                Mensaje = ex.Message;
+                Cargar();
+                return Page();
+            }
+        }
+
+        private void Cargar()
+        {
+            try
+            {
+                Lista = iPresentacion.Consultar();
+            }
+            catch (Exception ex)
+            {
+                Mensaje = ex.Message;
+            }
+        }
+    }
+}
+=== Turnos.cshtml.cs ===
+using asp.presentacion.Nucleo;
+using Lib_Presentaciones.Interfaces;
+using Libreria_restaurante.Entidades;
+using Microsoft.AspNetCore.Mvc;
+
+namespace asp.presentacion.Pages.Ventanas
+{
+    public class TurnosModel : PaginaProtegida
+    {
+        private readonly ITurnosPresentacion iPresentacion;
+
+        public TurnosModel(ITurnosPresentacion iPresentacion)
+        {
+            this.iPresentacion = iPresentacion;
+        }
+
+        protected override string Permiso => "Turnos";
+
+        [BindProperty] public Turnos Entidad { get; set; } = new() { fecha = DateTime.Now, hora_entrada = DateTime.Now, hora_salida = DateTime.Now };
+        [BindProperty] public Turnos Filtro { get; set; } = new();
+        public List<Turnos> Lista { get; set; } = new();
+        public string? Mensaje { get; set; }
+
+        public void OnGet()
+        {
+            Cargar();
+        }
+
+        public void OnPostBuscar()
+        {
+            try
+            {
+                if (Filtro.empleado == 0)
+                    Lista = iPresentacion.Consultar();
+                else
+                    Lista = iPresentacion.Buscar(Filtro);
+            }
+            catch (Exception ex)
+            {
+                Mensaje = ex.Message;
+            }
+        }
+
+        public IActionResult OnPostGuardar()
+        {
+            try
+            {
+                if (Entidad.id == 0)
+                    iPresentacion.Insertar(Entidad);
+                else
+                    iPresentacion.Actualizar(Entidad);
+                TempData["Mensaje"] = "Guardado";
+                return RedirectToPage();
+            }
+            catch (Exception ex)
+            {
+                Mensaje = ex.Message;
+                Cargar();
+                return Page();
+            }
+        }
+
+        public void OnPostEditar(int id)
+        {
+            Cargar();
+            ModelState.Clear();
+            var item = Lista.FirstOrDefault(x => x.id == id);
+            if (item != null)
+                Entidad = item;
+        }
+
+        public IActionResult OnPostBorrar(int id)
+        {
+            try
+            {
+                var lista = iPresentacion.Consultar();
+                var item = lista.FirstOrDefault(x => x.id == id);
+                if (item != null)
+                    iPresentacion.Borrar(item);
+                TempData["Mensaje"] = "Borrado";
+                return RedirectToPage();
+            }
+            catch (Exception ex)
+            {
+                Mensaje = ex.Message;
+                Cargar();
+                return Page();
+            }
+        }
+
+        private void Cargar()
+        {
+            try
+            {
+                Lista = iPresentacion.Consultar();
+            }
+            catch (Exception ex)
+            {
+                Mensaje = ex.Message;
+            }
+        }
+    }
+}
+=== Usuarios.cshtml.cs ===
+using asp.presentacion.Nucleo;
+using Lib_Presentaciones.Interfaces;
+using Libreria_restaurante.Entidades;
+using Microsoft.AspNetCore.Mvc;
+
+namespace asp.presentacion.Pages.Ventanas
+{
+    public class UsuariosModel : PaginaProtegida
+    {
+        private readonly IUsuariosPresentacion iPresentacion;
+        private readonly IRolesPresentacion rolesPres;
+
+        public UsuariosModel(IUsuariosPresentacion iPresentacion, IRolesPresentacion rolesPres)
+        {
+            this.iPresentacion = iPresentacion;
+            this.rolesPres = rolesPres;
+        }
+
+        protected override string Permiso => "Usuarios";
+
+        [BindProperty] public Usuarios Entidad { get; set; } = new() { activo = true };
+        [BindProperty] public Usuarios Filtro { get; set; } = new();
+        public List<Usuarios> Lista { get; set; } = new();
+        public List<Roles> ListaRoles { get; set; } = new();
+        public string? Mensaje { get; set; }
+
+        public void OnGet()
+        {
+            Cargar();
+        }
+
+        public void OnPostBuscar()
+        {
+            try
+            {
+                ListaRoles = rolesPres.Consultar() ?? new();
+                if (string.IsNullOrEmpty(Filtro.nombreUsuario))
+                    Lista = iPresentacion.Consultar();
+                else
+                    Lista = iPresentacion.Buscar(Filtro);
+            }
+            catch (Exception ex)
+            {
+                Mensaje = ex.Message;
+            }
+        }
+
+        public IActionResult OnPostGuardar()
+        {
+            try
+            {
+                if (Entidad.id == 0)
+                    iPresentacion.Insertar(Entidad);
+                else
+                    iPresentacion.Actualizar(Entidad);
+                TempData["Mensaje"] = "Guardado";
+                return RedirectToPage();
+            }
+            catch (Exception ex)
+            {
+                Mensaje = ex.Message;
+                Cargar();
+                return Page();
+            }
+        }
+
+        public void OnPostEditar(int id)
+        {
+            Cargar();
+            ModelState.Clear();
+            var item = Lista.FirstOrDefault(x => x.id == id);
+            if (item != null)
+                Entidad = item;
+        }
+
+        public IActionResult OnPostBorrar(int id)
+        {
+            try
+            {
+                var lista = iPresentacion.Consultar();
+                var item = lista.FirstOrDefault(x => x.id == id);
+                if (item != null)
+                    iPresentacion.Borrar(item);
+                TempData["Mensaje"] = "Borrado";
+                return RedirectToPage();
+            }
+            catch (Exception ex)
+            {
+                Mensaje = ex.Message;
+                Cargar();
+                return Page();
+            }
+        }
+
+        private void Cargar()
+        {
+            try
+            {
+                Lista = iPresentacion.Consultar() ?? new();
+                ListaRoles = rolesPres.Consultar() ?? new();
+            }
+            catch (Exception ex)
+            {
+                Mensaje = ex.Message;
+            }
+        }
+    }
+}

@@ -48,7 +48,7 @@ namespace Libreria_restaurante.Implementaciones
             if (Validar(entidad))
                 throw new Exception("Falta informacion");
 
-            var anterior = this.IConexion.Proveedores!.FirstOrDefault(x => x.id == entidad.id);
+            var anterior = this.IConexion.Proveedores!.AsNoTracking().FirstOrDefault(x => x.id == entidad.id);
             if (anterior == null)
                 throw new Exception("No existe");
 

@@ -63,6 +63,12 @@ namespace Libreria_restaurante.Implementaciones
             mesa.estado = "Ocupada";
             this.IConexion.Entry(mesa).State = EntityState.Modified;
 
+            entidad._cliente = null;
+            entidad._mesa = null;
+            entidad._mesero = null;
+            entidad.Detalles_Pedidos = new();
+            entidad.Facturas = new();
+
             this.IConexion.Pedidos!.Add(entidad);
             this.IConexion.SaveChanges();
 
@@ -91,21 +97,42 @@ namespace Libreria_restaurante.Implementaciones
             if (anterior == null)
                 throw new Exception("No existe");
 
-            if (string.IsNullOrEmpty(entidad.estado))
-                entidad.estado = anterior.estado;
+            int mesaAnteriorId = anterior.mesa;
 
-            if (entidad.cliente == 0)
-                entidad.cliente = anterior.cliente;
+            var pedidoDb = this.IConexion.Pedidos!.FirstOrDefault(x => x.id == entidad.id);
+            if (pedidoDb == null)
+                throw new Exception("No existe");
 
-            var entry = this.IConexion.Entry<Pedidos>(entidad);
-            entry.State = EntityState.Modified;
+            pedidoDb.estado = !string.IsNullOrEmpty(entidad.estado) ? entidad.estado : anterior.estado;
+            pedidoDb.numero_personas = entidad.numero_personas > 0 ? entidad.numero_personas : pedidoDb.numero_personas;
+            pedidoDb.fecha_hora = entidad.fecha_hora != default ? entidad.fecha_hora : pedidoDb.fecha_hora;
+            if (entidad.cliente != 0) pedidoDb.cliente = entidad.cliente;
+            if (entidad.mesero != 0) pedidoDb.mesero = entidad.mesero;
+            if (entidad.mesa != 0) pedidoDb.mesa = entidad.mesa;
 
-            var mesa = this.IConexion.Mesas!.FirstOrDefault(m => m.id == entidad.mesa);
-            if (mesa != null && !string.IsNullOrEmpty(entidad.estado))
+            pedidoDb._cliente = null;
+            pedidoDb._mesa = null;
+            pedidoDb._mesero = null;
+
+            this.IConexion.Entry(pedidoDb).State = EntityState.Modified;
+
+            // Si cambió de mesa, liberar la mesa anterior
+            if (mesaAnteriorId != pedidoDb.mesa)
             {
-                if (entidad.estado.Equals("Pagado", StringComparison.OrdinalIgnoreCase) ||
-                    entidad.estado.Equals("Cancelado", StringComparison.OrdinalIgnoreCase) ||
-                    entidad.estado.Equals("Finalizado", StringComparison.OrdinalIgnoreCase))
+                var mesaAnt = this.IConexion.Mesas!.FirstOrDefault(m => m.id == mesaAnteriorId);
+                if (mesaAnt != null)
+                {
+                    mesaAnt.estado = "Disponible";
+                    this.IConexion.Entry(mesaAnt).State = EntityState.Modified;
+                }
+            }
+
+            var mesa = this.IConexion.Mesas!.FirstOrDefault(m => m.id == pedidoDb.mesa);
+            if (mesa != null && !string.IsNullOrEmpty(pedidoDb.estado))
+            {
+                if (pedidoDb.estado.Equals("Pagado", StringComparison.OrdinalIgnoreCase) ||
+                    pedidoDb.estado.Equals("Cancelado", StringComparison.OrdinalIgnoreCase) ||
+                    pedidoDb.estado.Equals("Finalizado", StringComparison.OrdinalIgnoreCase))
                 {
                     mesa.estado = "Disponible";
                 }
@@ -122,11 +149,11 @@ namespace Libreria_restaurante.Implementaciones
                 accion = "Actualizar",
                 fecha = DateTime.Now,
                 datosAnteriores = "id: " + anterior.id + ", estado: " + anterior.estado,
-                datosNuevos = "id: " + entidad.id + ", estado: " + entidad.estado
+                datosNuevos = "id: " + pedidoDb.id + ", estado: " + pedidoDb.estado
             };
             this.IConexion.Auditorias!.Add(audit);
             this.IConexion.SaveChanges();
-            return entidad;
+            return pedidoDb;
         }
 
         public List<Pedidos> Consultar()
@@ -152,16 +179,13 @@ namespace Libreria_restaurante.Implementaciones
             if (entidad.id == 0)
                 throw new Exception("No se ha guardo");
 
-            // Buscar la entidad rastreada directamente desde la BD para evitar conflictos de claves/navegación
             var pedidoDb = this.IConexion.Pedidos!.FirstOrDefault(p => p.id == entidad.id);
             if (pedidoDb == null)
                 throw new Exception("El pedido no existe");
 
-            // 1. Si tiene factura asociada, no permitir borrar sin anular o eliminar factura
             if (this.IConexion.Facturas!.Any(f => f.pedido == pedidoDb.id))
                 throw new Exception("No se puede borrar un pedido que ya tiene factura generada.");
 
-            // 2. Eliminar detalles del pedido y devolver stock al inventario
             var detalles = this.IConexion.Detalles_Pedidos!.Where(d => d.pedido == pedidoDb.id).ToList();
             foreach (var det in detalles)
             {
@@ -188,7 +212,6 @@ namespace Libreria_restaurante.Implementaciones
                 this.IConexion.Detalles_Pedidos!.Remove(det);
             }
 
-            // 3. Liberar la mesa
             var mesa = this.IConexion.Mesas!.FirstOrDefault(m => m.id == pedidoDb.mesa);
             if (mesa != null)
             {

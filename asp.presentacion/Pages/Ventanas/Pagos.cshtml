@@ -1,49 +1,100 @@
 @page
 @model asp.presentacion.Pages.Ventanas.PagosModel
 @{
-    ViewData["Title"] = "Pagos";
+    ViewData["Title"] = "Pagos y Cobros";
 }
 
-<h2>Pagos</h2>
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <div>
+        <h2 class="fw-bold mb-0"><i class="bi bi-cash-stack"></i> Pagos y Cobros</h2>
+        <small class="text-muted">Al registrar el pago completo de la factura, el pedido se cierra y la mesa queda disponible</small>
+    </div>
+    <div class="d-flex gap-2">
+        <a asp-page="/Ventanas/MapaMesas" class="btn btn-outline-dark">
+            <i class="bi bi-grid-3x3-gap"></i> Plano de Mesas
+        </a>
+        <a asp-page="/Ventanas/Pedidos" class="btn btn-outline-primary">
+            <i class="bi bi-receipt-cutoff"></i> Volver a Pedidos
+        </a>
+    </div>
+</div>
 
 @if (!string.IsNullOrEmpty(Model.Mensaje))
 {
-    <div class="alert alert-danger">@Model.Mensaje</div>
+    <div class="alert alert-danger alert-dismissible fade show">
+        @Model.Mensaje
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
 }
 @if (TempData["Mensaje"] != null)
 {
-    <div class="alert alert-success">@TempData["Mensaje"]</div>
+    <div class="alert alert-success alert-dismissible fade show">
+        @TempData["Mensaje"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
 }
 
-<form method="post" asp-page-handler="Guardar" class="mb-4">
-    <input type="hidden" asp-for="Entidad.id" />
-    <div class="mb-2">
-        <label asp-for="Entidad.factura" class="form-label"></label>
-        <input asp-for="Entidad.factura" class="form-control" type="number" />
+<div class="card shadow-sm border-0 mb-4">
+    <div class="card-header bg-dark text-white fw-bold">
+        Registrar Pago de Factura
     </div>
-    <div class="mb-2">
-        <label asp-for="Entidad.metodoPago" class="form-label"></label>
-        <input asp-for="Entidad.metodoPago" class="form-control" type="number" />
+    <div class="card-body">
+        <form method="post" asp-page-handler="Guardar">
+            <input type="hidden" asp-for="Entidad.id" />
+            <div class="row g-3 mb-3">
+                <div class="col-md-6">
+                    <label asp-for="Entidad.factura" class="form-label fw-semibold">Factura a Cobrar *</label>
+                    <select asp-for="Entidad.factura" id="selectFactura" class="form-select" required onchange="actualizarMontoFactura()">
+                        <option value="" data-total="0">-- Seleccione una factura --</option>
+                        @foreach (var f in Model.ListaFacturas)
+                        {
+                            <option value="@f.id" data-total="@f.total.ToString(System.Globalization.CultureInfo.InvariantCulture)">
+                                @f.numero (Pedido #@f.pedido) - Total: $ @f.total.ToString("N2")
+                            </option>
+                        }
+                    </select>
+                </div>
+                <div class="col-md-6">
+                    <label asp-for="Entidad.metodoPago" class="form-label fw-semibold">Método de Pago *</label>
+                    <select asp-for="Entidad.metodoPago" class="form-select" required>
+                        <option value="">-- Seleccione método de pago --</option>
+                        @foreach (var mp in Model.ListaMetodosPago)
+                        {
+                            <option value="@mp.id">@mp.tipo</option>
+                        }
+                    </select>
+                </div>
+            </div>
+
+            <div class="row g-3 mb-3">
+                <div class="col-md-3">
+                    <label asp-for="Entidad.monto" class="form-label fw-semibold">Monto a Pagar ($) *</label>
+                    <input asp-for="Entidad.monto" id="inputMonto" class="form-control fw-bold text-success" type="number" step="0.01" required />
+                </div>
+                <div class="col-md-3">
+                    <label asp-for="Entidad.fecha" class="form-label fw-semibold">Fecha</label>
+                    <input asp-for="Entidad.fecha" class="form-control" type="datetime-local" />
+                </div>
+                <div class="col-md-3">
+                    <label asp-for="Entidad.referencia" class="form-label fw-semibold">Referencia</label>
+                    <input asp-for="Entidad.referencia" class="form-control" placeholder="Automática si se deja vacía" />
+                </div>
+                <div class="col-md-3">
+                    <label asp-for="Entidad.estado" class="form-label fw-semibold">Estado</label>
+                    <select asp-for="Entidad.estado" class="form-select">
+                        <option value="Aprobado">Aprobado</option>
+                        <option value="Pendiente">Pendiente</option>
+                    </select>
+                </div>
+            </div>
+
+            <button type="submit" class="btn btn-success fw-bold">
+                <i class="bi bi-check-circle"></i> Confirmar Pago y Liberar Mesa
+            </button>
+            <a asp-page="Pagos" class="btn btn-secondary">Nuevo</a>
+        </form>
     </div>
-    <div class="mb-2">
-        <label asp-for="Entidad.monto" class="form-label"></label>
-        <input asp-for="Entidad.monto" class="form-control" type="number" step="0.01" />
-    </div>
-    <div class="mb-2">
-        <label asp-for="Entidad.fecha" class="form-label"></label>
-        <input asp-for="Entidad.fecha" class="form-control" type="datetime-local" />
-    </div>
-    <div class="mb-2">
-        <label asp-for="Entidad.referencia" class="form-label"></label>
-        <input asp-for="Entidad.referencia" class="form-control" />
-    </div>
-    <div class="mb-2">
-        <label asp-for="Entidad.estado" class="form-label"></label>
-        <input asp-for="Entidad.estado" class="form-control" />
-    </div>
-    <button type="submit" class="btn btn-success">Guardar</button>
-    <a asp-page="Pagos" class="btn btn-secondary">Nuevo</a>
-</form>
+</div>
 
 <form method="post" asp-page-handler="Buscar" class="row g-2 mb-3">
     <div class="col">
@@ -54,12 +105,12 @@
     </div>
 </form>
 
-<table class="table table-striped">
-    <thead>
+<table class="table table-striped align-middle">
+    <thead class="table-dark">
         <tr>
             <th>Id</th>
             <th>Factura</th>
-            <th>Metodopago</th>
+            <th>Método de Pago</th>
             <th>Monto</th>
             <th>Fecha</th>
             <th>Referencia</th>
@@ -70,21 +121,37 @@
     <tbody>
         @foreach (var item in Model.Lista)
         {
+            var fac = Model.ListaFacturas.FirstOrDefault(f => f.id == item.factura);
+            var met = Model.ListaMetodosPago.FirstOrDefault(m => m.id == item.metodoPago);
             <tr>
                 <td>@item.id</td>
-                <td>@item.factura</td>
-                <td>@item.metodoPago</td>
-                <td>@item.monto</td>
-                <td>@item.fecha</td>
+                <td class="fw-semibold">@(fac?.numero ?? $"Factura #{item.factura}")</td>
+                <td>@(met?.tipo ?? $"Método #{item.metodoPago}")</td>
+                <td class="fw-bold text-success">$ @item.monto.ToString("N2")</td>
+                <td>@item.fecha.ToString("dd/MM/yyyy HH:mm")</td>
                 <td>@item.referencia</td>
-                <td>@item.estado</td>
+                <td><span class="badge bg-success">@item.estado</span></td>
                 <td>
                     <form method="post" class="d-inline">
                         <button type="submit" asp-page-handler="Editar" asp-route-id="@item.id" class="btn btn-sm btn-warning">Editar</button>
-                        <button type="submit" asp-page-handler="Borrar" asp-route-id="@item.id" class="btn btn-sm btn-danger" onclick="return confirm('Borrar este registro?')">Borrar</button>
+                        <button type="submit" asp-page-handler="Borrar" asp-route-id="@item.id" class="btn btn-sm btn-danger" onclick="return confirm('¿Borrar este registro?')">Borrar</button>
                     </form>
                 </td>
             </tr>
         }
     </tbody>
 </table>
+
+@section Scripts {
+    <script>
+        function actualizarMontoFactura() {
+            const select = document.getElementById('selectFactura');
+            if (!select) return;
+            const opcion = select.options[select.selectedIndex];
+            const total = parseFloat(opcion ? opcion.getAttribute('data-total') : '0') || 0;
+            if (total > 0) {
+                document.getElementById('inputMonto').value = total.toFixed(2);
+            }
+        }
+    </script>
+}

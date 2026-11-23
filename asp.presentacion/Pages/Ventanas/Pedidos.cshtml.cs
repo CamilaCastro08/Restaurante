@@ -58,6 +58,9 @@ namespace asp.presentacion.Pages.Ventanas
 
         public void OnGet(int? id, int? mesaId)
         {
+            if (TempData["Error"] != null)
+                Mensaje = TempData["Error"]?.ToString();
+
             CargarListasAuxiliares();
 
             if (mesaId.HasValue && mesaId.Value > 0)
@@ -139,7 +142,7 @@ namespace asp.presentacion.Pages.Ventanas
             }
             catch (Exception ex)
             {
-                Mensaje = ex.Message;
+                TempData["Error"] = ex.Message;
                 return RedirectToPage(new { id = pedidoId });
             }
         }
@@ -184,7 +187,7 @@ namespace asp.presentacion.Pages.Ventanas
             }
             catch (Exception ex)
             {
-                Mensaje = ex.Message;
+                TempData["Error"] = ex.Message;
                 return RedirectToPage(new { id = pedidoId });
             }
         }
@@ -193,18 +196,29 @@ namespace asp.presentacion.Pages.Ventanas
         {
             try
             {
+                var detalles = (detallesPres.Consultar() ?? new()).Where(d => d.pedido == pedidoId).ToList();
+                if (!detalles.Any())
+                    throw new Exception("Agrega al menos un producto al pedido antes de facturar.");
+
+                decimal subtotal = detalles.Sum(d => d.subtotal);
+                decimal total = subtotal + Math.Round(subtotal * 0.08m, 2);
+
                 var factura = new Facturas
                 {
                     pedido = pedidoId,
-                    fecha_emision = DateTime.Now
+                    numero = $"FAC-{DateTime.Now:yyyyMMddHHmmss}",
+                    fecha_emision = DateTime.Now,
+                    subtotal = subtotal,
+                    total = total
                 };
-                facturasPres.Insertar(factura);
-                TempData["Mensaje"] = $"Pedido #{pedidoId} cobrado y mesa liberada.";
-                return RedirectToPage("/Ventanas/Impresion", new { PedidoId = pedidoId });
+
+                var facturaCreada = facturasPres.Insertar(factura);
+                TempData["Mensaje"] = $"Factura {facturaCreada.numero} generada por $ {facturaCreada.total:N2}. Selecciona el método de pago para liberar la mesa.";
+                return RedirectToPage("/Ventanas/Pagos", new { facturaId = facturaCreada.id });
             }
             catch (Exception ex)
             {
-                Mensaje = ex.Message;
+                TempData["Error"] = "No se pudo facturar: " + ex.Message;
                 return RedirectToPage(new { id = pedidoId });
             }
         }

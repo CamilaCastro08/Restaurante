@@ -48,7 +48,7 @@ namespace Libreria_restaurante.Implementaciones
             if (Validar(entidad))
                 throw new Exception("Falta informacion");
 
-            var anterior = this.IConexion.Categorias!.FirstOrDefault(x => x.id == entidad.id);
+            var anterior = this.IConexion.Categorias!.AsNoTracking().FirstOrDefault(x => x.id == entidad.id);
             if (anterior == null)
                 throw new Exception("No existe");
 
@@ -85,19 +85,26 @@ namespace Libreria_restaurante.Implementaciones
             if (entidad.id == 0)
                 throw new Exception("No se ha guardo");
 
-            this.IConexion.Categorias!.Remove(entidad);
+            var itemDb = this.IConexion.Categorias!.FirstOrDefault(x => x.id == entidad.id);
+            if (itemDb == null)
+                throw new Exception("La categoría no existe");
+
+            if (this.IConexion.Productos!.Any(p => p.categoria == itemDb.id))
+                throw new Exception("No se puede eliminar la categoría porque tiene productos asociados.");
+
+            this.IConexion.Categorias!.Remove(itemDb);
 
             var audit = new Auditorias
             {
                 tabla = "Categorias",
                 accion = "Borrar",
                 fecha = DateTime.Now,
-                datosAnteriores = "id: " + entidad.id + ", nombre: " + entidad.nombre,
+                datosAnteriores = "id: " + itemDb.id + ", nombre: " + itemDb.nombre,
                 datosNuevos = ""
             };
             this.IConexion.Auditorias!.Add(audit);
             this.IConexion.SaveChanges();
-            return entidad;
+            return itemDb;
         }
 
         private bool Validar(Categorias entidad)

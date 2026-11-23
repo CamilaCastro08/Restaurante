@@ -1,0 +1,1329 @@
+﻿=== C:\Users\theMA\source\repos\Restaurante\asp.servicios\Program.cs ===
+using Libreria_restaurante.Implementaciones;
+using Libreria_restaurante.Interfaces;
+using Microsoft.AspNetCore.Diagnostics;
+
+var builder = WebApplication.CreateBuilder(args);
+
+builder.Services.AddControllers().AddJsonOptions(o =>
+    o.JsonSerializerOptions.ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.IgnoreCycles);
+
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowAll", p => p.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
+});
+
+builder.Services.AddScoped<IConexion>(x =>
+{
+    var conexion = new Conexion();
+    conexion.StringConexion = builder.Configuration.GetConnectionString("string_conexion");
+    return conexion;
+});
+
+builder.Services.AddScoped<ICategoriasAplicacion, CategoriasAplicacion>();
+builder.Services.AddScoped<IRolesAplicacion, RolesAplicacion>();
+builder.Services.AddScoped<IPermisosAplicacion, PermisosAplicacion>();
+builder.Services.AddScoped<IUsuariosAplicacion, UsuariosAplicacion>();
+builder.Services.AddScoped<IClientesAplicacion, ClientesAplicacion>();
+builder.Services.AddScoped<ICocinerosAplicacion, CocinerosAplicacion>();
+builder.Services.AddScoped<IDetalles_PedidosAplicacion, Detalles_PedidosAplicacion>();
+builder.Services.AddScoped<IEmpleadosAplicacion, EmpleadosAplicacion>();
+builder.Services.AddScoped<IFacturasAplicacion, FacturasAplicacion>();
+builder.Services.AddScoped<IGerentesAplicacion, GerentesAplicacion>();
+builder.Services.AddScoped<IIngredientesAplicacion, IngredientesAplicacion>();
+builder.Services.AddScoped<IInventariosAplicacion, InventariosAplicacion>();
+builder.Services.AddScoped<IMenusAplicacion, MenusAplicacion>();
+builder.Services.AddScoped<IMesasAplicacion, MesasAplicacion>();
+builder.Services.AddScoped<IMeserosAplicacion, MeserosAplicacion>();
+builder.Services.AddScoped<IMetodosPagosAplicacion, MetodosPagosAplicacion>();
+builder.Services.AddScoped<IPagosAplicacion, PagosAplicacion>();
+builder.Services.AddScoped<IPedidosAplicacion, PedidosAplicacion>();
+builder.Services.AddScoped<IProductosAplicacion, ProductosAplicacion>();
+builder.Services.AddScoped<IProveedoresAplicacion, ProveedoresAplicacion>();
+builder.Services.AddScoped<IRecetasAplicacion, RecetasAplicacion>();
+builder.Services.AddScoped<IReservasAplicacion, ReservasAplicacion>();
+builder.Services.AddScoped<ITurnosAplicacion, TurnosAplicacion>();
+builder.Services.AddScoped<IAuditoriasAplicacion, AuditoriasAplicacion>();
+
+var app = builder.Build();
+
+app.UseExceptionHandler(a => a.Run(async context =>
+{
+    var error = context.Features.Get<IExceptionHandlerFeature>()?.Error;
+    context.Response.StatusCode = 400;
+    context.Response.ContentType = "text/plain; charset=utf-8";
+    var msg = error?.GetBaseException().Message ?? "Error en el servidor";
+    await context.Response.WriteAsync(msg);
+}));
+
+app.UseCors("AllowAll");
+
+app.MapGet("/health", () => Results.Ok(new { status = "Healthy", timestamp = DateTime.UtcNow }));
+
+app.MapControllers();
+app.Run();
+=== C:\Users\theMA\source\repos\Restaurante\asp.servicios\WeatherForecast.cs ===
+namespace asp.servicios
+{
+    public class WeatherForecast
+    {
+        public DateOnly Date { get; set; }
+
+        public int TemperatureC { get; set; }
+
+        public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
+
+        public string? Summary { get; set; }
+    }
+}
+=== C:\Users\theMA\source\repos\Restaurante\asp.servicios\Controllers\AuditoriasController.cs ===
+using Libreria_restaurante.Entidades;
+using Libreria_restaurante.Interfaces;
+using Microsoft.AspNetCore.Mvc;
+
+namespace asp.servicios.Controllers
+{
+    [ApiController]
+    [Route("[controller]/[action]")]
+    public class AuditoriasController : ControllerBase
+    {
+        private IAuditoriasAplicacion IAuditoriasAplicacion;
+
+        public AuditoriasController(IAuditoriasAplicacion IAuditoriasAplicacion)
+        {
+            this.IAuditoriasAplicacion = IAuditoriasAplicacion;
+        }
+
+        [HttpPost]
+        public List<Auditorias> Consultar()
+        {
+            return this.IAuditoriasAplicacion.Consultar();
+        }
+
+        [HttpPost]
+        public List<Auditorias> Buscar(Auditorias entidad)
+        {
+            return this.IAuditoriasAplicacion.Buscar(entidad);
+        }
+    }
+}
+=== C:\Users\theMA\source\repos\Restaurante\asp.servicios\Controllers\CategoriasController.cs ===
+using Libreria_restaurante.Entidades;
+using Libreria_restaurante.Interfaces;
+using Microsoft.AspNetCore.Mvc;
+
+namespace asp.servicios.Controllers
+{
+    [ApiController]
+    [Route("[controller]/[action]")]
+    public class CategoriasController : ControllerBase
+    {
+        private ICategoriasAplicacion ICategoriasAplicacion;
+
+        public CategoriasController(ICategoriasAplicacion ICategoriasAplicacion)
+        {
+            this.ICategoriasAplicacion = ICategoriasAplicacion;
+        }
+
+        [HttpPost]
+        public List<Categorias> Consultar()
+        {
+            return this.ICategoriasAplicacion.Consultar();
+        }
+
+        [HttpPost]
+        public List<Categorias> Buscar(Categorias entidad)
+        {
+            return this.ICategoriasAplicacion.Buscar(entidad);
+        }
+
+        [HttpPost]
+        public Categorias Insertar(Categorias entidad)
+        {
+            return this.ICategoriasAplicacion.Insertar(entidad);
+        }
+
+        [HttpPost]
+        public Categorias Actualizar(Categorias entidad)
+        {
+            return this.ICategoriasAplicacion.Actualizar(entidad);
+        }
+
+        [HttpPost]
+        public Categorias Borrar(Categorias entidad)
+        {
+            return this.ICategoriasAplicacion.Borrar(entidad);
+        }
+    }
+}
+=== C:\Users\theMA\source\repos\Restaurante\asp.servicios\Controllers\ClientesController.cs ===
+using Libreria_restaurante.Entidades;
+using Libreria_restaurante.Interfaces;
+using Microsoft.AspNetCore.Mvc;
+
+namespace asp.servicios.Controllers
+{
+    [ApiController]
+    [Route("[controller]/[action]")]
+    public class ClientesController : ControllerBase
+    {
+        private IClientesAplicacion IClientesAplicacion;
+
+        public ClientesController(IClientesAplicacion IClientesAplicacion)
+        {
+            this.IClientesAplicacion = IClientesAplicacion;
+        }
+
+        [HttpPost]
+        public List<Clientes> Consultar()
+        {
+            return this.IClientesAplicacion.Consultar();
+        }
+
+        [HttpPost]
+        public List<Clientes> Buscar(Clientes entidad)
+        {
+            return this.IClientesAplicacion.Buscar(entidad);
+        }
+
+        [HttpPost]
+        public Clientes Insertar(Clientes entidad)
+        {
+            return this.IClientesAplicacion.Insertar(entidad);
+        }
+
+        [HttpPost]
+        public Clientes Actualizar(Clientes entidad)
+        {
+            return this.IClientesAplicacion.Actualizar(entidad);
+        }
+
+        [HttpPost]
+        public Clientes Borrar(Clientes entidad)
+        {
+            return this.IClientesAplicacion.Borrar(entidad);
+        }
+    }
+}
+=== C:\Users\theMA\source\repos\Restaurante\asp.servicios\Controllers\CocinerosController.cs ===
+using Libreria_restaurante.Entidades;
+using Libreria_restaurante.Interfaces;
+using Microsoft.AspNetCore.Mvc;
+
+namespace asp.servicios.Controllers
+{
+    [ApiController]
+    [Route("[controller]/[action]")]
+    public class CocinerosController : ControllerBase
+    {
+        private ICocinerosAplicacion ICocinerosAplicacion;
+
+        public CocinerosController(ICocinerosAplicacion ICocinerosAplicacion)
+        {
+            this.ICocinerosAplicacion = ICocinerosAplicacion;
+        }
+
+        [HttpPost]
+        public List<Cocineros> Consultar()
+        {
+            return this.ICocinerosAplicacion.Consultar();
+        }
+
+        [HttpPost]
+        public List<Cocineros> Buscar(Cocineros entidad)
+        {
+            return this.ICocinerosAplicacion.Buscar(entidad);
+        }
+
+        [HttpPost]
+        public Cocineros Insertar(Cocineros entidad)
+        {
+            return this.ICocinerosAplicacion.Insertar(entidad);
+        }
+
+        [HttpPost]
+        public Cocineros Actualizar(Cocineros entidad)
+        {
+            return this.ICocinerosAplicacion.Actualizar(entidad);
+        }
+
+        [HttpPost]
+        public Cocineros Borrar(Cocineros entidad)
+        {
+            return this.ICocinerosAplicacion.Borrar(entidad);
+        }
+    }
+}
+=== C:\Users\theMA\source\repos\Restaurante\asp.servicios\Controllers\Detalles_PedidosController.cs ===
+using Libreria_restaurante.Entidades;
+using Libreria_restaurante.Interfaces;
+using Microsoft.AspNetCore.Mvc;
+
+namespace asp.servicios.Controllers
+{
+    [ApiController]
+    [Route("[controller]/[action]")]
+    public class Detalles_PedidosController : ControllerBase
+    {
+        private IDetalles_PedidosAplicacion IDetalles_PedidosAplicacion;
+
+        public Detalles_PedidosController(IDetalles_PedidosAplicacion IDetalles_PedidosAplicacion)
+        {
+            this.IDetalles_PedidosAplicacion = IDetalles_PedidosAplicacion;
+        }
+
+        [HttpPost]
+        public List<Detalles_Pedidos> Consultar()
+        {
+            return this.IDetalles_PedidosAplicacion.Consultar();
+        }
+
+        [HttpPost]
+        public List<Detalles_Pedidos> Buscar(Detalles_Pedidos entidad)
+        {
+            return this.IDetalles_PedidosAplicacion.Buscar(entidad);
+        }
+
+        [HttpPost]
+        public Detalles_Pedidos Insertar(Detalles_Pedidos entidad)
+        {
+            return this.IDetalles_PedidosAplicacion.Insertar(entidad);
+        }
+
+        [HttpPost]
+        public Detalles_Pedidos Actualizar(Detalles_Pedidos entidad)
+        {
+            return this.IDetalles_PedidosAplicacion.Actualizar(entidad);
+        }
+
+        [HttpPost]
+        public Detalles_Pedidos Borrar(Detalles_Pedidos entidad)
+        {
+            return this.IDetalles_PedidosAplicacion.Borrar(entidad);
+        }
+    }
+}
+=== C:\Users\theMA\source\repos\Restaurante\asp.servicios\Controllers\EmpleadosController.cs ===
+using Libreria_restaurante.Entidades;
+using Libreria_restaurante.Interfaces;
+using Microsoft.AspNetCore.Mvc;
+
+namespace asp.servicios.Controllers
+{
+    [ApiController]
+    [Route("[controller]/[action]")]
+    public class EmpleadosController : ControllerBase
+    {
+        private IEmpleadosAplicacion IEmpleadosAplicacion;
+
+        public EmpleadosController(IEmpleadosAplicacion IEmpleadosAplicacion)
+        {
+            this.IEmpleadosAplicacion = IEmpleadosAplicacion;
+        }
+
+        [HttpPost]
+        public List<Empleados> Consultar()
+        {
+            return this.IEmpleadosAplicacion.Consultar();
+        }
+
+        [HttpPost]
+        public List<Empleados> Buscar(Empleados entidad)
+        {
+            return this.IEmpleadosAplicacion.Buscar(entidad);
+        }
+
+        [HttpPost]
+        public Empleados Insertar(Empleados entidad)
+        {
+            return this.IEmpleadosAplicacion.Insertar(entidad);
+        }
+
+        [HttpPost]
+        public Empleados Actualizar(Empleados entidad)
+        {
+            return this.IEmpleadosAplicacion.Actualizar(entidad);
+        }
+
+        [HttpPost]
+        public Empleados Borrar(Empleados entidad)
+        {
+            return this.IEmpleadosAplicacion.Borrar(entidad);
+        }
+    }
+}
+=== C:\Users\theMA\source\repos\Restaurante\asp.servicios\Controllers\FacturasController.cs ===
+using Libreria_restaurante.Entidades;
+using Libreria_restaurante.Interfaces;
+using Microsoft.AspNetCore.Mvc;
+
+namespace asp.servicios.Controllers
+{
+    [ApiController]
+    [Route("[controller]/[action]")]
+    public class FacturasController : ControllerBase
+    {
+        private IFacturasAplicacion IFacturasAplicacion;
+
+        public FacturasController(IFacturasAplicacion IFacturasAplicacion)
+        {
+            this.IFacturasAplicacion = IFacturasAplicacion;
+        }
+
+        [HttpPost]
+        public List<Facturas> Consultar()
+        {
+            return this.IFacturasAplicacion.Consultar();
+        }
+
+        [HttpPost]
+        public List<Facturas> Buscar(Facturas entidad)
+        {
+            return this.IFacturasAplicacion.Buscar(entidad);
+        }
+
+        [HttpPost]
+        public Facturas Insertar(Facturas entidad)
+        {
+            return this.IFacturasAplicacion.Insertar(entidad);
+        }
+
+        [HttpPost]
+        public Facturas Actualizar(Facturas entidad)
+        {
+            return this.IFacturasAplicacion.Actualizar(entidad);
+        }
+
+        [HttpPost]
+        public Facturas Borrar(Facturas entidad)
+        {
+            return this.IFacturasAplicacion.Borrar(entidad);
+        }
+    }
+}
+=== C:\Users\theMA\source\repos\Restaurante\asp.servicios\Controllers\GerentesController.cs ===
+using Libreria_restaurante.Entidades;
+using Libreria_restaurante.Interfaces;
+using Microsoft.AspNetCore.Mvc;
+
+namespace asp.servicios.Controllers
+{
+    [ApiController]
+    [Route("[controller]/[action]")]
+    public class GerentesController : ControllerBase
+    {
+        private IGerentesAplicacion IGerentesAplicacion;
+
+        public GerentesController(IGerentesAplicacion IGerentesAplicacion)
+        {
+            this.IGerentesAplicacion = IGerentesAplicacion;
+        }
+
+        [HttpPost]
+        public List<Gerentes> Consultar()
+        {
+            return this.IGerentesAplicacion.Consultar();
+        }
+
+        [HttpPost]
+        public List<Gerentes> Buscar(Gerentes entidad)
+        {
+            return this.IGerentesAplicacion.Buscar(entidad);
+        }
+
+        [HttpPost]
+        public Gerentes Insertar(Gerentes entidad)
+        {
+            return this.IGerentesAplicacion.Insertar(entidad);
+        }
+
+        [HttpPost]
+        public Gerentes Actualizar(Gerentes entidad)
+        {
+            return this.IGerentesAplicacion.Actualizar(entidad);
+        }
+
+        [HttpPost]
+        public Gerentes Borrar(Gerentes entidad)
+        {
+            return this.IGerentesAplicacion.Borrar(entidad);
+        }
+    }
+}
+=== C:\Users\theMA\source\repos\Restaurante\asp.servicios\Controllers\IngredientesController.cs ===
+using Libreria_restaurante.Entidades;
+using Libreria_restaurante.Interfaces;
+using Microsoft.AspNetCore.Mvc;
+
+namespace asp.servicios.Controllers
+{
+    [ApiController]
+    [Route("[controller]/[action]")]
+    public class IngredientesController : ControllerBase
+    {
+        private IIngredientesAplicacion IIngredientesAplicacion;
+
+        public IngredientesController(IIngredientesAplicacion IIngredientesAplicacion)
+        {
+            this.IIngredientesAplicacion = IIngredientesAplicacion;
+        }
+
+        [HttpPost]
+        public List<Ingredientes> Consultar()
+        {
+            return this.IIngredientesAplicacion.Consultar();
+        }
+
+        [HttpPost]
+        public List<Ingredientes> Buscar(Ingredientes entidad)
+        {
+            return this.IIngredientesAplicacion.Buscar(entidad);
+        }
+
+        [HttpPost]
+        public Ingredientes Insertar(Ingredientes entidad)
+        {
+            return this.IIngredientesAplicacion.Insertar(entidad);
+        }
+
+        [HttpPost]
+        public Ingredientes Actualizar(Ingredientes entidad)
+        {
+            return this.IIngredientesAplicacion.Actualizar(entidad);
+        }
+
+        [HttpPost]
+        public Ingredientes Borrar(Ingredientes entidad)
+        {
+            return this.IIngredientesAplicacion.Borrar(entidad);
+        }
+    }
+}
+=== C:\Users\theMA\source\repos\Restaurante\asp.servicios\Controllers\InventariosController.cs ===
+using Libreria_restaurante.Entidades;
+using Libreria_restaurante.Interfaces;
+using Microsoft.AspNetCore.Mvc;
+
+namespace asp.servicios.Controllers
+{
+    [ApiController]
+    [Route("[controller]/[action]")]
+    public class InventariosController : ControllerBase
+    {
+        private IInventariosAplicacion IInventariosAplicacion;
+
+        public InventariosController(IInventariosAplicacion IInventariosAplicacion)
+        {
+            this.IInventariosAplicacion = IInventariosAplicacion;
+        }
+
+        [HttpPost]
+        public List<Inventarios> Consultar()
+        {
+            return this.IInventariosAplicacion.Consultar();
+        }
+
+        [HttpPost]
+        public List<Inventarios> Buscar(Inventarios entidad)
+        {
+            return this.IInventariosAplicacion.Buscar(entidad);
+        }
+
+        [HttpPost]
+        public Inventarios Insertar(Inventarios entidad)
+        {
+            return this.IInventariosAplicacion.Insertar(entidad);
+        }
+
+        [HttpPost]
+        public Inventarios Actualizar(Inventarios entidad)
+        {
+            return this.IInventariosAplicacion.Actualizar(entidad);
+        }
+
+        [HttpPost]
+        public Inventarios Borrar(Inventarios entidad)
+        {
+            return this.IInventariosAplicacion.Borrar(entidad);
+        }
+    }
+}
+=== C:\Users\theMA\source\repos\Restaurante\asp.servicios\Controllers\MenusController.cs ===
+using Libreria_restaurante.Entidades;
+using Libreria_restaurante.Interfaces;
+using Microsoft.AspNetCore.Mvc;
+
+namespace asp.servicios.Controllers
+{
+    [ApiController]
+    [Route("[controller]/[action]")]
+    public class MenusController : ControllerBase
+    {
+        private IMenusAplicacion IMenusAplicacion;
+
+        public MenusController(IMenusAplicacion IMenusAplicacion)
+        {
+            this.IMenusAplicacion = IMenusAplicacion;
+        }
+
+        [HttpPost]
+        public List<Menus> Consultar()
+        {
+            return this.IMenusAplicacion.Consultar();
+        }
+
+        [HttpPost]
+        public List<Menus> Buscar(Menus entidad)
+        {
+            return this.IMenusAplicacion.Buscar(entidad);
+        }
+
+        [HttpPost]
+        public Menus Insertar(Menus entidad)
+        {
+            return this.IMenusAplicacion.Insertar(entidad);
+        }
+
+        [HttpPost]
+        public Menus Actualizar(Menus entidad)
+        {
+            return this.IMenusAplicacion.Actualizar(entidad);
+        }
+
+        [HttpPost]
+        public Menus Borrar(Menus entidad)
+        {
+            return this.IMenusAplicacion.Borrar(entidad);
+        }
+    }
+}
+=== C:\Users\theMA\source\repos\Restaurante\asp.servicios\Controllers\MesasController.cs ===
+using Libreria_restaurante.Entidades;
+using Libreria_restaurante.Interfaces;
+using Microsoft.AspNetCore.Mvc;
+
+namespace asp.servicios.Controllers
+{
+    [ApiController]
+    [Route("[controller]/[action]")]
+    public class MesasController : ControllerBase
+    {
+        private IMesasAplicacion IMesasAplicacion;
+
+        public MesasController(IMesasAplicacion IMesasAplicacion)
+        {
+            this.IMesasAplicacion = IMesasAplicacion;
+        }
+
+        [HttpPost]
+        public List<Mesas> Consultar()
+        {
+            return this.IMesasAplicacion.Consultar();
+        }
+
+        [HttpPost]
+        public List<Mesas> Buscar(Mesas entidad)
+        {
+            return this.IMesasAplicacion.Buscar(entidad);
+        }
+
+        [HttpPost]
+        public Mesas Insertar(Mesas entidad)
+        {
+            return this.IMesasAplicacion.Insertar(entidad);
+        }
+
+        [HttpPost]
+        public Mesas Actualizar(Mesas entidad)
+        {
+            return this.IMesasAplicacion.Actualizar(entidad);
+        }
+
+        [HttpPost]
+        public Mesas Borrar(Mesas entidad)
+        {
+            return this.IMesasAplicacion.Borrar(entidad);
+        }
+    }
+}
+=== C:\Users\theMA\source\repos\Restaurante\asp.servicios\Controllers\MeserosController.cs ===
+using Libreria_restaurante.Entidades;
+using Libreria_restaurante.Interfaces;
+using Microsoft.AspNetCore.Mvc;
+
+namespace asp.servicios.Controllers
+{
+    [ApiController]
+    [Route("[controller]/[action]")]
+    public class MeserosController : ControllerBase
+    {
+        private IMeserosAplicacion IMeserosAplicacion;
+
+        public MeserosController(IMeserosAplicacion IMeserosAplicacion)
+        {
+            this.IMeserosAplicacion = IMeserosAplicacion;
+        }
+
+        [HttpPost]
+        public List<Meseros> Consultar()
+        {
+            return this.IMeserosAplicacion.Consultar();
+        }
+
+        [HttpPost]
+        public List<Meseros> Buscar(Meseros entidad)
+        {
+            return this.IMeserosAplicacion.Buscar(entidad);
+        }
+
+        [HttpPost]
+        public Meseros Insertar(Meseros entidad)
+        {
+            return this.IMeserosAplicacion.Insertar(entidad);
+        }
+
+        [HttpPost]
+        public Meseros Actualizar(Meseros entidad)
+        {
+            return this.IMeserosAplicacion.Actualizar(entidad);
+        }
+
+        [HttpPost]
+        public Meseros Borrar(Meseros entidad)
+        {
+            return this.IMeserosAplicacion.Borrar(entidad);
+        }
+    }
+}
+=== C:\Users\theMA\source\repos\Restaurante\asp.servicios\Controllers\MetodosPagosController.cs ===
+using Libreria_restaurante.Entidades;
+using Libreria_restaurante.Interfaces;
+using Microsoft.AspNetCore.Mvc;
+
+namespace asp.servicios.Controllers
+{
+    [ApiController]
+    [Route("[controller]/[action]")]
+    public class MetodosPagosController : ControllerBase
+    {
+        private IMetodosPagosAplicacion IMetodosPagosAplicacion;
+
+        public MetodosPagosController(IMetodosPagosAplicacion IMetodosPagosAplicacion)
+        {
+            this.IMetodosPagosAplicacion = IMetodosPagosAplicacion;
+        }
+
+        [HttpPost]
+        public List<MetodosPagos> Consultar()
+        {
+            return this.IMetodosPagosAplicacion.Consultar();
+        }
+
+        [HttpPost]
+        public List<MetodosPagos> Buscar(MetodosPagos entidad)
+        {
+            return this.IMetodosPagosAplicacion.Buscar(entidad);
+        }
+
+        [HttpPost]
+        public MetodosPagos Insertar(MetodosPagos entidad)
+        {
+            return this.IMetodosPagosAplicacion.Insertar(entidad);
+        }
+
+        [HttpPost]
+        public MetodosPagos Actualizar(MetodosPagos entidad)
+        {
+            return this.IMetodosPagosAplicacion.Actualizar(entidad);
+        }
+
+        [HttpPost]
+        public MetodosPagos Borrar(MetodosPagos entidad)
+        {
+            return this.IMetodosPagosAplicacion.Borrar(entidad);
+        }
+    }
+}
+=== C:\Users\theMA\source\repos\Restaurante\asp.servicios\Controllers\PagosController.cs ===
+using Libreria_restaurante.Entidades;
+using Libreria_restaurante.Interfaces;
+using Microsoft.AspNetCore.Mvc;
+
+namespace asp.servicios.Controllers
+{
+    [ApiController]
+    [Route("[controller]/[action]")]
+    public class PagosController : ControllerBase
+    {
+        private IPagosAplicacion IPagosAplicacion;
+
+        public PagosController(IPagosAplicacion IPagosAplicacion)
+        {
+            this.IPagosAplicacion = IPagosAplicacion;
+        }
+
+        [HttpPost]
+        public List<Pagos> Consultar()
+        {
+            return this.IPagosAplicacion.Consultar();
+        }
+
+        [HttpPost]
+        public List<Pagos> Buscar(Pagos entidad)
+        {
+            return this.IPagosAplicacion.Buscar(entidad);
+        }
+
+        [HttpPost]
+        public Pagos Insertar(Pagos entidad)
+        {
+            return this.IPagosAplicacion.Insertar(entidad);
+        }
+
+        [HttpPost]
+        public Pagos Actualizar(Pagos entidad)
+        {
+            return this.IPagosAplicacion.Actualizar(entidad);
+        }
+
+        [HttpPost]
+        public Pagos Borrar(Pagos entidad)
+        {
+            return this.IPagosAplicacion.Borrar(entidad);
+        }
+    }
+}
+=== C:\Users\theMA\source\repos\Restaurante\asp.servicios\Controllers\PedidosController.cs ===
+using Libreria_restaurante.Entidades;
+using Libreria_restaurante.Interfaces;
+using Microsoft.AspNetCore.Mvc;
+
+namespace asp.servicios.Controllers
+{
+    [ApiController]
+    [Route("[controller]/[action]")]
+    public class PedidosController : ControllerBase
+    {
+        private IPedidosAplicacion IPedidosAplicacion;
+
+        public PedidosController(IPedidosAplicacion IPedidosAplicacion)
+        {
+            this.IPedidosAplicacion = IPedidosAplicacion;
+        }
+
+        [HttpPost]
+        public List<Pedidos> Consultar()
+        {
+            return this.IPedidosAplicacion.Consultar();
+        }
+
+        [HttpPost]
+        public List<Pedidos> Buscar(Pedidos entidad)
+        {
+            return this.IPedidosAplicacion.Buscar(entidad);
+        }
+
+        [HttpPost]
+        public Pedidos Insertar(Pedidos entidad)
+        {
+            return this.IPedidosAplicacion.Insertar(entidad);
+        }
+
+        [HttpPost]
+        public Pedidos Actualizar(Pedidos entidad)
+        {
+            return this.IPedidosAplicacion.Actualizar(entidad);
+        }
+
+        [HttpPost]
+        public Pedidos Borrar(Pedidos entidad)
+        {
+            return this.IPedidosAplicacion.Borrar(entidad);
+        }
+    }
+}
+=== C:\Users\theMA\source\repos\Restaurante\asp.servicios\Controllers\PermisosController.cs ===
+using Libreria_restaurante.Entidades;
+using Libreria_restaurante.Interfaces;
+using Microsoft.AspNetCore.Mvc;
+
+namespace asp.servicios.Controllers
+{
+    [ApiController]
+    [Route("[controller]/[action]")]
+    public class PermisosController : ControllerBase
+    {
+        private IPermisosAplicacion IPermisosAplicacion;
+
+        public PermisosController(IPermisosAplicacion IPermisosAplicacion)
+        {
+            this.IPermisosAplicacion = IPermisosAplicacion;
+        }
+
+        [HttpPost]
+        public List<Permisos> Consultar()
+        {
+            return this.IPermisosAplicacion.Consultar();
+        }
+
+        [HttpPost]
+        public List<Permisos> Buscar(Permisos entidad)
+        {
+            return this.IPermisosAplicacion.Buscar(entidad);
+        }
+
+        [HttpPost]
+        public Permisos Insertar(Permisos entidad)
+        {
+            return this.IPermisosAplicacion.Insertar(entidad);
+        }
+
+        [HttpPost]
+        public Permisos Actualizar(Permisos entidad)
+        {
+            return this.IPermisosAplicacion.Actualizar(entidad);
+        }
+
+        [HttpPost]
+        public Permisos Borrar(Permisos entidad)
+        {
+            return this.IPermisosAplicacion.Borrar(entidad);
+        }
+    }
+}
+=== C:\Users\theMA\source\repos\Restaurante\asp.servicios\Controllers\ProductosController.cs ===
+using Libreria_restaurante.Entidades;
+using Libreria_restaurante.Interfaces;
+using Microsoft.AspNetCore.Mvc;
+
+namespace asp.servicios.Controllers
+{
+    [ApiController]
+    [Route("[controller]/[action]")]
+    public class ProductosController : ControllerBase
+    {
+        private IProductosAplicacion IProductosAplicacion;
+
+        public ProductosController(IProductosAplicacion IProductosAplicacion)
+        {
+            this.IProductosAplicacion = IProductosAplicacion;
+        }
+
+        [HttpPost]
+        public List<Productos> Consultar()
+        {
+            return this.IProductosAplicacion.Consultar();
+        }
+
+        [HttpPost]
+        public List<Productos> Buscar(Productos entidad)
+        {
+            return this.IProductosAplicacion.Buscar(entidad);
+        }
+
+        [HttpPost]
+        public Productos Insertar(Productos entidad)
+        {
+            return this.IProductosAplicacion.Insertar(entidad);
+        }
+
+        [HttpPost]
+        public Productos Actualizar(Productos entidad)
+        {
+            return this.IProductosAplicacion.Actualizar(entidad);
+        }
+
+        [HttpPost]
+        public Productos Borrar(Productos entidad)
+        {
+            return this.IProductosAplicacion.Borrar(entidad);
+        }
+    }
+}
+=== C:\Users\theMA\source\repos\Restaurante\asp.servicios\Controllers\ProveedoresController.cs ===
+using Libreria_restaurante.Entidades;
+using Libreria_restaurante.Interfaces;
+using Microsoft.AspNetCore.Mvc;
+
+namespace asp.servicios.Controllers
+{
+    [ApiController]
+    [Route("[controller]/[action]")]
+    public class ProveedoresController : ControllerBase
+    {
+        private IProveedoresAplicacion IProveedoresAplicacion;
+
+        public ProveedoresController(IProveedoresAplicacion IProveedoresAplicacion)
+        {
+            this.IProveedoresAplicacion = IProveedoresAplicacion;
+        }
+
+        [HttpPost]
+        public List<Proveedores> Consultar()
+        {
+            return this.IProveedoresAplicacion.Consultar();
+        }
+
+        [HttpPost]
+        public List<Proveedores> Buscar(Proveedores entidad)
+        {
+            return this.IProveedoresAplicacion.Buscar(entidad);
+        }
+
+        [HttpPost]
+        public Proveedores Insertar(Proveedores entidad)
+        {
+            return this.IProveedoresAplicacion.Insertar(entidad);
+        }
+
+        [HttpPost]
+        public Proveedores Actualizar(Proveedores entidad)
+        {
+            return this.IProveedoresAplicacion.Actualizar(entidad);
+        }
+
+        [HttpPost]
+        public Proveedores Borrar(Proveedores entidad)
+        {
+            return this.IProveedoresAplicacion.Borrar(entidad);
+        }
+    }
+}
+=== C:\Users\theMA\source\repos\Restaurante\asp.servicios\Controllers\RecetasController.cs ===
+using Libreria_restaurante.Entidades;
+using Libreria_restaurante.Interfaces;
+using Microsoft.AspNetCore.Mvc;
+
+namespace asp.servicios.Controllers
+{
+    [ApiController]
+    [Route("[controller]/[action]")]
+    public class RecetasController : ControllerBase
+    {
+        private IRecetasAplicacion IRecetasAplicacion;
+
+        public RecetasController(IRecetasAplicacion IRecetasAplicacion)
+        {
+            this.IRecetasAplicacion = IRecetasAplicacion;
+        }
+
+        [HttpPost]
+        public List<Recetas> Consultar()
+        {
+            return this.IRecetasAplicacion.Consultar();
+        }
+
+        [HttpPost]
+        public List<Recetas> Buscar(Recetas entidad)
+        {
+            return this.IRecetasAplicacion.Buscar(entidad);
+        }
+
+        [HttpPost]
+        public Recetas Insertar(Recetas entidad)
+        {
+            return this.IRecetasAplicacion.Insertar(entidad);
+        }
+
+        [HttpPost]
+        public Recetas Actualizar(Recetas entidad)
+        {
+            return this.IRecetasAplicacion.Actualizar(entidad);
+        }
+
+        [HttpPost]
+        public Recetas Borrar(Recetas entidad)
+        {
+            return this.IRecetasAplicacion.Borrar(entidad);
+        }
+    }
+}
+=== C:\Users\theMA\source\repos\Restaurante\asp.servicios\Controllers\ReservasController.cs ===
+using Libreria_restaurante.Entidades;
+using Libreria_restaurante.Interfaces;
+using Microsoft.AspNetCore.Mvc;
+
+namespace asp.servicios.Controllers
+{
+    [ApiController]
+    [Route("[controller]/[action]")]
+    public class ReservasController : ControllerBase
+    {
+        private IReservasAplicacion IReservasAplicacion;
+
+        public ReservasController(IReservasAplicacion IReservasAplicacion)
+        {
+            this.IReservasAplicacion = IReservasAplicacion;
+        }
+
+        [HttpPost]
+        public List<Reservas> Consultar()
+        {
+            return this.IReservasAplicacion.Consultar();
+        }
+
+        [HttpPost]
+        public List<Reservas> Buscar(Reservas entidad)
+        {
+            return this.IReservasAplicacion.Buscar(entidad);
+        }
+
+        [HttpPost]
+        public Reservas Insertar(Reservas entidad)
+        {
+            return this.IReservasAplicacion.Insertar(entidad);
+        }
+
+        [HttpPost]
+        public Reservas Actualizar(Reservas entidad)
+        {
+            return this.IReservasAplicacion.Actualizar(entidad);
+        }
+
+        [HttpPost]
+        public Reservas Borrar(Reservas entidad)
+        {
+            return this.IReservasAplicacion.Borrar(entidad);
+        }
+    }
+}
+=== C:\Users\theMA\source\repos\Restaurante\asp.servicios\Controllers\RolesController.cs ===
+using Libreria_restaurante.Entidades;
+using Libreria_restaurante.Interfaces;
+using Microsoft.AspNetCore.Mvc;
+
+namespace asp.servicios.Controllers
+{
+    [ApiController]
+    [Route("[controller]/[action]")]
+    public class RolesController : ControllerBase
+    {
+        private IRolesAplicacion IRolesAplicacion;
+
+        public RolesController(IRolesAplicacion IRolesAplicacion)
+        {
+            this.IRolesAplicacion = IRolesAplicacion;
+        }
+
+        [HttpPost]
+        public List<Roles> Consultar()
+        {
+            return this.IRolesAplicacion.Consultar();
+        }
+
+        [HttpPost]
+        public List<Roles> Buscar(Roles entidad)
+        {
+            return this.IRolesAplicacion.Buscar(entidad);
+        }
+
+        [HttpPost]
+        public Roles Insertar(Roles entidad)
+        {
+            return this.IRolesAplicacion.Insertar(entidad);
+        }
+
+        [HttpPost]
+        public Roles Actualizar(Roles entidad)
+        {
+            return this.IRolesAplicacion.Actualizar(entidad);
+        }
+
+        [HttpPost]
+        public Roles Borrar(Roles entidad)
+        {
+            return this.IRolesAplicacion.Borrar(entidad);
+        }
+    }
+}
+=== C:\Users\theMA\source\repos\Restaurante\asp.servicios\Controllers\TurnosController.cs ===
+using Libreria_restaurante.Entidades;
+using Libreria_restaurante.Interfaces;
+using Microsoft.AspNetCore.Mvc;
+
+namespace asp.servicios.Controllers
+{
+    [ApiController]
+    [Route("[controller]/[action]")]
+    public class TurnosController : ControllerBase
+    {
+        private ITurnosAplicacion ITurnosAplicacion;
+
+        public TurnosController(ITurnosAplicacion ITurnosAplicacion)
+        {
+            this.ITurnosAplicacion = ITurnosAplicacion;
+        }
+
+        [HttpPost]
+        public List<Turnos> Consultar()
+        {
+            return this.ITurnosAplicacion.Consultar();
+        }
+
+        [HttpPost]
+        public List<Turnos> Buscar(Turnos entidad)
+        {
+            return this.ITurnosAplicacion.Buscar(entidad);
+        }
+
+        [HttpPost]
+        public Turnos Insertar(Turnos entidad)
+        {
+            return this.ITurnosAplicacion.Insertar(entidad);
+        }
+
+        [HttpPost]
+        public Turnos Actualizar(Turnos entidad)
+        {
+            return this.ITurnosAplicacion.Actualizar(entidad);
+        }
+
+        [HttpPost]
+        public Turnos Borrar(Turnos entidad)
+        {
+            return this.ITurnosAplicacion.Borrar(entidad);
+        }
+    }
+}
+=== C:\Users\theMA\source\repos\Restaurante\asp.servicios\Controllers\UsuariosController.cs ===
+using Libreria_restaurante.Entidades;
+using Libreria_restaurante.Interfaces;
+using Microsoft.AspNetCore.Mvc;
+
+namespace asp.servicios.Controllers
+{
+    [ApiController]
+    [Route("[controller]/[action]")]
+    public class UsuariosController : ControllerBase
+    {
+        private IUsuariosAplicacion IUsuariosAplicacion;
+
+        public UsuariosController(IUsuariosAplicacion IUsuariosAplicacion)
+        {
+            this.IUsuariosAplicacion = IUsuariosAplicacion;
+        }
+
+        [HttpPost]
+        public List<Usuarios> Consultar()
+        {
+            return this.IUsuariosAplicacion.Consultar();
+        }
+
+        [HttpPost]
+        public List<Usuarios> Buscar(Usuarios entidad)
+        {
+            return this.IUsuariosAplicacion.Buscar(entidad);
+        }
+
+        [HttpPost]
+        public Usuarios Insertar(Usuarios entidad)
+        {
+            return this.IUsuariosAplicacion.Insertar(entidad);
+        }
+
+        [HttpPost]
+        public Usuarios Actualizar(Usuarios entidad)
+        {
+            return this.IUsuariosAplicacion.Actualizar(entidad);
+        }
+
+        [HttpPost]
+        public Usuarios Borrar(Usuarios entidad)
+        {
+            return this.IUsuariosAplicacion.Borrar(entidad);
+        }
+
+        [HttpPost]
+        public Usuarios Login(Usuarios entidad)
+        {
+            return this.IUsuariosAplicacion.Login(entidad);
+        }
+    }
+}
+=== C:\Users\theMA\source\repos\Restaurante\asp.presentacion\Nucleo\PaginaProtegida.cs ===
+using Microsoft.AspNetCore.Mvc.Filters;
+using Microsoft.AspNetCore.Mvc.RazorPages;
+
+namespace asp.presentacion.Nucleo
+{
+    public abstract class PaginaProtegida : PageModel
+    {
+        protected abstract string Permiso { get; }
+        public string RolActual => HttpContext.Session.GetString("rol") ?? "";
+
+        public override void OnPageHandlerExecuting(PageHandlerExecutingContext context)
+        {
+            if (string.IsNullOrEmpty(HttpContext.Session.GetString("usuario")))
+            {
+                context.Result = RedirectToPage("/Login");
+                return;
+            }
+            var permisos = (HttpContext.Session.GetString("permisos") ?? "").Split(',');
+            if (Permiso != "" && !permisos.Contains(Permiso))
+            {
+                TempData["Mensaje"] = "No tiene permiso para acceder a este mÃ³dulo.";
+                context.Result = RedirectToPage("/Index");
+            }
+        }
+    }
+}
+=== C:\Users\theMA\source\repos\Restaurante\asp.presentacion\Program.cs ===
+using Lib_Presentaciones.Implementaciones;
+using Lib_Presentaciones.Interfaces;
+
+var builder = WebApplication.CreateBuilder(args);
+
+builder.Services.AddRazorPages();
+builder.Services.AddScoped<IComunicaciones, Comunicaciones>();
+builder.Services.AddSession(o =>
+{
+    o.IdleTimeout = TimeSpan.FromMinutes(30);
+    o.Cookie.HttpOnly = true;
+    o.Cookie.IsEssential = true;
+});
+builder.Services.AddScoped<ICategoriasPresentacion, CategoriasPresentacion>();
+builder.Services.AddScoped<IClientesPresentacion, ClientesPresentacion>();
+builder.Services.AddScoped<ICocinerosPresentacion, CocinerosPresentacion>();
+builder.Services.AddScoped<IDetalles_PedidosPresentacion, Detalles_PedidosPresentacion>();
+builder.Services.AddScoped<IEmpleadosPresentacion, EmpleadosPresentacion>();
+builder.Services.AddScoped<IFacturasPresentacion, FacturasPresentacion>();
+builder.Services.AddScoped<IGerentesPresentacion, GerentesPresentacion>();
+builder.Services.AddScoped<IIngredientesPresentacion, IngredientesPresentacion>();
+builder.Services.AddScoped<IInventariosPresentacion, InventariosPresentacion>();
+builder.Services.AddScoped<IMenusPresentacion, MenusPresentacion>();
+builder.Services.AddScoped<IMesasPresentacion, MesasPresentacion>();
+builder.Services.AddScoped<IMeserosPresentacion, MeserosPresentacion>();
+builder.Services.AddScoped<IMetodosPagosPresentacion, MetodosPagosPresentacion>();
+builder.Services.AddScoped<IPagosPresentacion, PagosPresentacion>();
+builder.Services.AddScoped<IPedidosPresentacion, PedidosPresentacion>();
+builder.Services.AddScoped<IProductosPresentacion, ProductosPresentacion>();
+builder.Services.AddScoped<IProveedoresPresentacion, ProveedoresPresentacion>();
+builder.Services.AddScoped<IRecetasPresentacion, RecetasPresentacion>();
+builder.Services.AddScoped<IReservasPresentacion, ReservasPresentacion>();
+builder.Services.AddScoped<ITurnosPresentacion, TurnosPresentacion>();
+builder.Services.AddScoped<IRolesPresentacion, RolesPresentacion>();
+builder.Services.AddScoped<IUsuariosPresentacion, UsuariosPresentacion>();
+builder.Services.AddScoped<IPermisosPresentacion, PermisosPresentacion>();
+builder.Services.AddScoped<IAuditoriasPresentacion, AuditoriasPresentacion>();
+
+var app = builder.Build();
+
+if (!app.Environment.IsDevelopment())
+{
+    app.UseExceptionHandler("/Error");
+    app.UseHsts();
+}
+
+app.UseHttpsRedirection();
+
+app.UseRouting();
+
+app.UseSession();
+
+app.UseAuthorization();
+
+app.MapStaticAssets();
+app.MapRazorPages()
+   .WithStaticAssets();
+
+app.Run();

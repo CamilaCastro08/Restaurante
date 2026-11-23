@@ -1,0 +1,3974 @@
+﻿=== C:\Users\theMA\source\repos\Restaurante\Libreria_restaurante\Entidades\Auditorias.cs ===
+using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+using System.Text;
+
+namespace Libreria_restaurante.Entidades
+{
+    public class Auditorias
+    {
+        public int id { get; set; }
+        public string? tabla { get; set; }
+        public string? accion { get; set; }
+        public DateTime fecha { get; set; }
+        public string? datosAnteriores { get; set; }
+        public string? datosNuevos { get; set; }
+        public int? usuario { get; set; }
+
+        [ForeignKey("usuario")]
+        public Usuarios? _Usuario { get; set; }
+    }
+}
+=== C:\Users\theMA\source\repos\Restaurante\Libreria_restaurante\Entidades\Categorias.cs ===
+using System;
+using System.Collections.Generic;
+using System.Text;
+
+namespace Libreria_restaurante.Entidades
+{
+
+    public class Categorias
+    {
+        public int id { get; set; }
+        public string? nombre { get; set; }
+
+        public List<Productos> Productos { get; set; } = new();
+    }
+}
+=== C:\Users\theMA\source\repos\Restaurante\Libreria_restaurante\Entidades\Clientes.cs ===
+using System;
+using System.Collections.Generic;
+using System.Text;
+
+namespace Libreria_restaurante.Entidades
+{
+    public class Clientes
+    {
+        public int id { get; set; }
+        public string? nombre { get; set; }
+        public string? telefono { get; set; }
+        public string? cedula { get; set; }
+        public string? direccion { get; set; }
+
+        public List<Reservas> Reservas { get; set; } = new();
+        public List<Pedidos> Pedidos { get; set; } = new();
+    }
+}
+=== C:\Users\theMA\source\repos\Restaurante\Libreria_restaurante\Entidades\Cocineros.cs ===
+using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
+using System.Text;
+
+namespace Libreria_restaurante.Entidades
+{
+    public class Cocineros
+    {
+        public int id { get; set; }
+        public int empleado { get; set; }
+        public string? especialidad { get; set; }
+        public int anios_experiencia { get; set; }
+        public string? estacion_asignada { get; set; }
+
+
+        [ForeignKey("empleado")]
+        public Empleados? _empleado { get; set; } 
+    }
+}
+=== C:\Users\theMA\source\repos\Restaurante\Libreria_restaurante\Entidades\Detalles_Pedidos.cs ===
+using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
+using System.Text;
+
+namespace Libreria_restaurante.Entidades
+{
+    public class Detalles_Pedidos
+    {
+        public int id { get; set; }
+        public int pedido { get; set; }
+        public int producto { get; set; }
+        public int cantidad { get; set; }
+        public decimal subtotal { get; set; }
+        public string? comentarios { get; set; }
+
+        [ForeignKey("pedido")]
+        public Pedidos? _pedido { get; set; }
+        [ForeignKey("producto")]
+        public Productos? _producto { get; set; }
+    }
+}
+=== C:\Users\theMA\source\repos\Restaurante\Libreria_restaurante\Entidades\Empleados.cs ===
+using System;
+using System.Collections.Generic;
+using System.Text;
+
+namespace Libreria_restaurante.Entidades
+{
+    public class Empleados
+    {
+        public int id { get; set; }
+        public string? nombre { get; set; }
+        public string? telefono { get; set; }
+        public string? direccion { get; set; }
+        public decimal salario { get; set; }
+        public DateTime fecha_contratacion { get; set; }
+        public string? cargo { get; set; }
+
+
+        public List<Turnos> Turnos { get; set; } = new();
+        public List<Meseros> Meseros { get; set; } = new();
+        public List<Gerentes> Gerentes { get; set; } = new();
+        public List<Cocineros> Cocineros { get; set; } = new();
+    }
+}
+=== C:\Users\theMA\source\repos\Restaurante\Libreria_restaurante\Entidades\Facturas.cs ===
+using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
+using System.Text;
+
+namespace Libreria_restaurante.Entidades
+{
+    public class Facturas
+    {
+        public int id { get; set; }
+        public int pedido { get; set; }
+        public string? numero { get; set; }
+        public DateTime fecha_emision { get; set; }
+        public decimal subtotal { get; set; }
+        public decimal total { get; set; }
+
+        [ForeignKey("pedido")]
+        public Pedidos? _pedido { get; set; }
+        public List<Pagos> Pagos { get; set; } = new();
+    }
+}
+=== C:\Users\theMA\source\repos\Restaurante\Libreria_restaurante\Entidades\Gerentes.cs ===
+using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
+using System.Text;
+
+namespace Libreria_restaurante.Entidades
+{
+    public class Gerentes
+    {
+        public int id { get; set; }
+        public int empleado { get; set; }
+        public string? nivel_autorizacion { get; set; }
+        public decimal bono_desempeno { get; set; }
+        public string? area_responsable { get; set; }
+
+
+        [ForeignKey("empleado")]
+        public Empleados? _empleado { get; set; }
+    }
+}
+=== C:\Users\theMA\source\repos\Restaurante\Libreria_restaurante\Entidades\Ingredientes.cs ===
+using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
+using System.Text;
+
+namespace Libreria_restaurante.Entidades
+{
+    public class Ingredientes
+    {
+        public int id { get; set; }
+        public string? nombre { get; set; }
+        public string? unidad_medida { get; set; }
+        public decimal costo_unitario { get; set; }
+        public int proveedor { get; set; }
+        public int receta { get; set; }
+
+        [ForeignKey("receta")]
+        public Recetas? _receta { get; set; }
+        [ForeignKey("proveedor")]
+        public Proveedores? _proveedor { get; set; }
+        public List<Inventarios> Inventarios { get; set; } = new();
+
+    }
+}
+=== C:\Users\theMA\source\repos\Restaurante\Libreria_restaurante\Entidades\Inventarios.cs ===
+using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
+using System.Text;
+
+namespace Libreria_restaurante.Entidades
+{
+    public class Inventarios
+    {
+        public int id { get; set; }
+        public int ingrediente { get; set; }
+        public decimal stock_actual { get; set; }
+        public decimal stock_minimo { get; set; }
+        public DateTime fecha_actualizacion { get; set; }
+
+
+        [ForeignKey("ingrediente")]
+        public Ingredientes? _ingrediente { get; set; }
+    }
+}
+=== C:\Users\theMA\source\repos\Restaurante\Libreria_restaurante\Entidades\Menus.cs ===
+using System;
+using System.Collections.Generic;
+using System.Text;
+
+namespace Libreria_restaurante.Entidades
+{
+    public class Menus
+    {
+        public int id { get; set; }
+        public string? nombre { get; set; }
+        public DateTime vigencia_desde { get; set; }
+        public DateTime vigencia_hasta { get; set; }
+        public string? tipo { get; set; }
+
+        public List<Productos> Productos { get; set; } = new();
+    }
+}
+=== C:\Users\theMA\source\repos\Restaurante\Libreria_restaurante\Entidades\Mesas.cs ===
+using System;
+using System.Collections.Generic;
+using System.Text;
+
+namespace Libreria_restaurante.Entidades
+{
+    public class Mesas
+    {
+        public int id { get; set; }
+        public int numero { get; set; }
+        public int capacidad { get; set; }
+        public string? estado { get; set; }
+        public string? ubicacion { get; set; }
+
+        public List<Reservas> Reservas { get; set; } = new();
+        public List<Pedidos> Pedidos { get; set; } = new();
+    }
+}
+=== C:\Users\theMA\source\repos\Restaurante\Libreria_restaurante\Entidades\Meseros.cs ===
+using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
+using System.Text;
+
+namespace Libreria_restaurante.Entidades
+{
+    public class Meseros
+    {
+        public int id { get; set; }
+        public int empleado { get; set; }
+        public string? zona_asignada { get; set; }
+        public int num_mesas_asignadas { get; set; }
+        public decimal calificacion_promedio { get; set; }
+
+
+        [ForeignKey("empleado")]
+        public Empleados? _empleado { get; set; }
+
+        public List<Pedidos> Pedidos { get; set; } = new();
+    }
+}
+=== C:\Users\theMA\source\repos\Restaurante\Libreria_restaurante\Entidades\MetodosPagos.cs ===
+using System;
+using System.Collections.Generic;
+using System.Text;
+
+namespace Libreria_restaurante.Entidades
+{
+    public class MetodosPagos
+    {
+        public int id { get; set; }
+        public string? tipo { get; set; }
+        public List<Pagos> Pagos { get; set; } = new();
+    }
+}
+=== C:\Users\theMA\source\repos\Restaurante\Libreria_restaurante\Entidades\Pagos.cs ===
+using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
+using System.Text;
+
+namespace Libreria_restaurante.Entidades
+{
+    public class Pagos
+    {
+        public int id { get; set; }
+        public int factura { get; set; }
+        public int metodoPago { get; set; }
+        public decimal monto { get; set; }
+        public DateTime fecha { get; set; }
+        public string? referencia { get; set; }
+        public string? estado { get; set; }
+
+
+        [ForeignKey("factura")]
+        public Facturas? _factura { get; set; }
+
+        [ForeignKey("metodoPago")]
+        public MetodosPagos? _metodoPago { get; set; }
+    }
+}
+=== C:\Users\theMA\source\repos\Restaurante\Libreria_restaurante\Entidades\Pedidos.cs ===
+using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
+using System.Text;
+
+namespace Libreria_restaurante.Entidades
+{
+    public class Pedidos
+    {
+        public int id { get; set; }
+        public int cliente { get; set; }
+        public int mesa { get; set; }
+        public int mesero { get; set; }
+        public DateTime fecha_hora { get; set; }
+        public int numero_personas { get; set; }
+        public string? estado { get; set; }
+
+        [ForeignKey("cliente")]
+        public Clientes? _cliente { get; set; }
+        [ForeignKey("mesa")]
+        public Mesas? _mesa { get; set; }
+        [ForeignKey("mesero")]
+        public Meseros? _mesero { get; set; }
+
+        public List<Detalles_Pedidos> Detalles_Pedidos { get; set; } = new();
+        public List<Facturas> Facturas { get; set; } = new();
+    }
+}
+=== C:\Users\theMA\source\repos\Restaurante\Libreria_restaurante\Entidades\Permisos.cs ===
+using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+using System.Text;
+
+namespace Libreria_restaurante.Entidades
+{
+    public class Permisos
+    {
+        public int id { get; set; }
+        public string? nombre { get; set; }
+        public string? descripcion { get; set; }
+        public int? rol { get; set; }
+
+        [ForeignKey("rol")]
+        public Roles? _rol { get; set; }
+    }
+}
+=== C:\Users\theMA\source\repos\Restaurante\Libreria_restaurante\Entidades\Productos.cs ===
+using System.ComponentModel.DataAnnotations.Schema;
+
+namespace Libreria_restaurante.Entidades
+{
+    public class Productos
+    {
+        public int id { get; set; }
+        public string? nombre { get; set; }
+        public string? tipo { get; set; }
+        public decimal precio { get; set; }
+        public DateTime vigencia_desde { get; set; }
+        public DateTime vigencia_hasta { get; set; }
+        public int categoria { get; set; }
+        public int menu { get; set; }
+
+        [ForeignKey("categoria")] public Categorias? _categoria { get; set; }
+        [ForeignKey("menu")] public Menus? _menu { get; set; }
+    }
+}
+=== C:\Users\theMA\source\repos\Restaurante\Libreria_restaurante\Entidades\Proveedores.cs ===
+using System;
+using System.Collections.Generic;
+using System.Text;
+
+namespace Libreria_restaurante.Entidades
+{
+    public class Proveedores
+    {
+        public int id { get; set; }
+        public string? nombre { get; set; }
+        public string? contacto { get; set; }
+        public string? direccion { get; set; }
+        public string? telefono { get; set; }
+
+
+        public List<Ingredientes> Ingredientes { get; set; } = new();
+    }
+}
+=== C:\Users\theMA\source\repos\Restaurante\Libreria_restaurante\Entidades\Recetas.cs ===
+using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
+using System.Text;
+
+namespace Libreria_restaurante.Entidades
+{
+  
+        public class Recetas
+        {
+            public int id { get; set; }
+            public int producto { get; set; }
+            public DateTime tiempo_preparacion { get; set; }
+            public string? instrucciones { get; set; }
+            public int porciones { get; set; }
+            public string? dificultad { get; set; }
+
+
+            [ForeignKey("producto")]
+            public Productos? _producto { get; set; }
+            public List<Ingredientes> Ingredientes { get; set; } = new();
+    }
+}
+
+=== C:\Users\theMA\source\repos\Restaurante\Libreria_restaurante\Entidades\Reservas.cs ===
+using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
+using System.Text;
+
+namespace Libreria_restaurante.Entidades
+{
+    public class Reservas
+    {
+        public int id { get; set; }
+        public int cliente { get; set; }
+        public int mesa { get; set; }
+        public DateTime fecha_hora { get; set; }
+        public int numero_personas { get; set; }
+        public string? estado { get; set; }
+
+
+        [ForeignKey("cliente")]
+        public Clientes? _cliente { get; set; }
+        [ForeignKey("mesa")]
+        public Mesas? _mesa { get; set; }
+    }
+}
+=== C:\Users\theMA\source\repos\Restaurante\Libreria_restaurante\Entidades\Roles.cs ===
+using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.Text;
+
+namespace Libreria_restaurante.Entidades
+{
+    public class Roles
+    {
+        public int id { get; set; }
+        public string? nombre { get; set; }
+        public string? descripcion { get; set; }
+        public bool activo { get; set; }
+
+        public List<Usuarios>? _Usuarios { get; set; } = new();
+        public List<Permisos>? _Permisos { get; set; } = new();
+    }
+}
+=== C:\Users\theMA\source\repos\Restaurante\Libreria_restaurante\Entidades\Turnos.cs ===
+using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
+using System.Text;
+
+namespace Libreria_restaurante.Entidades
+{
+    public class Turnos
+    {
+        public int id { get; set; }
+        public int empleado { get; set; }
+        public DateTime fecha { get; set; }
+        public DateTime hora_entrada { get; set; }
+        public DateTime hora_salida { get; set; }
+
+        [ForeignKey("empleado")]
+        public Empleados? _empleado { get; set; }
+    }
+}
+=== C:\Users\theMA\source\repos\Restaurante\Libreria_restaurante\Entidades\Usuarios.cs ===
+using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+using System.Text;
+
+namespace Libreria_restaurante.Entidades
+{
+    public class Usuarios
+    {
+        public int id { get; set; }
+        public string? nombreUsuario { get; set; }
+        public string? correo { get; set; }
+        public string? contraseña { get; set; }
+        public bool activo { get; set; }
+        public DateTime fechaCreacion { get; set; }
+        public int? rol { get; set; }
+
+        [ForeignKey("rol")]
+        public Roles? _rol { get; set; }
+
+    }
+}
+=== C:\Users\theMA\source\repos\Restaurante\Libreria_restaurante\Entidades\UsuariosAuditorias.cs ===
+using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+using System.Text;
+
+namespace Libreria_restaurante.Entidades
+{
+    public class UsuariosAuditorias
+    {
+        public int id { get; set; }
+        public string? tabla { get; set; }
+        public string? accion { get; set; }
+        public DateTime fecha { get; set; }
+        public string? datosAnteriores { get; set; }
+        public string? datosNuevos { get; set; }
+        public int? usuario { get; set; }
+
+        [ForeignKey("usuario")]
+        public Usuarios? _Usuario { get; set; }
+    }
+}
+=== C:\Users\theMA\source\repos\Restaurante\Libreria_restaurante\Implementaciones\AuditoriasAplicacion.cs ===
+using Microsoft.EntityFrameworkCore;
+using Libreria_restaurante.Entidades;
+using Libreria_restaurante.Interfaces;
+
+namespace Libreria_restaurante.Implementaciones
+{
+    public class AuditoriasAplicacion : IAuditoriasAplicacion
+    {
+        private IConexion IConexion;
+
+        public AuditoriasAplicacion(IConexion IConexion)
+        {
+            this.IConexion = IConexion;
+        }
+
+        public List<Auditorias> Consultar()
+        {
+            return this.IConexion.Auditorias!
+                .Include(x => x._Usuario).ToList();
+        }
+
+        public List<Auditorias> Buscar(Auditorias entidad)
+        {
+            return this.IConexion.Auditorias!
+                .Include(x => x._Usuario)
+                .Where(x => x.tabla!.Contains(entidad.tabla!))
+                .ToList();
+        }
+    }
+}
+=== C:\Users\theMA\source\repos\Restaurante\Libreria_restaurante\Implementaciones\CategoriasAplicacion.cs ===
+using Libreria_restaurante.Entidades;
+using Libreria_restaurante.Interfaces;
+using Microsoft.EntityFrameworkCore;
+using System;
+using System.Collections.Generic;
+using System.Text;
+
+namespace Libreria_restaurante.Implementaciones
+{
+    public class CategoriasAplicacion : ICategoriasAplicacion
+    {
+        private IConexion IConexion;
+
+        public CategoriasAplicacion(IConexion IConexion)
+        {
+            this.IConexion = IConexion;
+        }
+
+        public Categorias Insertar(Categorias entidad)
+        {
+            if (entidad.id != 0)
+                throw new Exception("Ya se guardo");
+
+            if (Validar(entidad))
+                throw new Exception("Falta informacion");
+
+            this.IConexion.Categorias!.Add(entidad);
+            this.IConexion.SaveChanges();
+
+            var audit = new Auditorias
+            {
+                tabla = "Categorias",
+                accion = "Insertar",
+                fecha = DateTime.Now,
+                datosAnteriores = "",
+                datosNuevos = "id: " + entidad.id + ", nombre: " + entidad.nombre
+            };
+            this.IConexion.Auditorias!.Add(audit);
+            this.IConexion.SaveChanges();
+            return entidad;
+        }
+
+        public Categorias Actualizar(Categorias entidad)
+        {
+            if (entidad.id == 0)
+                throw new Exception("No se ha guardo");
+
+            if (Validar(entidad))
+                throw new Exception("Falta informacion");
+
+            var anterior = this.IConexion.Categorias!.AsNoTracking().FirstOrDefault(x => x.id == entidad.id);
+            if (anterior == null)
+                throw new Exception("No existe");
+
+            var entry = this.IConexion.Entry<Categorias>(entidad);
+            entry.State = EntityState.Modified;
+
+            var audit = new Auditorias
+            {
+                tabla = "Categorias",
+                accion = "Actualizar",
+                fecha = DateTime.Now,
+                datosAnteriores = "id: " + anterior.id + ", nombre: " + anterior.nombre,
+                datosNuevos = "id: " + entidad.id + ", nombre: " + entidad.nombre
+            };
+            this.IConexion.Auditorias!.Add(audit);
+            this.IConexion.SaveChanges();
+            return entidad;
+        }
+
+        public List<Categorias> Consultar()
+        {
+            return this.IConexion.Categorias!.ToList();
+        }
+
+        public List<Categorias> Buscar(Categorias entidad)
+        {
+            return this.IConexion.Categorias!
+                .Where(x => x.nombre!.Contains(entidad.nombre!))
+                .ToList();
+        }
+
+        public Categorias Borrar(Categorias entidad)
+        {
+            if (entidad.id == 0)
+                throw new Exception("No se ha guardo");
+
+            var itemDb = this.IConexion.Categorias!.FirstOrDefault(x => x.id == entidad.id);
+            if (itemDb == null)
+                throw new Exception("La categoría no existe");
+
+            if (this.IConexion.Productos!.Any(p => p.categoria == itemDb.id))
+                throw new Exception("No se puede eliminar la categoría porque tiene productos asociados.");
+
+            this.IConexion.Categorias!.Remove(itemDb);
+
+            var audit = new Auditorias
+            {
+                tabla = "Categorias",
+                accion = "Borrar",
+                fecha = DateTime.Now,
+                datosAnteriores = "id: " + itemDb.id + ", nombre: " + itemDb.nombre,
+                datosNuevos = ""
+            };
+            this.IConexion.Auditorias!.Add(audit);
+            this.IConexion.SaveChanges();
+            return itemDb;
+        }
+
+        private bool Validar(Categorias entidad)
+        {
+            return string.IsNullOrEmpty(entidad.nombre);
+        }
+    }
+}
+=== C:\Users\theMA\source\repos\Restaurante\Libreria_restaurante\Implementaciones\ClientesAplicacion.cs ===
+using Libreria_restaurante.Entidades;
+using Libreria_restaurante.Interfaces;
+using Microsoft.EntityFrameworkCore;
+using System;
+using System.Collections.Generic;
+using System.Text;
+
+namespace Libreria_restaurante.Implementaciones
+{
+    public class ClientesAplicacion : IClientesAplicacion
+    {
+        private IConexion IConexion;
+
+        public ClientesAplicacion(IConexion IConexion)
+        {
+            this.IConexion = IConexion;
+        }
+
+        public Clientes Insertar(Clientes entidad)
+        {
+            if (entidad.id != 0)
+                throw new Exception("Ya se guardo");
+
+            if (Validar(entidad))
+                throw new Exception("Falta informacion");
+
+            this.IConexion.Clientes!.Add(entidad);
+            this.IConexion.SaveChanges();
+
+            var audit = new Auditorias
+            {
+                tabla = "Clientes",
+                accion = "Insertar",
+                fecha = DateTime.Now,
+                datosAnteriores = "",
+                datosNuevos = "id: " + entidad.id + ", nombre: " + entidad.nombre
+            };
+            this.IConexion.Auditorias!.Add(audit);
+            this.IConexion.SaveChanges();
+            return entidad;
+        }
+
+        public Clientes Actualizar(Clientes entidad)
+        {
+            if (entidad.id == 0)
+                throw new Exception("No se ha guardo");
+
+            if (Validar(entidad))
+                throw new Exception("Falta informacion");
+
+            var anterior = this.IConexion.Clientes!.AsNoTracking().FirstOrDefault(x => x.id == entidad.id);
+            if (anterior == null)
+                throw new Exception("No existe");
+
+            var entry = this.IConexion.Entry<Clientes>(entidad);
+            entry.State = EntityState.Modified;
+
+            var audit = new Auditorias
+            {
+                tabla = "Clientes",
+                accion = "Actualizar",
+                fecha = DateTime.Now,
+                datosAnteriores = "id: " + anterior.id + ", nombre: " + anterior.nombre,
+                datosNuevos = "id: " + entidad.id + ", nombre: " + entidad.nombre
+            };
+            this.IConexion.Auditorias!.Add(audit);
+            this.IConexion.SaveChanges();
+            return entidad;
+        }
+
+        public List<Clientes> Consultar()
+        {
+            return this.IConexion.Clientes!.ToList();
+        }
+
+        public List<Clientes> Buscar(Clientes entidad)
+        {
+            return this.IConexion.Clientes!
+                .Where(x => x.nombre!.Contains(entidad.nombre!))
+                .ToList();
+        }
+
+        public Clientes Borrar(Clientes entidad)
+        {
+            if (entidad.id == 0)
+                throw new Exception("No se ha guardo");
+
+            var itemDb = this.IConexion.Clientes!.FirstOrDefault(x => x.id == entidad.id);
+            if (itemDb == null)
+                throw new Exception("El cliente no existe");
+
+            if (this.IConexion.Pedidos!.Any(p => p.cliente == itemDb.id))
+                throw new Exception("No se puede eliminar el cliente porque tiene pedidos registrados.");
+
+            if (this.IConexion.Reservas!.Any(r => r.cliente == itemDb.id))
+                throw new Exception("No se puede eliminar el cliente porque tiene reservas registradas.");
+
+            this.IConexion.Clientes!.Remove(itemDb);
+
+            var audit = new Auditorias
+            {
+                tabla = "Clientes",
+                accion = "Borrar",
+                fecha = DateTime.Now,
+                datosAnteriores = "id: " + itemDb.id + ", nombre: " + itemDb.nombre,
+                datosNuevos = ""
+            };
+            this.IConexion.Auditorias!.Add(audit);
+            this.IConexion.SaveChanges();
+            return itemDb;
+        }
+
+        private bool Validar(Clientes entidad)
+        {
+            return string.IsNullOrEmpty(entidad.nombre);
+        }
+    }
+}
+=== C:\Users\theMA\source\repos\Restaurante\Libreria_restaurante\Implementaciones\CocinerosAplicacion.cs ===
+using Libreria_restaurante.Entidades;
+using Libreria_restaurante.Interfaces;
+using Microsoft.EntityFrameworkCore;
+using System;
+using System.Collections.Generic;
+using System.Text;
+
+namespace Libreria_restaurante.Implementaciones
+{
+    public class CocinerosAplicacion : ICocinerosAplicacion
+    {
+        private IConexion IConexion;
+
+        public CocinerosAplicacion(IConexion IConexion)
+        {
+            this.IConexion = IConexion;
+        }
+
+        public Cocineros Insertar(Cocineros entidad)
+        {
+            if (entidad.id != 0)
+                throw new Exception("Ya se guardo");
+
+            if (Validar(entidad))
+                throw new Exception("Falta informacion");
+
+            this.IConexion.Cocineros!.Add(entidad);
+            this.IConexion.SaveChanges();
+
+            var audit = new Auditorias
+            {
+                tabla = "Cocineros",
+                accion = "Insertar",
+                fecha = DateTime.Now,
+                datosAnteriores = "",
+                datosNuevos = "id: " + entidad.id + ", especialidad: " + entidad.especialidad
+            };
+            this.IConexion.Auditorias!.Add(audit);
+            this.IConexion.SaveChanges();
+            return entidad;
+        }
+
+        public Cocineros Actualizar(Cocineros entidad)
+        {
+            if (entidad.id == 0)
+                throw new Exception("No se ha guardo");
+
+            if (Validar(entidad))
+                throw new Exception("Falta informacion");
+
+            var anterior = this.IConexion.Cocineros!.FirstOrDefault(x => x.id == entidad.id);
+            if (anterior == null)
+                throw new Exception("No existe");
+
+            var entry = this.IConexion.Entry<Cocineros>(entidad);
+            entry.State = EntityState.Modified;
+
+            var audit = new Auditorias
+            {
+                tabla = "Cocineros",
+                accion = "Actualizar",
+                fecha = DateTime.Now,
+                datosAnteriores = "id: " + anterior.id + ", especialidad: " + anterior.especialidad,
+                datosNuevos = "id: " + entidad.id + ", especialidad: " + entidad.especialidad
+            };
+            this.IConexion.Auditorias!.Add(audit);
+            this.IConexion.SaveChanges();
+            return entidad;
+        }
+
+        public List<Cocineros> Consultar()
+        {
+            return this.IConexion.Cocineros!
+                .Include(x => x._empleado).ToList();
+        }
+
+        public List<Cocineros> Buscar(Cocineros entidad)
+        {
+            return this.IConexion.Cocineros!
+                .Include(x => x._empleado)
+                .Where(x => x.especialidad!.Contains(entidad.especialidad!))
+                .ToList();
+        }
+
+        public Cocineros Borrar(Cocineros entidad)
+        {
+            if (entidad.id == 0)
+                throw new Exception("No se ha guardo");
+
+            this.IConexion.Cocineros!.Remove(entidad);
+
+            var audit = new Auditorias
+            {
+                tabla = "Cocineros",
+                accion = "Borrar",
+                fecha = DateTime.Now,
+                datosAnteriores = "id: " + entidad.id + ", especialidad: " + entidad.especialidad,
+                datosNuevos = ""
+            };
+            this.IConexion.Auditorias!.Add(audit);
+            this.IConexion.SaveChanges();
+            return entidad;
+        }
+
+        private bool Validar(Cocineros entidad)
+        {
+            return string.IsNullOrEmpty(entidad.especialidad);
+        }
+    }
+}
+=== C:\Users\theMA\source\repos\Restaurante\Libreria_restaurante\Implementaciones\Conexion.cs ===
+using Libreria_restaurante.Entidades;
+using Libreria_restaurante.Interfaces;
+using Microsoft.EntityFrameworkCore;
+
+namespace Libreria_restaurante.Implementaciones
+{
+    public class Conexion : DbContext, IConexion
+    {
+        public string? StringConexion { get; set; }
+
+        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        {
+            optionsBuilder.UseSqlServer(this.StringConexion!, p => { });
+            optionsBuilder.UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking);
+        }
+
+        public DbSet<Categorias>? Categorias { get; set; }
+        public DbSet<Clientes>? Clientes { get; set; }
+        public DbSet<Cocineros>? Cocineros { get; set; }
+        public DbSet<Detalles_Pedidos>? Detalles_Pedidos { get; set; }
+        public DbSet<Empleados>? Empleados { get; set; }
+        public DbSet<Facturas>? Facturas { get; set; }
+        public DbSet<Gerentes>? Gerentes { get; set; }
+        public DbSet<Ingredientes>? Ingredientes { get; set; }
+        public DbSet<Inventarios>? Inventarios { get; set; }
+        public DbSet<Menus>? Menus { get; set; }
+        public DbSet<Mesas>? Mesas { get; set; }
+        public DbSet<Meseros>? Meseros { get; set; }
+        public DbSet<MetodosPagos>? MetodosPagos { get; set; }
+        public DbSet<Pagos>? Pagos { get; set; }
+        public DbSet<Pedidos>? Pedidos { get; set; }
+        public DbSet<Productos>? Productos { get; set; }
+        public DbSet<Proveedores>? Proveedores { get; set; }
+        public DbSet<Recetas>? Recetas { get; set; }
+        public DbSet<Reservas>? Reservas { get; set; }
+        public DbSet<Turnos>? Turnos { get; set; }
+        public DbSet<Usuarios>? Usuarios { get; set; }
+        public DbSet<Permisos>? Permisos { get; set; }
+        public DbSet<Roles>? Roles { get; set; }
+        public DbSet<Auditorias>? Auditorias { get; set; }
+    }
+}
+=== C:\Users\theMA\source\repos\Restaurante\Libreria_restaurante\Implementaciones\Detalles_PedidosAplicacion.cs ===
+using Libreria_restaurante.Entidades;
+using Libreria_restaurante.Interfaces;
+using Microsoft.EntityFrameworkCore;
+
+namespace Libreria_restaurante.Implementaciones
+{
+    public class Detalles_PedidosAplicacion : IDetalles_PedidosAplicacion
+    {
+        private IConexion IConexion;
+
+        public Detalles_PedidosAplicacion(IConexion IConexion)
+        {
+            this.IConexion = IConexion;
+        }
+
+        public Detalles_Pedidos Insertar(Detalles_Pedidos entidad)
+        {
+            if (entidad.id != 0)
+                throw new Exception("Ya se guardo");
+
+            if (entidad.pedido == 0 || entidad.producto == 0 || entidad.cantidad <= 0)
+                throw new Exception("Falta informacion");
+
+       
+            var productoDb = this.IConexion.Productos!.FirstOrDefault(p => p.id == entidad.producto);
+            if (productoDb == null)
+                throw new Exception("El producto seleccionado no existe.");
+
+            if (productoDb.precio <= 0)
+                throw new Exception($"El producto '{productoDb.nombre}' no tiene un precio configurado.");
+
+            entidad.subtotal = Math.Round(productoDb.precio * entidad.cantidad, 2);
+
+            
+            var recetasIds = this.IConexion.Recetas!
+                .Where(r => r.producto == entidad.producto)
+                .Select(r => r.id)
+                .ToList();
+
+            var ingredientes = this.IConexion.Ingredientes!
+                .Where(ing => recetasIds.Contains(ing.receta))
+                .ToList();
+
+            foreach (var ing in ingredientes)
+            {
+                var inventario = this.IConexion.Inventarios!
+                    .FirstOrDefault(inv => inv.ingrediente == ing.id);
+
+                if (inventario != null)
+                {
+                    if (inventario.stock_actual < entidad.cantidad)
+                        throw new Exception($"Stock insuficiente para el ingrediente: {ing.nombre}");
+
+                    inventario.stock_actual -= entidad.cantidad;
+                    inventario.fecha_actualizacion = DateTime.Now;
+                    this.IConexion.Entry(inventario).State = EntityState.Modified;
+                }
+            }
+
+            this.IConexion.Detalles_Pedidos!.Add(entidad);
+            this.IConexion.SaveChanges();
+
+            var audit = new Auditorias
+            {
+                tabla = "Detalles_Pedidos",
+                accion = "Insertar",
+                fecha = DateTime.Now,
+                datosAnteriores = "",
+                datosNuevos = $"id: {entidad.id}, pedido: {entidad.pedido}, producto: {entidad.producto}, cantidad: {entidad.cantidad}, subtotal: {entidad.subtotal}"
+            };
+            this.IConexion.Auditorias!.Add(audit);
+            this.IConexion.SaveChanges();
+            return entidad;
+        }
+
+        public Detalles_Pedidos Actualizar(Detalles_Pedidos entidad)
+        {
+            if (entidad.id == 0)
+                throw new Exception("No se ha guardo");
+
+            if (entidad.pedido == 0 || entidad.producto == 0 || entidad.cantidad <= 0)
+                throw new Exception("Falta informacion");
+
+            var anterior = this.IConexion.Detalles_Pedidos!.AsNoTracking().FirstOrDefault(x => x.id == entidad.id);
+            if (anterior == null)
+                throw new Exception("No existe");
+
+            var entry = this.IConexion.Entry<Detalles_Pedidos>(entidad);
+            entry.State = EntityState.Modified;
+
+            var audit = new Auditorias
+            {
+                tabla = "Detalles_Pedidos",
+                accion = "Actualizar",
+                fecha = DateTime.Now,
+                datosAnteriores = "id: " + anterior.id + ", pedido: " + anterior.pedido,
+                datosNuevos = "id: " + entidad.id + ", pedido: " + entidad.pedido
+            };
+            this.IConexion.Auditorias!.Add(audit);
+            this.IConexion.SaveChanges();
+            return entidad;
+        }
+
+        public List<Detalles_Pedidos> Consultar()
+        {
+            return this.IConexion.Detalles_Pedidos!
+                .Include(x => x._pedido)
+                .Include(x => x._producto).ToList();
+        }
+
+        public List<Detalles_Pedidos> Buscar(Detalles_Pedidos entidad)
+        {
+            return this.IConexion.Detalles_Pedidos!
+                .Include(x => x._pedido)
+                .Include(x => x._producto)
+                .Where(x => x.pedido == entidad.pedido)
+                .ToList();
+        }
+
+        public Detalles_Pedidos Borrar(Detalles_Pedidos entidad)
+        {
+            if (entidad.id == 0)
+                throw new Exception("No se ha guardo");
+
+            var detalleDb = this.IConexion.Detalles_Pedidos!.FirstOrDefault(d => d.id == entidad.id);
+            if (detalleDb == null)
+                throw new Exception("No existe");
+
+            var recetasIds = this.IConexion.Recetas!
+                .Where(r => r.producto == detalleDb.producto)
+                .Select(r => r.id)
+                .ToList();
+
+            var ingredientes = this.IConexion.Ingredientes!
+                .Where(ing => recetasIds.Contains(ing.receta))
+                .ToList();
+
+            foreach (var ing in ingredientes)
+            {
+                var inventario = this.IConexion.Inventarios!
+                    .FirstOrDefault(inv => inv.ingrediente == ing.id);
+
+                if (inventario != null)
+                {
+                    inventario.stock_actual += detalleDb.cantidad;
+                    inventario.fecha_actualizacion = DateTime.Now;
+                    this.IConexion.Entry(inventario).State = EntityState.Modified;
+                }
+            }
+
+            this.IConexion.Detalles_Pedidos!.Remove(detalleDb);
+
+            var audit = new Auditorias
+            {
+                tabla = "Detalles_Pedidos",
+                accion = "Borrar",
+                fecha = DateTime.Now,
+                datosAnteriores = "id: " + detalleDb.id + ", pedido: " + detalleDb.pedido,
+                datosNuevos = ""
+            };
+            this.IConexion.Auditorias!.Add(audit);
+            this.IConexion.SaveChanges();
+            return detalleDb;
+        }
+    }
+}
+=== C:\Users\theMA\source\repos\Restaurante\Libreria_restaurante\Implementaciones\EmpleadosAplicacion.cs ===
+using Libreria_restaurante.Entidades;
+using Libreria_restaurante.Interfaces;
+using Microsoft.EntityFrameworkCore;
+using System;
+using System.Collections.Generic;
+using System.Text;
+
+namespace Libreria_restaurante.Implementaciones
+{
+    public class EmpleadosAplicacion : IEmpleadosAplicacion
+    {
+        private IConexion IConexion;
+
+        public EmpleadosAplicacion(IConexion IConexion)
+        {
+            this.IConexion = IConexion;
+        }
+
+        public Empleados Insertar(Empleados entidad)
+        {
+            if (entidad.id != 0)
+                throw new Exception("Ya se guardo");
+
+            if (Validar(entidad))
+                throw new Exception("Falta informacion");
+
+            this.IConexion.Empleados!.Add(entidad);
+            this.IConexion.SaveChanges();
+
+            var audit = new Auditorias
+            {
+                tabla = "Empleados",
+                accion = "Insertar",
+                fecha = DateTime.Now,
+                datosAnteriores = "",
+                datosNuevos = "id: " + entidad.id + ", nombre: " + entidad.nombre
+            };
+            this.IConexion.Auditorias!.Add(audit);
+            this.IConexion.SaveChanges();
+            return entidad;
+        }
+
+        public Empleados Actualizar(Empleados entidad)
+        {
+            if (entidad.id == 0)
+                throw new Exception("No se ha guardo");
+
+            if (Validar(entidad))
+                throw new Exception("Falta informacion");
+
+            var anterior = this.IConexion.Empleados!.FirstOrDefault(x => x.id == entidad.id);
+            if (anterior == null)
+                throw new Exception("No existe");
+
+            var entry = this.IConexion.Entry<Empleados>(entidad);
+            entry.State = EntityState.Modified;
+
+            var audit = new Auditorias
+            {
+                tabla = "Empleados",
+                accion = "Actualizar",
+                fecha = DateTime.Now,
+                datosAnteriores = "id: " + anterior.id + ", nombre: " + anterior.nombre,
+                datosNuevos = "id: " + entidad.id + ", nombre: " + entidad.nombre
+            };
+            this.IConexion.Auditorias!.Add(audit);
+            this.IConexion.SaveChanges();
+            return entidad;
+        }
+
+        public List<Empleados> Consultar()
+        {
+            return this.IConexion.Empleados!.ToList();
+        }
+
+        public List<Empleados> Buscar(Empleados entidad)
+        {
+            return this.IConexion.Empleados!
+                .Where(x => x.nombre!.Contains(entidad.nombre!))
+                .ToList();
+        }
+
+        public Empleados Borrar(Empleados entidad)
+        {
+            if (entidad.id == 0)
+                throw new Exception("No se ha guardo");
+
+            this.IConexion.Empleados!.Remove(entidad);
+
+            var audit = new Auditorias
+            {
+                tabla = "Empleados",
+                accion = "Borrar",
+                fecha = DateTime.Now,
+                datosAnteriores = "id: " + entidad.id + ", nombre: " + entidad.nombre,
+                datosNuevos = ""
+            };
+            this.IConexion.Auditorias!.Add(audit);
+            this.IConexion.SaveChanges();
+            return entidad;
+        }
+
+        private bool Validar(Empleados entidad)
+        {
+            return string.IsNullOrEmpty(entidad.nombre);
+        }
+    }
+}
+=== C:\Users\theMA\source\repos\Restaurante\Libreria_restaurante\Implementaciones\FacturasAplicacion.cs ===
+using Libreria_restaurante.Entidades;
+using Libreria_restaurante.Interfaces;
+using Microsoft.EntityFrameworkCore;
+
+namespace Libreria_restaurante.Implementaciones
+{
+    public class FacturasAplicacion : IFacturasAplicacion
+    {
+        private IConexion IConexion;
+
+        public FacturasAplicacion(IConexion IConexion)
+        {
+            this.IConexion = IConexion;
+        }
+
+        public Facturas Insertar(Facturas entidad)
+        {
+            if (entidad.id != 0)
+                throw new Exception("Ya se guardo");
+
+            if (entidad.pedido == 0)
+                throw new Exception("Debe seleccionar un pedido");
+
+            var pedido = this.IConexion.Pedidos!.FirstOrDefault(p => p.id == entidad.pedido);
+            if (pedido == null)
+                throw new Exception("El pedido no existe");
+
+            // Evitar facturas duplicadas para el mismo pedido
+            var facturaExistente = this.IConexion.Facturas!.FirstOrDefault(f => f.pedido == entidad.pedido);
+            if (facturaExistente != null)
+                throw new Exception($"El pedido #{entidad.pedido} ya tiene una factura generada ({facturaExistente.numero}).");
+
+            if (string.IsNullOrEmpty(entidad.numero))
+                entidad.numero = $"FAC-{DateTime.Now:yyyyMMddHHmmss}";
+
+            if (entidad.fecha_emision == default)
+                entidad.fecha_emision = DateTime.Now;
+
+            if (entidad.subtotal <= 0)
+            {
+                var detalles = this.IConexion.Detalles_Pedidos!
+                    .Where(d => d.pedido == entidad.pedido)
+                    .ToList();
+                entidad.subtotal = detalles.Sum(d => d.subtotal);
+            }
+
+            if (entidad.total <= 0)
+            {
+                // IVA legal del 19%
+                decimal iva = Math.Round(entidad.subtotal * 0.19m, 2);
+                entidad.total = entidad.subtotal + iva;
+            }
+
+            // Desvincular navegaciones para prevenir problemas de ChangeTracker en EF Core
+            entidad._pedido = null;
+            entidad.Pagos = new();
+
+            // La mesa NO se libera y el pedido NO se cancela aquí. Se liberará y cancelará una vez completado el pago.
+            this.IConexion.Facturas!.Add(entidad);
+            this.IConexion.SaveChanges();
+
+            var audit = new Auditorias
+            {
+                tabla = "Facturas",
+                accion = "Insertar",
+                fecha = DateTime.Now,
+                datosAnteriores = "",
+                datosNuevos = $"id: {entidad.id}, numero: {entidad.numero}, total: {entidad.total}"
+            };
+            this.IConexion.Auditorias!.Add(audit);
+            this.IConexion.SaveChanges();
+            return entidad;
+        }
+
+        public Facturas Actualizar(Facturas entidad)
+        {
+            if (entidad.id == 0)
+                throw new Exception("No se ha guardo");
+
+            if (Validar(entidad))
+                throw new Exception("Falta informacion");
+
+            var anterior = this.IConexion.Facturas!.AsNoTracking().FirstOrDefault(x => x.id == entidad.id);
+            if (anterior == null)
+                throw new Exception("No existe");
+
+            entidad._pedido = null;
+            entidad.Pagos = new();
+
+            var entry = this.IConexion.Entry<Facturas>(entidad);
+            entry.State = EntityState.Modified;
+
+            var audit = new Auditorias
+            {
+                tabla = "Facturas",
+                accion = "Actualizar",
+                fecha = DateTime.Now,
+                datosAnteriores = "id: " + anterior.id + ", numero: " + anterior.numero,
+                datosNuevos = "id: " + entidad.id + ", numero: " + entidad.numero
+            };
+            this.IConexion.Auditorias!.Add(audit);
+            this.IConexion.SaveChanges();
+            return entidad;
+        }
+
+        public List<Facturas> Consultar()
+        {
+            return this.IConexion.Facturas!
+                .Include(x => x._pedido).ToList();
+        }
+
+        public List<Facturas> Buscar(Facturas entidad)
+        {
+            return this.IConexion.Facturas!
+                .Include(x => x._pedido)
+                .Where(x => x.numero!.Contains(entidad.numero!))
+                .ToList();
+        }
+
+        public Facturas Borrar(Facturas entidad)
+        {
+            if (entidad.id == 0)
+                throw new Exception("No se ha guardo");
+
+            var itemDb = this.IConexion.Facturas!.FirstOrDefault(x => x.id == entidad.id);
+            if (itemDb == null)
+                throw new Exception("La factura no existe");
+
+            if (this.IConexion.Pagos!.Any(p => p.factura == itemDb.id))
+                throw new Exception("No se puede eliminar la factura porque ya registra pagos asociados.");
+
+            this.IConexion.Facturas!.Remove(itemDb);
+
+            var audit = new Auditorias
+            {
+                tabla = "Facturas",
+                accion = "Borrar",
+                fecha = DateTime.Now,
+                datosAnteriores = "id: " + itemDb.id + ", numero: " + itemDb.numero,
+                datosNuevos = ""
+            };
+            this.IConexion.Auditorias!.Add(audit);
+            this.IConexion.SaveChanges();
+            return itemDb;
+        }
+
+        private bool Validar(Facturas entidad)
+        {
+            return string.IsNullOrEmpty(entidad.numero);
+        }
+    }
+}
+=== C:\Users\theMA\source\repos\Restaurante\Libreria_restaurante\Implementaciones\GerentesAplicacion.cs ===
+using Libreria_restaurante.Entidades;
+using Libreria_restaurante.Interfaces;
+using Microsoft.EntityFrameworkCore;
+using System;
+using System.Collections.Generic;
+using System.Text;
+
+namespace Libreria_restaurante.Implementaciones
+{
+    public class GerentesAplicacion : IGerentesAplicacion
+    {
+        private IConexion IConexion;
+
+        public GerentesAplicacion(IConexion IConexion)
+        {
+            this.IConexion = IConexion;
+        }
+
+        public Gerentes Insertar(Gerentes entidad)
+        {
+            if (entidad.id != 0)
+                throw new Exception("Ya se guardo");
+
+            if (Validar(entidad))
+                throw new Exception("Falta informacion");
+
+            this.IConexion.Gerentes!.Add(entidad);
+            this.IConexion.SaveChanges();
+
+            var audit = new Auditorias
+            {
+                tabla = "Gerentes",
+                accion = "Insertar",
+                fecha = DateTime.Now,
+                datosAnteriores = "",
+                datosNuevos = "id: " + entidad.id + ", area_responsable: " + entidad.area_responsable
+            };
+            this.IConexion.Auditorias!.Add(audit);
+            this.IConexion.SaveChanges();
+            return entidad;
+        }
+
+        public Gerentes Actualizar(Gerentes entidad)
+        {
+            if (entidad.id == 0)
+                throw new Exception("No se ha guardo");
+
+            if (Validar(entidad))
+                throw new Exception("Falta informacion");
+
+            var anterior = this.IConexion.Gerentes!.FirstOrDefault(x => x.id == entidad.id);
+            if (anterior == null)
+                throw new Exception("No existe");
+
+            var entry = this.IConexion.Entry<Gerentes>(entidad);
+            entry.State = EntityState.Modified;
+
+            var audit = new Auditorias
+            {
+                tabla = "Gerentes",
+                accion = "Actualizar",
+                fecha = DateTime.Now,
+                datosAnteriores = "id: " + anterior.id + ", area_responsable: " + anterior.area_responsable,
+                datosNuevos = "id: " + entidad.id + ", area_responsable: " + entidad.area_responsable
+            };
+            this.IConexion.Auditorias!.Add(audit);
+            this.IConexion.SaveChanges();
+            return entidad;
+        }
+
+        public List<Gerentes> Consultar()
+        {
+            return this.IConexion.Gerentes!
+                .Include(x => x._empleado).ToList();
+        }
+
+        public List<Gerentes> Buscar(Gerentes entidad)
+        {
+            return this.IConexion.Gerentes!
+                .Include(x => x._empleado)
+                .Where(x => x.area_responsable!.Contains(entidad.area_responsable!))
+                .ToList();
+        }
+
+        public Gerentes Borrar(Gerentes entidad)
+        {
+            if (entidad.id == 0)
+                throw new Exception("No se ha guardo");
+
+            this.IConexion.Gerentes!.Remove(entidad);
+
+            var audit = new Auditorias
+            {
+                tabla = "Gerentes",
+                accion = "Borrar",
+                fecha = DateTime.Now,
+                datosAnteriores = "id: " + entidad.id + ", area_responsable: " + entidad.area_responsable,
+                datosNuevos = ""
+            };
+            this.IConexion.Auditorias!.Add(audit);
+            this.IConexion.SaveChanges();
+            return entidad;
+        }
+
+        private bool Validar(Gerentes entidad)
+        {
+            return string.IsNullOrEmpty(entidad.area_responsable);
+        }
+    }
+}
+=== C:\Users\theMA\source\repos\Restaurante\Libreria_restaurante\Implementaciones\IngredientesAplicacion.cs ===
+using Libreria_restaurante.Entidades;
+using Libreria_restaurante.Interfaces;
+using Microsoft.EntityFrameworkCore;
+using System;
+using System.Collections.Generic;
+using System.Text;
+
+namespace Libreria_restaurante.Implementaciones
+{
+    public class IngredientesAplicacion : IIngredientesAplicacion
+    {
+        private IConexion IConexion;
+
+        public IngredientesAplicacion(IConexion IConexion)
+        {
+            this.IConexion = IConexion;
+        }
+
+        public Ingredientes Insertar(Ingredientes entidad)
+        {
+            if (entidad.id != 0)
+                throw new Exception("Ya se guardo");
+
+            if (Validar(entidad))
+                throw new Exception("Falta informacion");
+
+            this.IConexion.Ingredientes!.Add(entidad);
+            this.IConexion.SaveChanges();
+
+            var audit = new Auditorias
+            {
+                tabla = "Ingredientes",
+                accion = "Insertar",
+                fecha = DateTime.Now,
+                datosAnteriores = "",
+                datosNuevos = "id: " + entidad.id + ", nombre: " + entidad.nombre
+            };
+            this.IConexion.Auditorias!.Add(audit);
+            this.IConexion.SaveChanges();
+            return entidad;
+        }
+
+        public Ingredientes Actualizar(Ingredientes entidad)
+        {
+            if (entidad.id == 0)
+                throw new Exception("No se ha guardo");
+
+            if (Validar(entidad))
+                throw new Exception("Falta informacion");
+
+            var anterior = this.IConexion.Ingredientes!.FirstOrDefault(x => x.id == entidad.id);
+            if (anterior == null)
+                throw new Exception("No existe");
+
+            var entry = this.IConexion.Entry<Ingredientes>(entidad);
+            entry.State = EntityState.Modified;
+
+            var audit = new Auditorias
+            {
+                tabla = "Ingredientes",
+                accion = "Actualizar",
+                fecha = DateTime.Now,
+                datosAnteriores = "id: " + anterior.id + ", nombre: " + anterior.nombre,
+                datosNuevos = "id: " + entidad.id + ", nombre: " + entidad.nombre
+            };
+            this.IConexion.Auditorias!.Add(audit);
+            this.IConexion.SaveChanges();
+            return entidad;
+        }
+
+        public List<Ingredientes> Consultar()
+        {
+            return this.IConexion.Ingredientes!
+                .Include(x => x._receta)
+                .Include(x => x._proveedor).ToList();
+        }
+
+        public List<Ingredientes> Buscar(Ingredientes entidad)
+        {
+            return this.IConexion.Ingredientes!
+                .Include(x => x._receta)
+                .Include(x => x._proveedor)
+                .Where(x => x.nombre!.Contains(entidad.nombre!))
+                .ToList();
+        }
+
+        public Ingredientes Borrar(Ingredientes entidad)
+        {
+            if (entidad.id == 0)
+                throw new Exception("No se ha guardo");
+
+            this.IConexion.Ingredientes!.Remove(entidad);
+
+            var audit = new Auditorias
+            {
+                tabla = "Ingredientes",
+                accion = "Borrar",
+                fecha = DateTime.Now,
+                datosAnteriores = "id: " + entidad.id + ", nombre: " + entidad.nombre,
+                datosNuevos = ""
+            };
+            this.IConexion.Auditorias!.Add(audit);
+            this.IConexion.SaveChanges();
+            return entidad;
+        }
+
+        private bool Validar(Ingredientes entidad)
+        {
+            return string.IsNullOrEmpty(entidad.nombre);
+        }
+    }
+}
+=== C:\Users\theMA\source\repos\Restaurante\Libreria_restaurante\Implementaciones\InventariosAplicacion.cs ===
+using Libreria_restaurante.Entidades;
+using Libreria_restaurante.Interfaces;
+using Microsoft.EntityFrameworkCore;
+using System;
+using System.Collections.Generic;
+using System.Text;
+
+namespace Libreria_restaurante.Implementaciones
+{
+    public class InventariosAplicacion : IInventariosAplicacion
+    {
+        private IConexion IConexion;
+
+        public InventariosAplicacion(IConexion IConexion)
+        {
+            this.IConexion = IConexion;
+        }
+
+        public Inventarios Insertar(Inventarios entidad)
+        {
+            if (entidad.id != 0)
+                throw new Exception("Ya se guardo");
+
+            if (Validar(entidad))
+                throw new Exception("Falta informacion");
+
+            this.IConexion.Inventarios!.Add(entidad);
+            this.IConexion.SaveChanges();
+
+            var audit = new Auditorias
+            {
+                tabla = "Inventarios",
+                accion = "Insertar",
+                fecha = DateTime.Now,
+                datosAnteriores = "",
+                datosNuevos = "id: " + entidad.id + ", ingrediente: " + entidad.ingrediente
+            };
+            this.IConexion.Auditorias!.Add(audit);
+            this.IConexion.SaveChanges();
+            return entidad;
+        }
+
+        public Inventarios Actualizar(Inventarios entidad)
+        {
+            if (entidad.id == 0)
+                throw new Exception("No se ha guardo");
+
+            if (Validar(entidad))
+                throw new Exception("Falta informacion");
+
+            var anterior = this.IConexion.Inventarios!.FirstOrDefault(x => x.id == entidad.id);
+            if (anterior == null)
+                throw new Exception("No existe");
+
+            var entry = this.IConexion.Entry<Inventarios>(entidad);
+            entry.State = EntityState.Modified;
+
+            var audit = new Auditorias
+            {
+                tabla = "Inventarios",
+                accion = "Actualizar",
+                fecha = DateTime.Now,
+                datosAnteriores = "id: " + anterior.id + ", ingrediente: " + anterior.ingrediente,
+                datosNuevos = "id: " + entidad.id + ", ingrediente: " + entidad.ingrediente
+            };
+            this.IConexion.Auditorias!.Add(audit);
+            this.IConexion.SaveChanges();
+            return entidad;
+        }
+
+        public List<Inventarios> Consultar()
+        {
+            return this.IConexion.Inventarios!
+                .Include(x => x._ingrediente).ToList();
+        }
+
+        public List<Inventarios> Buscar(Inventarios entidad)
+        {
+            return this.IConexion.Inventarios!
+                .Include(x => x._ingrediente)
+                .Where(x => x.ingrediente == entidad.ingrediente)
+                .ToList();
+        }
+
+        public Inventarios Borrar(Inventarios entidad)
+        {
+            if (entidad.id == 0)
+                throw new Exception("No se ha guardo");
+
+            this.IConexion.Inventarios!.Remove(entidad);
+
+            var audit = new Auditorias
+            {
+                tabla = "Inventarios",
+                accion = "Borrar",
+                fecha = DateTime.Now,
+                datosAnteriores = "id: " + entidad.id + ", ingrediente: " + entidad.ingrediente,
+                datosNuevos = ""
+            };
+            this.IConexion.Auditorias!.Add(audit);
+            this.IConexion.SaveChanges();
+            return entidad;
+        }
+
+        private bool Validar(Inventarios entidad)
+        {
+            return entidad.ingrediente == 0;
+        }
+    }
+}
+=== C:\Users\theMA\source\repos\Restaurante\Libreria_restaurante\Implementaciones\MenusAplicacion.cs ===
+using Libreria_restaurante.Entidades;
+using Libreria_restaurante.Interfaces;
+using Microsoft.EntityFrameworkCore;
+using System;
+using System.Collections.Generic;
+using System.Text;
+
+namespace Libreria_restaurante.Implementaciones
+{
+    public class MenusAplicacion : IMenusAplicacion
+    {
+        private IConexion IConexion;
+
+        public MenusAplicacion(IConexion IConexion)
+        {
+            this.IConexion = IConexion;
+        }
+
+        public Menus Insertar(Menus entidad)
+        {
+            if (entidad.id != 0)
+                throw new Exception("Ya se guardo");
+
+            if (Validar(entidad))
+                throw new Exception("Falta informacion");
+
+            this.IConexion.Menus!.Add(entidad);
+            this.IConexion.SaveChanges();
+
+            var audit = new Auditorias
+            {
+                tabla = "Menus",
+                accion = "Insertar",
+                fecha = DateTime.Now,
+                datosAnteriores = "",
+                datosNuevos = "id: " + entidad.id + ", nombre: " + entidad.nombre
+            };
+            this.IConexion.Auditorias!.Add(audit);
+            this.IConexion.SaveChanges();
+            return entidad;
+        }
+
+        public Menus Actualizar(Menus entidad)
+        {
+            if (entidad.id == 0)
+                throw new Exception("No se ha guardo");
+
+            if (Validar(entidad))
+                throw new Exception("Falta informacion");
+
+            var anterior = this.IConexion.Menus!.FirstOrDefault(x => x.id == entidad.id);
+            if (anterior == null)
+                throw new Exception("No existe");
+
+            var entry = this.IConexion.Entry<Menus>(entidad);
+            entry.State = EntityState.Modified;
+
+            var audit = new Auditorias
+            {
+                tabla = "Menus",
+                accion = "Actualizar",
+                fecha = DateTime.Now,
+                datosAnteriores = "id: " + anterior.id + ", nombre: " + anterior.nombre,
+                datosNuevos = "id: " + entidad.id + ", nombre: " + entidad.nombre
+            };
+            this.IConexion.Auditorias!.Add(audit);
+            this.IConexion.SaveChanges();
+            return entidad;
+        }
+
+        public List<Menus> Consultar()
+        {
+            return this.IConexion.Menus!.ToList();
+        }
+
+        public List<Menus> Buscar(Menus entidad)
+        {
+            return this.IConexion.Menus!
+                .Where(x => x.nombre!.Contains(entidad.nombre!))
+                .ToList();
+        }
+
+        public Menus Borrar(Menus entidad)
+        {
+            if (entidad.id == 0)
+                throw new Exception("No se ha guardo");
+
+            this.IConexion.Menus!.Remove(entidad);
+
+            var audit = new Auditorias
+            {
+                tabla = "Menus",
+                accion = "Borrar",
+                fecha = DateTime.Now,
+                datosAnteriores = "id: " + entidad.id + ", nombre: " + entidad.nombre,
+                datosNuevos = ""
+            };
+            this.IConexion.Auditorias!.Add(audit);
+            this.IConexion.SaveChanges();
+            return entidad;
+        }
+
+        private bool Validar(Menus entidad)
+        {
+            return string.IsNullOrEmpty(entidad.nombre);
+        }
+    }
+}
+=== C:\Users\theMA\source\repos\Restaurante\Libreria_restaurante\Implementaciones\MesasAplicacion.cs ===
+using Libreria_restaurante.Entidades;
+using Libreria_restaurante.Interfaces;
+using Microsoft.EntityFrameworkCore;
+using System;
+using System.Collections.Generic;
+using System.Text;
+
+namespace Libreria_restaurante.Implementaciones
+{
+    public class MesasAplicacion : IMesasAplicacion
+    {
+        private IConexion IConexion;
+
+        public MesasAplicacion(IConexion IConexion)
+        {
+            this.IConexion = IConexion;
+        }
+
+        public Mesas Insertar(Mesas entidad)
+        {
+            if (entidad.id != 0)
+                throw new Exception("Ya se guardo");
+
+            if (Validar(entidad))
+                throw new Exception("Falta informacion");
+
+            this.IConexion.Mesas!.Add(entidad);
+            this.IConexion.SaveChanges();
+
+            var audit = new Auditorias
+            {
+                tabla = "Mesas",
+                accion = "Insertar",
+                fecha = DateTime.Now,
+                datosAnteriores = "",
+                datosNuevos = "id: " + entidad.id + ", ubicacion: " + entidad.ubicacion
+            };
+            this.IConexion.Auditorias!.Add(audit);
+            this.IConexion.SaveChanges();
+            return entidad;
+        }
+
+        public Mesas Actualizar(Mesas entidad)
+        {
+            if (entidad.id == 0)
+                throw new Exception("No se ha guardo");
+
+            if (Validar(entidad))
+                throw new Exception("Falta informacion");
+
+            var anterior = this.IConexion.Mesas!.AsNoTracking().FirstOrDefault(x => x.id == entidad.id);
+            if (anterior == null)
+                throw new Exception("No existe");
+
+            var entry = this.IConexion.Entry<Mesas>(entidad);
+            entry.State = EntityState.Modified;
+
+            var audit = new Auditorias
+            {
+                tabla = "Mesas",
+                accion = "Actualizar",
+                fecha = DateTime.Now,
+                datosAnteriores = "id: " + anterior.id + ", ubicacion: " + anterior.ubicacion,
+                datosNuevos = "id: " + entidad.id + ", ubicacion: " + entidad.ubicacion
+            };
+            this.IConexion.Auditorias!.Add(audit);
+            this.IConexion.SaveChanges();
+            return entidad;
+        }
+
+        public List<Mesas> Consultar()
+        {
+            return this.IConexion.Mesas!.ToList();
+        }
+
+        public List<Mesas> Buscar(Mesas entidad)
+        {
+            return this.IConexion.Mesas!
+                .Where(x => x.ubicacion!.Contains(entidad.ubicacion!))
+                .ToList();
+        }
+
+        public Mesas Borrar(Mesas entidad)
+        {
+            if (entidad.id == 0)
+                throw new Exception("No se ha guardo");
+
+            var itemDb = this.IConexion.Mesas!.FirstOrDefault(x => x.id == entidad.id);
+            if (itemDb == null)
+                throw new Exception("La mesa no existe");
+
+            if (this.IConexion.Pedidos!.Any(p => p.mesa == itemDb.id))
+                throw new Exception("No se puede eliminar la mesa porque tiene pedidos asociados.");
+
+            if (this.IConexion.Reservas!.Any(r => r.mesa == itemDb.id))
+                throw new Exception("No se puede eliminar la mesa porque tiene reservas asociadas.");
+
+            this.IConexion.Mesas!.Remove(itemDb);
+
+            var audit = new Auditorias
+            {
+                tabla = "Mesas",
+                accion = "Borrar",
+                fecha = DateTime.Now,
+                datosAnteriores = "id: " + itemDb.id + ", ubicacion: " + itemDb.ubicacion,
+                datosNuevos = ""
+            };
+            this.IConexion.Auditorias!.Add(audit);
+            this.IConexion.SaveChanges();
+            return itemDb;
+        }
+
+        private bool Validar(Mesas entidad)
+        {
+            return string.IsNullOrEmpty(entidad.ubicacion);
+        }
+    }
+}
+=== C:\Users\theMA\source\repos\Restaurante\Libreria_restaurante\Implementaciones\MeserosAplicacion.cs ===
+using Libreria_restaurante.Entidades;
+using Libreria_restaurante.Interfaces;
+using Microsoft.EntityFrameworkCore;
+using System;
+using System.Collections.Generic;
+using System.Text;
+
+namespace Libreria_restaurante.Implementaciones
+{
+    public class MeserosAplicacion : IMeserosAplicacion
+    {
+        private IConexion IConexion;
+
+        public MeserosAplicacion(IConexion IConexion)
+        {
+            this.IConexion = IConexion;
+        }
+
+        public Meseros Insertar(Meseros entidad)
+        {
+            if (entidad.id != 0)
+                throw new Exception("Ya se guardo");
+
+            if (Validar(entidad))
+                throw new Exception("Falta informacion");
+
+            this.IConexion.Meseros!.Add(entidad);
+            this.IConexion.SaveChanges();
+
+            var audit = new Auditorias
+            {
+                tabla = "Meseros",
+                accion = "Insertar",
+                fecha = DateTime.Now,
+                datosAnteriores = "",
+                datosNuevos = "id: " + entidad.id + ", zona_asignada: " + entidad.zona_asignada
+            };
+            this.IConexion.Auditorias!.Add(audit);
+            this.IConexion.SaveChanges();
+            return entidad;
+        }
+
+        public Meseros Actualizar(Meseros entidad)
+        {
+            if (entidad.id == 0)
+                throw new Exception("No se ha guardo");
+
+            if (Validar(entidad))
+                throw new Exception("Falta informacion");
+
+            var anterior = this.IConexion.Meseros!.FirstOrDefault(x => x.id == entidad.id);
+            if (anterior == null)
+                throw new Exception("No existe");
+
+            var entry = this.IConexion.Entry<Meseros>(entidad);
+            entry.State = EntityState.Modified;
+
+            var audit = new Auditorias
+            {
+                tabla = "Meseros",
+                accion = "Actualizar",
+                fecha = DateTime.Now,
+                datosAnteriores = "id: " + anterior.id + ", zona_asignada: " + anterior.zona_asignada,
+                datosNuevos = "id: " + entidad.id + ", zona_asignada: " + entidad.zona_asignada
+            };
+            this.IConexion.Auditorias!.Add(audit);
+            this.IConexion.SaveChanges();
+            return entidad;
+        }
+
+        public List<Meseros> Consultar()
+        {
+            return this.IConexion.Meseros!
+                .Include(x => x._empleado).ToList();
+        }
+
+        public List<Meseros> Buscar(Meseros entidad)
+        {
+            return this.IConexion.Meseros!
+                .Include(x => x._empleado)
+                .Where(x => x.zona_asignada!.Contains(entidad.zona_asignada!))
+                .ToList();
+        }
+
+        public Meseros Borrar(Meseros entidad)
+        {
+            if (entidad.id == 0)
+                throw new Exception("No se ha guardo");
+
+            this.IConexion.Meseros!.Remove(entidad);
+
+            var audit = new Auditorias
+            {
+                tabla = "Meseros",
+                accion = "Borrar",
+                fecha = DateTime.Now,
+                datosAnteriores = "id: " + entidad.id + ", zona_asignada: " + entidad.zona_asignada,
+                datosNuevos = ""
+            };
+            this.IConexion.Auditorias!.Add(audit);
+            this.IConexion.SaveChanges();
+            return entidad;
+        }
+
+        private bool Validar(Meseros entidad)
+        {
+            return string.IsNullOrEmpty(entidad.zona_asignada);
+        }
+    }
+}
+=== C:\Users\theMA\source\repos\Restaurante\Libreria_restaurante\Implementaciones\MetodosPagosAplicacion.cs ===
+using Libreria_restaurante.Entidades;
+using Libreria_restaurante.Interfaces;
+using Microsoft.EntityFrameworkCore;
+using System;
+using System.Collections.Generic;
+using System.Text;
+
+namespace Libreria_restaurante.Implementaciones
+{
+    public class MetodosPagosAplicacion : IMetodosPagosAplicacion
+    {
+        private IConexion IConexion;
+
+        public MetodosPagosAplicacion(IConexion IConexion)
+        {
+            this.IConexion = IConexion;
+        }
+
+        public MetodosPagos Insertar(MetodosPagos entidad)
+        {
+            if (entidad.id != 0)
+                throw new Exception("Ya se guardo");
+
+            if (Validar(entidad))
+                throw new Exception("Falta informacion");
+
+            this.IConexion.MetodosPagos!.Add(entidad);
+            this.IConexion.SaveChanges();
+
+            var audit = new Auditorias
+            {
+                tabla = "MetodosPagos",
+                accion = "Insertar",
+                fecha = DateTime.Now,
+                datosAnteriores = "",
+                datosNuevos = "id: " + entidad.id + ", tipo: " + entidad.tipo
+            };
+            this.IConexion.Auditorias!.Add(audit);
+            this.IConexion.SaveChanges();
+            return entidad;
+        }
+
+        public MetodosPagos Actualizar(MetodosPagos entidad)
+        {
+            if (entidad.id == 0)
+                throw new Exception("No se ha guardo");
+
+            if (Validar(entidad))
+                throw new Exception("Falta informacion");
+
+            var anterior = this.IConexion.MetodosPagos!.AsNoTracking().FirstOrDefault(x => x.id == entidad.id);
+            if (anterior == null)
+                throw new Exception("No existe");
+
+            var entry = this.IConexion.Entry<MetodosPagos>(entidad);
+            entry.State = EntityState.Modified;
+
+            var audit = new Auditorias
+            {
+                tabla = "MetodosPagos",
+                accion = "Actualizar",
+                fecha = DateTime.Now,
+                datosAnteriores = "id: " + anterior.id + ", tipo: " + anterior.tipo,
+                datosNuevos = "id: " + entidad.id + ", tipo: " + entidad.tipo
+            };
+            this.IConexion.Auditorias!.Add(audit);
+            this.IConexion.SaveChanges();
+            return entidad;
+        }
+
+        public List<MetodosPagos> Consultar()
+        {
+            return this.IConexion.MetodosPagos!.ToList();
+        }
+
+        public List<MetodosPagos> Buscar(MetodosPagos entidad)
+        {
+            return this.IConexion.MetodosPagos!
+                .Where(x => x.tipo!.Contains(entidad.tipo!))
+                .ToList();
+        }
+
+        public MetodosPagos Borrar(MetodosPagos entidad)
+        {
+            if (entidad.id == 0)
+                throw new Exception("No se ha guardo");
+
+            var itemDb = this.IConexion.MetodosPagos!.FirstOrDefault(x => x.id == entidad.id);
+            if (itemDb == null)
+                throw new Exception("El método de pago no existe");
+
+            if (this.IConexion.Pagos!.Any(p => p.metodoPago == itemDb.id))
+                throw new Exception("No se puede eliminar el método de pago porque tiene pagos asociados.");
+
+            this.IConexion.MetodosPagos!.Remove(itemDb);
+
+            var audit = new Auditorias
+            {
+                tabla = "MetodosPagos",
+                accion = "Borrar",
+                fecha = DateTime.Now,
+                datosAnteriores = "id: " + itemDb.id + ", tipo: " + itemDb.tipo,
+                datosNuevos = ""
+            };
+            this.IConexion.Auditorias!.Add(audit);
+            this.IConexion.SaveChanges();
+            return itemDb;
+        }
+
+        private bool Validar(MetodosPagos entidad)
+        {
+            return string.IsNullOrEmpty(entidad.tipo);
+        }
+    }
+}
+=== C:\Users\theMA\source\repos\Restaurante\Libreria_restaurante\Implementaciones\PagosAplicacion.cs ===
+using Libreria_restaurante.Entidades;
+using Libreria_restaurante.Interfaces;
+using Microsoft.EntityFrameworkCore;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+
+namespace Libreria_restaurante.Implementaciones
+{
+    public class PagosAplicacion : IPagosAplicacion
+    {
+        private IConexion IConexion;
+
+        public PagosAplicacion(IConexion IConexion)
+        {
+            this.IConexion = IConexion;
+        }
+
+        public Pagos Insertar(Pagos entidad)
+        {
+            if (entidad.id != 0)
+                throw new Exception("Ya se guardo");
+
+            if (entidad.factura == 0)
+                throw new Exception("Debe seleccionar una factura");
+
+            if (entidad.metodoPago == 0)
+                throw new Exception("Debe seleccionar un método de pago");
+
+            if (entidad.monto <= 0)
+                throw new Exception("El monto a pagar debe ser mayor a cero");
+
+            if (string.IsNullOrEmpty(entidad.referencia))
+                entidad.referencia = $"PAG-{DateTime.Now:yyyyMMddHHmmss}";
+
+            if (string.IsNullOrEmpty(entidad.estado))
+                entidad.estado = "Aprobado";
+
+            if (entidad.fecha == default)
+                entidad.fecha = DateTime.Now;
+
+            entidad._factura = null;
+            entidad._metodoPago = null;
+
+            var factura = this.IConexion.Facturas!.FirstOrDefault(f => f.id == entidad.factura);
+            if (factura == null)
+                throw new Exception("La factura no existe");
+
+            // Validar que la factura no esté ya cancelada o saldada
+            if (factura.total > 0)
+            {
+                var pagosPrevios = this.IConexion.Pagos!.Where(p => p.factura == factura.id).ToList();
+                decimal acumulado = pagosPrevios.Sum(p => p.monto);
+                if (acumulado >= factura.total)
+                    throw new Exception("La factura ya ha sido pagada en su totalidad.");
+            }
+
+            this.IConexion.Pagos!.Add(entidad);
+            this.IConexion.SaveChanges();
+
+            // Sincronización de Pedido y Mesa: cuando la factura se paga por completo
+            if (factura.pedido > 0)
+            {
+                var pedido = this.IConexion.Pedidos!.FirstOrDefault(p => p.id == factura.pedido);
+                if (pedido != null)
+                {
+                    var todosPagos = this.IConexion.Pagos!.Where(p => p.factura == factura.id).ToList();
+                    decimal totalPagado = todosPagos.Sum(p => p.monto);
+
+                    if (factura.total <= 0 || totalPagado >= factura.total)
+                    {
+                        pedido.estado = "Cancelado";
+                        this.IConexion.Entry(pedido).State = EntityState.Modified;
+
+                        var mesa = this.IConexion.Mesas!.FirstOrDefault(m => m.id == pedido.mesa);
+                        if (mesa != null)
+                        {
+                            mesa.estado = "Disponible";
+                            this.IConexion.Entry(mesa).State = EntityState.Modified;
+                        }
+                        this.IConexion.SaveChanges();
+                    }
+                }
+            }
+
+            var audit = new Auditorias
+            {
+                tabla = "Pagos",
+                accion = "Insertar",
+                fecha = DateTime.Now,
+                datosAnteriores = "",
+                datosNuevos = "id: " + entidad.id + ", referencia: " + entidad.referencia
+            };
+            this.IConexion.Auditorias!.Add(audit);
+            this.IConexion.SaveChanges();
+            return entidad;
+        }
+
+        public Pagos Actualizar(Pagos entidad)
+        {
+            if (entidad.id == 0)
+                throw new Exception("No se ha guardo");
+
+            if (Validar(entidad))
+                throw new Exception("Falta informacion");
+
+            var anterior = this.IConexion.Pagos!.AsNoTracking().FirstOrDefault(x => x.id == entidad.id);
+            if (anterior == null)
+                throw new Exception("No existe");
+
+            entidad._factura = null;
+            entidad._metodoPago = null;
+
+            var entry = this.IConexion.Entry<Pagos>(entidad);
+            entry.State = EntityState.Modified;
+
+            var audit = new Auditorias
+            {
+                tabla = "Pagos",
+                accion = "Actualizar",
+                fecha = DateTime.Now,
+                datosAnteriores = "id: " + anterior.id + ", referencia: " + anterior.referencia,
+                datosNuevos = "id: " + entidad.id + ", referencia: " + entidad.referencia
+            };
+            this.IConexion.Auditorias!.Add(audit);
+            this.IConexion.SaveChanges();
+            return entidad;
+        }
+
+        public List<Pagos> Consultar()
+        {
+            return this.IConexion.Pagos!
+                .Include(x => x._factura)
+                .Include(x => x._metodoPago).ToList();
+        }
+
+        public List<Pagos> Buscar(Pagos entidad)
+        {
+            return this.IConexion.Pagos!
+                .Include(x => x._factura)
+                .Include(x => x._metodoPago)
+                .Where(x => x.referencia!.Contains(entidad.referencia!))
+                .ToList();
+        }
+
+        public Pagos Borrar(Pagos entidad)
+        {
+            if (entidad.id == 0)
+                throw new Exception("No se ha guardo");
+
+            var itemDb = this.IConexion.Pagos!.FirstOrDefault(x => x.id == entidad.id);
+            if (itemDb == null)
+                throw new Exception("El pago no existe");
+
+            this.IConexion.Pagos!.Remove(itemDb);
+
+            var audit = new Auditorias
+            {
+                tabla = "Pagos",
+                accion = "Borrar",
+                fecha = DateTime.Now,
+                datosAnteriores = "id: " + itemDb.id + ", referencia: " + itemDb.referencia,
+                datosNuevos = ""
+            };
+            this.IConexion.Auditorias!.Add(audit);
+            this.IConexion.SaveChanges();
+            return itemDb;
+        }
+
+        private bool Validar(Pagos entidad)
+        {
+            return string.IsNullOrEmpty(entidad.referencia);
+        }
+    }
+}
+=== C:\Users\theMA\source\repos\Restaurante\Libreria_restaurante\Implementaciones\PedidosAplicacion.cs ===
+using Libreria_restaurante.Entidades;
+using Libreria_restaurante.Interfaces;
+using Microsoft.EntityFrameworkCore;
+
+namespace Libreria_restaurante.Implementaciones
+{
+    public class PedidosAplicacion : IPedidosAplicacion
+    {
+        private IConexion IConexion;
+
+        public PedidosAplicacion(IConexion IConexion)
+        {
+            this.IConexion = IConexion;
+        }
+
+        public Pedidos Insertar(Pedidos entidad)
+        {
+            if (entidad.id != 0)
+                throw new Exception("Ya se guardo");
+
+            entidad.estado = "En preparación";
+
+            if (entidad.fecha_hora == default)
+                entidad.fecha_hora = DateTime.Now;
+
+            if (entidad.numero_personas <= 0)
+                entidad.numero_personas = 1;
+
+            if (entidad.mesa == 0)
+                throw new Exception("Debe seleccionar una mesa");
+
+            if (entidad.mesero == 0)
+                throw new Exception("Debe seleccionar un mesero");
+
+            if (entidad.cliente == 0)
+            {
+                var consumidorFinal = this.IConexion.Clientes!
+                    .FirstOrDefault(c => c.nombre == "Consumidor Final");
+
+                if (consumidorFinal == null)
+                {
+                    consumidorFinal = new Clientes
+                    {
+                        nombre = "Consumidor Final",
+                        cedula = "2222222222",
+                        telefono = "N/A",
+                        direccion = "Mostrador / Salón"
+                    };
+                    this.IConexion.Clientes!.Add(consumidorFinal);
+                    this.IConexion.SaveChanges();
+                }
+
+                entidad.cliente = consumidorFinal.id;
+            }
+
+            var mesa = this.IConexion.Mesas!.Find(entidad.mesa);
+            if (mesa == null)
+                throw new Exception("La mesa seleccionada no existe");
+
+            if (mesa.estado != null && mesa.estado.Equals("Ocupada", StringComparison.OrdinalIgnoreCase))
+                throw new Exception("La mesa ya se encuentra ocupada");
+
+            mesa.estado = "Ocupada";
+
+            entidad._cliente = null;
+            entidad._mesa = null;
+            entidad._mesero = null;
+
+            this.IConexion.Pedidos!.Add(entidad);
+            this.IConexion.SaveChanges();
+
+            var audit = new Auditorias
+            {
+                tabla = "Pedidos",
+                accion = "Insertar",
+                fecha = DateTime.Now,
+                datosAnteriores = "",
+                datosNuevos = $"id: {entidad.id}, mesa: {mesa.numero}, estado: {entidad.estado}"
+            };
+            this.IConexion.Auditorias!.Add(audit);
+            this.IConexion.SaveChanges();
+            return entidad;
+        }
+
+        public Pedidos Actualizar(Pedidos entidad)
+        {
+            if (entidad.id == 0)
+                throw new Exception("No se ha guardo");
+
+            if (entidad.mesa == 0)
+                throw new Exception("Debe seleccionar una mesa");
+
+            var anterior = this.IConexion.Pedidos!.AsNoTracking().FirstOrDefault(x => x.id == entidad.id);
+            if (anterior == null)
+                throw new Exception("No existe");
+
+            var pedidoDb = this.IConexion.Pedidos!.FirstOrDefault(x => x.id == entidad.id);
+            if (pedidoDb == null)
+                throw new Exception("No existe");
+
+            pedidoDb.estado = !string.IsNullOrEmpty(entidad.estado) ? entidad.estado : anterior.estado;
+            pedidoDb.numero_personas = entidad.numero_personas > 0 ? entidad.numero_personas : pedidoDb.numero_personas;
+            pedidoDb.fecha_hora = entidad.fecha_hora != default ? entidad.fecha_hora : pedidoDb.fecha_hora;
+            if (entidad.cliente != 0) pedidoDb.cliente = entidad.cliente;
+            if (entidad.mesero != 0) pedidoDb.mesero = entidad.mesero;
+            if (entidad.mesa != 0) pedidoDb.mesa = entidad.mesa;
+
+            this.IConexion.Entry(pedidoDb).State = EntityState.Modified;
+
+            var mesa = this.IConexion.Mesas!.Find(pedidoDb.mesa);
+            if (mesa != null && !string.IsNullOrEmpty(pedidoDb.estado))
+            {
+                if (pedidoDb.estado.Equals("Pagado", StringComparison.OrdinalIgnoreCase) ||
+                    pedidoDb.estado.Equals("Cancelado", StringComparison.OrdinalIgnoreCase) ||
+                    pedidoDb.estado.Equals("Finalizado", StringComparison.OrdinalIgnoreCase))
+                {
+                    mesa.estado = "Disponible";
+                }
+                else
+                {
+                    mesa.estado = "Ocupada";
+                }
+            }
+
+            var audit = new Auditorias
+            {
+                tabla = "Pedidos",
+                accion = "Actualizar",
+                fecha = DateTime.Now,
+                datosAnteriores = "id: " + anterior.id + ", estado: " + anterior.estado,
+                datosNuevos = "id: " + pedidoDb.id + ", estado: " + pedidoDb.estado
+            };
+            this.IConexion.Auditorias!.Add(audit);
+            this.IConexion.SaveChanges();
+            return pedidoDb;
+        }
+
+        public List<Pedidos> Consultar()
+        {
+            return this.IConexion.Pedidos!
+                .Include(x => x._cliente)
+                .Include(x => x._mesa)
+                .Include(x => x._mesero).ToList();
+        }
+
+        public List<Pedidos> Buscar(Pedidos entidad)
+        {
+            return this.IConexion.Pedidos!
+                .Include(x => x._cliente)
+                .Include(x => x._mesa)
+                .Include(x => x._mesero)
+                .Where(x => x.estado!.Contains(entidad.estado!))
+                .ToList();
+        }
+
+        public Pedidos Borrar(Pedidos entidad)
+        {
+            if (entidad.id == 0)
+                throw new Exception("No se ha guardo");
+
+            // Buscar la entidad rastreada directamente desde la BD para evitar conflictos de claves/navegación
+            var pedidoDb = this.IConexion.Pedidos!.FirstOrDefault(p => p.id == entidad.id);
+            if (pedidoDb == null)
+                throw new Exception("El pedido no existe");
+
+            // 1. Si tiene factura asociada, no permitir borrar sin anular o eliminar factura
+            if (this.IConexion.Facturas!.Any(f => f.pedido == pedidoDb.id))
+                throw new Exception("No se puede borrar un pedido que ya tiene factura generada.");
+
+            // 2. Eliminar detalles del pedido y devolver stock al inventario
+            var detalles = this.IConexion.Detalles_Pedidos!.Where(d => d.pedido == pedidoDb.id).ToList();
+            foreach (var det in detalles)
+            {
+                var recetasIds = this.IConexion.Recetas!
+                    .Where(r => r.producto == det.producto)
+                    .Select(r => r.id)
+                    .ToList();
+
+                var ingredientes = this.IConexion.Ingredientes!
+                    .Where(ing => recetasIds.Contains(ing.receta))
+                    .ToList();
+
+                foreach (var ing in ingredientes)
+                {
+                    var inv = this.IConexion.Inventarios!.FirstOrDefault(i => i.ingrediente == ing.id);
+                    if (inv != null)
+                    {
+                        inv.stock_actual += det.cantidad;
+                        inv.fecha_actualizacion = DateTime.Now;
+                        this.IConexion.Entry(inv).State = EntityState.Modified;
+                    }
+                }
+
+                this.IConexion.Detalles_Pedidos!.Remove(det);
+            }
+
+            // 3. Liberar la mesa
+            var mesa = this.IConexion.Mesas!.FirstOrDefault(m => m.id == pedidoDb.mesa);
+            if (mesa != null)
+            {
+                mesa.estado = "Disponible";
+                this.IConexion.Entry(mesa).State = EntityState.Modified;
+            }
+
+            string infoAnterior = $"id: {pedidoDb.id}, estado: {pedidoDb.estado}";
+            this.IConexion.Pedidos!.Remove(pedidoDb);
+
+            var audit = new Auditorias
+            {
+                tabla = "Pedidos",
+                accion = "Borrar",
+                fecha = DateTime.Now,
+                datosAnteriores = infoAnterior,
+                datosNuevos = ""
+            };
+            this.IConexion.Auditorias!.Add(audit);
+            this.IConexion.SaveChanges();
+            return pedidoDb;
+        }
+    }
+}
+=== C:\Users\theMA\source\repos\Restaurante\Libreria_restaurante\Implementaciones\PermisosAplicacion.cs ===
+using Libreria_restaurante.Entidades;
+using Libreria_restaurante.Interfaces;
+using Microsoft.EntityFrameworkCore;
+using System;
+using System.Collections.Generic;
+using System.Text;
+
+namespace Libreria_restaurante.Implementaciones
+{
+    public class PermisosAplicacion : IPermisosAplicacion
+    {
+        private IConexion IConexion;
+
+        public PermisosAplicacion(IConexion IConexion)
+        {
+            this.IConexion = IConexion;
+        }
+
+        public Permisos Insertar(Permisos entidad)
+        {
+            if (entidad.id != 0)
+                throw new Exception("Ya se guardo");
+
+            if (Validar(entidad))
+                throw new Exception("Falta informacion");
+
+            this.IConexion.Permisos!.Add(entidad);
+            this.IConexion.SaveChanges();
+
+            var audit = new Auditorias
+            {
+                tabla = "Permisos",
+                accion = "Insertar",
+                fecha = DateTime.Now,
+                datosAnteriores = "",
+                datosNuevos = "id: " + entidad.id + ", nombre: " + entidad.nombre + ", rol: " + entidad.rol
+            };
+            this.IConexion.Auditorias!.Add(audit);
+            this.IConexion.SaveChanges();
+            return entidad;
+        }
+
+        public Permisos Actualizar(Permisos entidad)
+        {
+            if (entidad.id == 0)
+                throw new Exception("No se ha guardo");
+
+            if (Validar(entidad))
+                throw new Exception("Falta informacion");
+
+            var anterior = this.IConexion.Permisos!.FirstOrDefault(x => x.id == entidad.id);
+            if (anterior == null)
+                throw new Exception("No existe");
+
+            var entry = this.IConexion.Entry<Permisos>(entidad);
+            entry.State = EntityState.Modified;
+
+            var audit = new Auditorias
+            {
+                tabla = "Permisos",
+                accion = "Actualizar",
+                fecha = DateTime.Now,
+                datosAnteriores = "id: " + anterior.id + ", nombre: " + anterior.nombre + ", rol: " + anterior.rol,
+                datosNuevos = "id: " + entidad.id + ", nombre: " + entidad.nombre + ", rol: " + entidad.rol
+            };
+            this.IConexion.Auditorias!.Add(audit);
+            this.IConexion.SaveChanges();
+            return entidad;
+        }
+
+        public List<Permisos> Consultar()
+        {
+            return this.IConexion.Permisos!
+                .Include(x => x._rol).ToList();
+        }
+
+        public List<Permisos> Buscar(Permisos entidad)
+        {
+            return this.IConexion.Permisos!
+                .Include(x => x._rol)
+                .Where(x => x.nombre!.Contains(entidad.nombre!))
+                .ToList();
+        }
+
+        public Permisos Borrar(Permisos entidad)
+        {
+            if (entidad.id == 0)
+                throw new Exception("No se ha guardo");
+
+            this.IConexion.Permisos!.Remove(entidad);
+
+            var audit = new Auditorias
+            {
+                tabla = "Permisos",
+                accion = "Borrar",
+                fecha = DateTime.Now,
+                datosAnteriores = "id: " + entidad.id + ", nombre: " + entidad.nombre + ", rol: " + entidad.rol,
+                datosNuevos = ""
+            };
+            this.IConexion.Auditorias!.Add(audit);
+            this.IConexion.SaveChanges();
+            return entidad;
+        }
+
+        private bool Validar(Permisos entidad)
+        {
+            return string.IsNullOrEmpty(entidad.nombre);
+        }
+    }
+}
+=== C:\Users\theMA\source\repos\Restaurante\Libreria_restaurante\Implementaciones\ProductosAplicacion.cs ===
+using Libreria_restaurante.Entidades;
+using Libreria_restaurante.Interfaces;
+using Microsoft.EntityFrameworkCore;
+using System;
+using System.Collections.Generic;
+using System.Text;
+
+namespace Libreria_restaurante.Implementaciones
+{
+    public class ProductosAplicacion : IProductosAplicacion
+    {
+        private IConexion IConexion;
+
+        public ProductosAplicacion(IConexion IConexion)
+        {
+            this.IConexion = IConexion;
+        }
+
+        public Productos Insertar(Productos entidad)
+        {
+            if (entidad.id != 0)
+                throw new Exception("Ya se guardo");
+
+            if (Validar(entidad))
+                throw new Exception("Falta informacion");
+
+            this.IConexion.Productos!.Add(entidad);
+            this.IConexion.SaveChanges();
+
+            var audit = new Auditorias
+            {
+                tabla = "Productos",
+                accion = "Insertar",
+                fecha = DateTime.Now,
+                datosAnteriores = "",
+                datosNuevos = "id: " + entidad.id + ", nombre: " + entidad.nombre
+            };
+            this.IConexion.Auditorias!.Add(audit);
+            this.IConexion.SaveChanges();
+            return entidad;
+        }
+
+        public Productos Actualizar(Productos entidad)
+        {
+            if (entidad.id == 0)
+                throw new Exception("No se ha guardo");
+
+            if (Validar(entidad))
+                throw new Exception("Falta informacion");
+
+            var anterior = this.IConexion.Productos!.FirstOrDefault(x => x.id == entidad.id);
+            if (anterior == null)
+                throw new Exception("No existe");
+
+            var entry = this.IConexion.Entry<Productos>(entidad);
+            entry.State = EntityState.Modified;
+
+            var audit = new Auditorias
+            {
+                tabla = "Productos",
+                accion = "Actualizar",
+                fecha = DateTime.Now,
+                datosAnteriores = "id: " + anterior.id + ", nombre: " + anterior.nombre,
+                datosNuevos = "id: " + entidad.id + ", nombre: " + entidad.nombre
+            };
+            this.IConexion.Auditorias!.Add(audit);
+            this.IConexion.SaveChanges();
+            return entidad;
+        }
+
+        public List<Productos> Consultar()
+        {
+            return this.IConexion.Productos!
+                .Include(x => x._categoria)
+                .Include(x => x._menu).ToList();
+        }
+
+        public List<Productos> Buscar(Productos entidad)
+        {
+            return this.IConexion.Productos!
+                .Include(x => x._categoria)
+                .Include(x => x._menu)
+                .Where(x => x.nombre!.Contains(entidad.nombre!))
+                .ToList();
+        }
+
+        public Productos Borrar(Productos entidad)
+        {
+            if (entidad.id == 0)
+                throw new Exception("No se ha guardo");
+
+            this.IConexion.Productos!.Remove(entidad);
+
+            var audit = new Auditorias
+            {
+                tabla = "Productos",
+                accion = "Borrar",
+                fecha = DateTime.Now,
+                datosAnteriores = "id: " + entidad.id + ", nombre: " + entidad.nombre,
+                datosNuevos = ""
+            };
+            this.IConexion.Auditorias!.Add(audit);
+            this.IConexion.SaveChanges();
+            return entidad;
+        }
+
+        private bool Validar(Productos entidad)
+        {
+            return string.IsNullOrEmpty(entidad.nombre);
+        }
+    }
+}
+=== C:\Users\theMA\source\repos\Restaurante\Libreria_restaurante\Implementaciones\ProveedoresAplicacion.cs ===
+using Libreria_restaurante.Entidades;
+using Libreria_restaurante.Interfaces;
+using Microsoft.EntityFrameworkCore;
+using System;
+using System.Collections.Generic;
+using System.Text;
+
+namespace Libreria_restaurante.Implementaciones
+{
+    public class ProveedoresAplicacion : IProveedoresAplicacion
+    {
+        private IConexion IConexion;
+
+        public ProveedoresAplicacion(IConexion IConexion)
+        {
+            this.IConexion = IConexion;
+        }
+
+        public Proveedores Insertar(Proveedores entidad)
+        {
+            if (entidad.id != 0)
+                throw new Exception("Ya se guardo");
+
+            if (Validar(entidad))
+                throw new Exception("Falta informacion");
+
+            this.IConexion.Proveedores!.Add(entidad);
+            this.IConexion.SaveChanges();
+
+            var audit = new Auditorias
+            {
+                tabla = "Proveedores",
+                accion = "Insertar",
+                fecha = DateTime.Now,
+                datosAnteriores = "",
+                datosNuevos = "id: " + entidad.id + ", nombre: " + entidad.nombre
+            };
+            this.IConexion.Auditorias!.Add(audit);
+            this.IConexion.SaveChanges();
+            return entidad;
+        }
+
+        public Proveedores Actualizar(Proveedores entidad)
+        {
+            if (entidad.id == 0)
+                throw new Exception("No se ha guardo");
+
+            if (Validar(entidad))
+                throw new Exception("Falta informacion");
+
+            var anterior = this.IConexion.Proveedores!.AsNoTracking().FirstOrDefault(x => x.id == entidad.id);
+            if (anterior == null)
+                throw new Exception("No existe");
+
+            var entry = this.IConexion.Entry<Proveedores>(entidad);
+            entry.State = EntityState.Modified;
+
+            var audit = new Auditorias
+            {
+                tabla = "Proveedores",
+                accion = "Actualizar",
+                fecha = DateTime.Now,
+                datosAnteriores = "id: " + anterior.id + ", nombre: " + anterior.nombre,
+                datosNuevos = "id: " + entidad.id + ", nombre: " + entidad.nombre
+            };
+            this.IConexion.Auditorias!.Add(audit);
+            this.IConexion.SaveChanges();
+            return entidad;
+        }
+
+        public List<Proveedores> Consultar()
+        {
+            return this.IConexion.Proveedores!.ToList();
+        }
+
+        public List<Proveedores> Buscar(Proveedores entidad)
+        {
+            return this.IConexion.Proveedores!
+                .Where(x => x.nombre!.Contains(entidad.nombre!))
+                .ToList();
+        }
+
+        public Proveedores Borrar(Proveedores entidad)
+        {
+            if (entidad.id == 0)
+                throw new Exception("No se ha guardo");
+
+            this.IConexion.Proveedores!.Remove(entidad);
+
+            var audit = new Auditorias
+            {
+                tabla = "Proveedores",
+                accion = "Borrar",
+                fecha = DateTime.Now,
+                datosAnteriores = "id: " + entidad.id + ", nombre: " + entidad.nombre,
+                datosNuevos = ""
+            };
+            this.IConexion.Auditorias!.Add(audit);
+            this.IConexion.SaveChanges();
+            return entidad;
+        }
+
+        private bool Validar(Proveedores entidad)
+        {
+            return string.IsNullOrEmpty(entidad.nombre);
+        }
+    }
+}
+=== C:\Users\theMA\source\repos\Restaurante\Libreria_restaurante\Implementaciones\RecetasAplicacion.cs ===
+using Libreria_restaurante.Entidades;
+using Libreria_restaurante.Interfaces;
+using Microsoft.EntityFrameworkCore;
+using System;
+using System.Collections.Generic;
+using System.Text;
+
+namespace Libreria_restaurante.Implementaciones
+{
+    public class RecetasAplicacion : IRecetasAplicacion
+    {
+        private IConexion IConexion;
+
+        public RecetasAplicacion(IConexion IConexion)
+        {
+            this.IConexion = IConexion;
+        }
+
+        public Recetas Insertar(Recetas entidad)
+        {
+            if (entidad.id != 0)
+                throw new Exception("Ya se guardo");
+
+            if (Validar(entidad))
+                throw new Exception("Falta informacion");
+
+            this.IConexion.Recetas!.Add(entidad);
+            this.IConexion.SaveChanges();
+
+            var audit = new Auditorias
+            {
+                tabla = "Recetas",
+                accion = "Insertar",
+                fecha = DateTime.Now,
+                datosAnteriores = "",
+                datosNuevos = "id: " + entidad.id + ", instrucciones: " + entidad.instrucciones
+            };
+            this.IConexion.Auditorias!.Add(audit);
+            this.IConexion.SaveChanges();
+            return entidad;
+        }
+
+        public Recetas Actualizar(Recetas entidad)
+        {
+            if (entidad.id == 0)
+                throw new Exception("No se ha guardo");
+
+            if (Validar(entidad))
+                throw new Exception("Falta informacion");
+
+            var anterior = this.IConexion.Recetas!.FirstOrDefault(x => x.id == entidad.id);
+            if (anterior == null)
+                throw new Exception("No existe");
+
+            var entry = this.IConexion.Entry<Recetas>(entidad);
+            entry.State = EntityState.Modified;
+
+            var audit = new Auditorias
+            {
+                tabla = "Recetas",
+                accion = "Actualizar",
+                fecha = DateTime.Now,
+                datosAnteriores = "id: " + anterior.id + ", instrucciones: " + anterior.instrucciones,
+                datosNuevos = "id: " + entidad.id + ", instrucciones: " + entidad.instrucciones
+            };
+            this.IConexion.Auditorias!.Add(audit);
+            this.IConexion.SaveChanges();
+            return entidad;
+        }
+
+        public List<Recetas> Consultar()
+        {
+            return this.IConexion.Recetas!
+                .Include(x => x._producto).ToList();
+        }
+
+        public List<Recetas> Buscar(Recetas entidad)
+        {
+            return this.IConexion.Recetas!
+                .Include(x => x._producto)
+                .Where(x => x.instrucciones!.Contains(entidad.instrucciones!))
+                .ToList();
+        }
+
+        public Recetas Borrar(Recetas entidad)
+        {
+            if (entidad.id == 0)
+                throw new Exception("No se ha guardo");
+
+            this.IConexion.Recetas!.Remove(entidad);
+
+            var audit = new Auditorias
+            {
+                tabla = "Recetas",
+                accion = "Borrar",
+                fecha = DateTime.Now,
+                datosAnteriores = "id: " + entidad.id + ", instrucciones: " + entidad.instrucciones,
+                datosNuevos = ""
+            };
+            this.IConexion.Auditorias!.Add(audit);
+            this.IConexion.SaveChanges();
+            return entidad;
+        }
+
+        private bool Validar(Recetas entidad)
+        {
+            return string.IsNullOrEmpty(entidad.instrucciones);
+        }
+    }
+}
+=== C:\Users\theMA\source\repos\Restaurante\Libreria_restaurante\Implementaciones\ReservasAplicacion.cs ===
+using Libreria_restaurante.Entidades;
+using Libreria_restaurante.Interfaces;
+using Microsoft.EntityFrameworkCore;
+using System;
+using System.Collections.Generic;
+using System.Text;
+
+namespace Libreria_restaurante.Implementaciones
+{
+    public class ReservasAplicacion : IReservasAplicacion
+    {
+        private IConexion IConexion;
+
+        public ReservasAplicacion(IConexion IConexion)
+        {
+            this.IConexion = IConexion;
+        }
+
+        public Reservas Insertar(Reservas entidad)
+        {
+            if (entidad.id != 0)
+                throw new Exception("Ya se guardo");
+
+            if (Validar(entidad))
+                throw new Exception("Falta informacion");
+
+            this.IConexion.Reservas!.Add(entidad);
+            this.IConexion.SaveChanges();
+
+            var audit = new Auditorias
+            {
+                tabla = "Reservas",
+                accion = "Insertar",
+                fecha = DateTime.Now,
+                datosAnteriores = "",
+                datosNuevos = "id: " + entidad.id + ", estado: " + entidad.estado
+            };
+            this.IConexion.Auditorias!.Add(audit);
+            this.IConexion.SaveChanges();
+            return entidad;
+        }
+
+        public Reservas Actualizar(Reservas entidad)
+        {
+            if (entidad.id == 0)
+                throw new Exception("No se ha guardo");
+
+            if (Validar(entidad))
+                throw new Exception("Falta informacion");
+
+            var anterior = this.IConexion.Reservas!.FirstOrDefault(x => x.id == entidad.id);
+            if (anterior == null)
+                throw new Exception("No existe");
+
+            var entry = this.IConexion.Entry<Reservas>(entidad);
+            entry.State = EntityState.Modified;
+
+            var audit = new Auditorias
+            {
+                tabla = "Reservas",
+                accion = "Actualizar",
+                fecha = DateTime.Now,
+                datosAnteriores = "id: " + anterior.id + ", estado: " + anterior.estado,
+                datosNuevos = "id: " + entidad.id + ", estado: " + entidad.estado
+            };
+            this.IConexion.Auditorias!.Add(audit);
+            this.IConexion.SaveChanges();
+            return entidad;
+        }
+
+        public List<Reservas> Consultar()
+        {
+            return this.IConexion.Reservas!
+                .Include(x => x._cliente)
+                .Include(x => x._mesa).ToList();
+        }
+
+        public List<Reservas> Buscar(Reservas entidad)
+        {
+            return this.IConexion.Reservas!
+                .Include(x => x._cliente)
+                .Include(x => x._mesa)
+                .Where(x => x.estado!.Contains(entidad.estado!))
+                .ToList();
+        }
+
+        public Reservas Borrar(Reservas entidad)
+        {
+            if (entidad.id == 0)
+                throw new Exception("No se ha guardo");
+
+            this.IConexion.Reservas!.Remove(entidad);
+
+            var audit = new Auditorias
+            {
+                tabla = "Reservas",
+                accion = "Borrar",
+                fecha = DateTime.Now,
+                datosAnteriores = "id: " + entidad.id + ", estado: " + entidad.estado,
+                datosNuevos = ""
+            };
+            this.IConexion.Auditorias!.Add(audit);
+            this.IConexion.SaveChanges();
+            return entidad;
+        }
+
+        private bool Validar(Reservas entidad)
+        {
+            return string.IsNullOrEmpty(entidad.estado);
+        }
+    }
+}
+=== C:\Users\theMA\source\repos\Restaurante\Libreria_restaurante\Implementaciones\RolesAplicacion.cs ===
+using Libreria_restaurante.Entidades;
+using Libreria_restaurante.Interfaces;
+using Microsoft.EntityFrameworkCore;
+using System;
+using System.Collections.Generic;
+using System.Text;
+
+namespace Libreria_restaurante.Implementaciones
+{
+    public class RolesAplicacion : IRolesAplicacion
+    {
+        private IConexion IConexion;
+
+        public RolesAplicacion(IConexion IConexion)
+        {
+            this.IConexion = IConexion;
+        }
+
+        public Roles Insertar(Roles entidad)
+        {
+            if (entidad.id != 0)
+                throw new Exception("Ya se guardo");
+
+            if (Validar(entidad))
+                throw new Exception("Falta informacion");
+
+            this.IConexion.Roles!.Add(entidad);
+            this.IConexion.SaveChanges();
+
+            var audit = new Auditorias
+            {
+                tabla = "Roles",
+                accion = "Insertar",
+                fecha = DateTime.Now,
+                datosAnteriores = "",
+                datosNuevos = "id: " + entidad.id + ", nombre: " + entidad.nombre
+            };
+            this.IConexion.Auditorias!.Add(audit);
+            this.IConexion.SaveChanges();
+            return entidad;
+        }
+
+        public Roles Actualizar(Roles entidad)
+        {
+            if (entidad.id == 0)
+                throw new Exception("No se ha guardo");
+
+            if (Validar(entidad))
+                throw new Exception("Falta informacion");
+
+            var anterior = this.IConexion.Roles!.FirstOrDefault(x => x.id == entidad.id);
+            if (anterior == null)
+                throw new Exception("No existe");
+
+            var entry = this.IConexion.Entry<Roles>(entidad);
+            entry.State = EntityState.Modified;
+
+            var audit = new Auditorias
+            {
+                tabla = "Roles",
+                accion = "Actualizar",
+                fecha = DateTime.Now,
+                datosAnteriores = "id: " + anterior.id + ", nombre: " + anterior.nombre,
+                datosNuevos = "id: " + entidad.id + ", nombre: " + entidad.nombre
+            };
+            this.IConexion.Auditorias!.Add(audit);
+            this.IConexion.SaveChanges();
+            return entidad;
+        }
+
+        public List<Roles> Consultar()
+        {
+            return this.IConexion.Roles!.ToList();
+        }
+
+        public List<Roles> Buscar(Roles entidad)
+        {
+            return this.IConexion.Roles!
+                .Where(x => x.nombre!.Contains(entidad.nombre!))
+                .ToList();
+        }
+
+        public Roles Borrar(Roles entidad)
+        {
+            if (entidad.id == 0)
+                throw new Exception("No se ha guardo");
+
+            this.IConexion.Roles!.Remove(entidad);
+
+            var audit = new Auditorias
+            {
+                tabla = "Roles",
+                accion = "Borrar",
+                fecha = DateTime.Now,
+                datosAnteriores = "id: " + entidad.id + ", nombre: " + entidad.nombre,
+                datosNuevos = ""
+            };
+            this.IConexion.Auditorias!.Add(audit);
+            this.IConexion.SaveChanges();
+            return entidad;
+        }
+
+        private bool Validar(Roles entidad)
+        {
+            return string.IsNullOrEmpty(entidad.nombre);
+        }
+    }
+}
+=== C:\Users\theMA\source\repos\Restaurante\Libreria_restaurante\Implementaciones\TurnosAplicacion.cs ===
+using Libreria_restaurante.Entidades;
+using Libreria_restaurante.Interfaces;
+using Microsoft.EntityFrameworkCore;
+using System;
+using System.Collections.Generic;
+using System.Text;
+
+namespace Libreria_restaurante.Implementaciones
+{
+    public class TurnosAplicacion : ITurnosAplicacion
+    {
+        private IConexion IConexion;
+
+        public TurnosAplicacion(IConexion IConexion)
+        {
+            this.IConexion = IConexion;
+        }
+
+        public Turnos Insertar(Turnos entidad)
+        {
+            if (entidad.id != 0)
+                throw new Exception("Ya se guardo");
+
+            if (Validar(entidad))
+                throw new Exception("Falta informacion");
+
+            this.IConexion.Turnos!.Add(entidad);
+            this.IConexion.SaveChanges();
+
+            var audit = new Auditorias
+            {
+                tabla = "Turnos",
+                accion = "Insertar",
+                fecha = DateTime.Now,
+                datosAnteriores = "",
+                datosNuevos = "id: " + entidad.id + ", empleado: " + entidad.empleado
+            };
+            this.IConexion.Auditorias!.Add(audit);
+            this.IConexion.SaveChanges();
+            return entidad;
+        }
+
+        public Turnos Actualizar(Turnos entidad)
+        {
+            if (entidad.id == 0)
+                throw new Exception("No se ha guardo");
+
+            if (Validar(entidad))
+                throw new Exception("Falta informacion");
+
+            var anterior = this.IConexion.Turnos!.FirstOrDefault(x => x.id == entidad.id);
+            if (anterior == null)
+                throw new Exception("No existe");
+
+            var entry = this.IConexion.Entry<Turnos>(entidad);
+            entry.State = EntityState.Modified;
+
+            var audit = new Auditorias
+            {
+                tabla = "Turnos",
+                accion = "Actualizar",
+                fecha = DateTime.Now,
+                datosAnteriores = "id: " + anterior.id + ", empleado: " + anterior.empleado,
+                datosNuevos = "id: " + entidad.id + ", empleado: " + entidad.empleado
+            };
+            this.IConexion.Auditorias!.Add(audit);
+            this.IConexion.SaveChanges();
+            return entidad;
+        }
+
+        public List<Turnos> Consultar()
+        {
+            return this.IConexion.Turnos!
+                .Include(x => x._empleado).ToList();
+        }
+
+        public List<Turnos> Buscar(Turnos entidad)
+        {
+            return this.IConexion.Turnos!
+                .Include(x => x._empleado)
+                .Where(x => x.empleado == entidad.empleado)
+                .ToList();
+        }
+
+        public Turnos Borrar(Turnos entidad)
+        {
+            if (entidad.id == 0)
+                throw new Exception("No se ha guardo");
+
+            this.IConexion.Turnos!.Remove(entidad);
+
+            var audit = new Auditorias
+            {
+                tabla = "Turnos",
+                accion = "Borrar",
+                fecha = DateTime.Now,
+                datosAnteriores = "id: " + entidad.id + ", empleado: " + entidad.empleado,
+                datosNuevos = ""
+            };
+            this.IConexion.Auditorias!.Add(audit);
+            this.IConexion.SaveChanges();
+            return entidad;
+        }
+
+        private bool Validar(Turnos entidad)
+        {
+            return entidad.empleado == 0;
+        }
+    }
+}
+=== C:\Users\theMA\source\repos\Restaurante\Libreria_restaurante\Implementaciones\UsuariosAplicacion.cs ===
+using Libreria_restaurante.Entidades;
+using Libreria_restaurante.Interfaces;
+using Microsoft.EntityFrameworkCore;
+
+namespace Libreria_restaurante.Implementaciones
+{
+    public class UsuariosAplicacion : IUsuariosAplicacion
+    {
+        private IConexion IConexion;
+
+        public UsuariosAplicacion(IConexion IConexion)
+        {
+            this.IConexion = IConexion;
+        }
+
+        public Usuarios Insertar(Usuarios entidad)
+        {
+            if (entidad.id != 0)
+                throw new Exception("Ya se guardo");
+
+            if (Validar(entidad))
+                throw new Exception("Falta informacion");
+
+            if (string.IsNullOrEmpty(entidad.contraseÃ±a))
+                throw new Exception("Falta informacion");
+
+            if (this.IConexion.Usuarios!.Any(x => x.nombreUsuario == entidad.nombreUsuario))
+                throw new Exception("Ya existe el usuario");
+
+            entidad.fechaCreacion = DateTime.Now;
+
+            this.IConexion.Usuarios!.Add(entidad);
+            this.IConexion.SaveChanges();
+
+            var audit = new Auditorias
+            {
+                tabla = "Usuarios",
+                accion = "Insertar",
+                fecha = DateTime.Now,
+                datosAnteriores = "",
+                datosNuevos = "id: " + entidad.id + ", nombreUsuario: " + entidad.nombreUsuario + ", correo: " + entidad.correo + ", rol: " + entidad.rol,
+                usuario = entidad.id
+            };
+            this.IConexion.Auditorias!.Add(audit);
+            this.IConexion.SaveChanges();
+
+            this.IConexion.Entry<Usuarios>(entidad).State = EntityState.Detached;
+            entidad.contraseÃ±a = null;
+            return entidad;
+        }
+
+        public Usuarios Actualizar(Usuarios entidad)
+        {
+            if (entidad.id == 0)
+                throw new Exception("No se ha guardo");
+
+            if (Validar(entidad))
+                throw new Exception("Falta informacion");
+
+            var anterior = this.IConexion.Usuarios!.AsNoTracking().FirstOrDefault(x => x.id == entidad.id);
+            if (anterior == null)
+                throw new Exception("No existe");
+
+            if (string.IsNullOrEmpty(entidad.contraseÃ±a))
+                entidad.contraseÃ±a = anterior.contraseÃ±a;
+
+            entidad.fechaCreacion = anterior.fechaCreacion;
+
+            var entry = this.IConexion.Entry<Usuarios>(entidad);
+            entry.State = EntityState.Modified;
+
+            var audit = new Auditorias
+            {
+                tabla = "Usuarios",
+                accion = "Actualizar",
+                fecha = DateTime.Now,
+                datosAnteriores = "id: " + anterior.id + ", nombreUsuario: " + anterior.nombreUsuario + ", correo: " + anterior.correo + ", rol: " + anterior.rol,
+                datosNuevos = "id: " + entidad.id + ", nombreUsuario: " + entidad.nombreUsuario + ", correo: " + entidad.correo + ", rol: " + entidad.rol,
+                usuario = entidad.id
+            };
+            this.IConexion.Auditorias!.Add(audit);
+            this.IConexion.SaveChanges();
+
+            this.IConexion.Entry<Usuarios>(entidad).State = EntityState.Detached;
+            entidad.contraseÃ±a = null;
+            return entidad;
+        }
+
+        public List<Usuarios> Consultar()
+        {
+            var lista = this.IConexion.Usuarios!
+                .Include(x => x._rol).ToList();
+            foreach (var item in lista)
+                item.contraseÃ±a = null;
+            return lista;
+        }
+
+        public List<Usuarios> Buscar(Usuarios entidad)
+        {
+            var lista = this.IConexion.Usuarios!
+                .Include(x => x._rol)
+                .Where(x => x.nombreUsuario!.Contains(entidad.nombreUsuario!))
+                .ToList();
+            foreach (var item in lista)
+                item.contraseÃ±a = null;
+            return lista;
+        }
+
+        public Usuarios Borrar(Usuarios entidad)
+        {
+            if (entidad.id == 0)
+                throw new Exception("No se ha guardo");
+
+            this.IConexion.Usuarios!.Remove(entidad);
+
+            var audit = new Auditorias
+            {
+                tabla = "Usuarios",
+                accion = "Borrar",
+                fecha = DateTime.Now,
+                datosAnteriores = "id: " + entidad.id + ", nombreUsuario: " + entidad.nombreUsuario + ", correo: " + entidad.correo + ", rol: " + entidad.rol,
+                datosNuevos = ""
+            };
+            this.IConexion.Auditorias!.Add(audit);
+            this.IConexion.SaveChanges();
+            return entidad;
+        }
+
+        public Usuarios Login(Usuarios entidad)
+        {
+            var usuario = this.IConexion.Usuarios!
+                .FirstOrDefault(x => x.nombreUsuario == entidad.nombreUsuario && x.activo == true);
+
+            if (usuario == null || string.IsNullOrEmpty(entidad.contraseÃ±a) || usuario.contraseÃ±a != entidad.contraseÃ±a)
+                throw new Exception("Usuario o contraseÃ±a incorrectos");
+
+            this.IConexion.Auditorias!.Add(new Auditorias
+            {
+                tabla = "Usuarios",
+                accion = "Login",
+                fecha = DateTime.Now,
+                datosAnteriores = "",
+                datosNuevos = "Inicio de sesiÃ³n: " + usuario.nombreUsuario,
+                usuario = usuario.id
+            });
+            this.IConexion.SaveChanges();
+
+            usuario.contraseÃ±a = null;
+            return usuario;
+        }
+
+        private bool Validar(Usuarios entidad)
+        {
+            return string.IsNullOrEmpty(entidad.nombreUsuario) ||
+                string.IsNullOrEmpty(entidad.correo) ||
+                entidad.rol == null || entidad.rol == 0;
+        }
+    }
+}
+=== C:\Users\theMA\source\repos\Restaurante\Libreria_restaurante\Interfaces\IAuditoriasAplicacion.cs ===
+using Libreria_restaurante.Entidades;
+using System;
+using System.Collections.Generic;
+using System.Text;
+
+namespace Libreria_restaurante.Interfaces
+{
+    public interface IAuditoriasAplicacion
+    {
+        List<Auditorias> Consultar();
+        List<Auditorias> Buscar(Auditorias entidad);
+    }
+}
+=== C:\Users\theMA\source\repos\Restaurante\Libreria_restaurante\Interfaces\ICategoriasAplicacion.cs ===
+using Libreria_restaurante.Entidades;
+using System;
+using System.Collections.Generic;
+using System.Text;
+
+namespace Libreria_restaurante.Interfaces
+{
+    public interface ICategoriasAplicacion
+    {
+        Categorias Insertar(Categorias entidad);
+        Categorias Actualizar(Categorias entidad);
+        List<Categorias> Consultar();
+        List<Categorias> Buscar(Categorias entidad);
+        Categorias Borrar(Categorias entidad);
+    }
+}
+=== C:\Users\theMA\source\repos\Restaurante\Libreria_restaurante\Interfaces\IClientesAplicacion.cs ===
+using Libreria_restaurante.Entidades;
+using System;
+using System.Collections.Generic;
+using System.Text;
+
+namespace Libreria_restaurante.Interfaces
+{
+    public interface IClientesAplicacion
+    {
+        Clientes Insertar(Clientes entidad);
+        Clientes Actualizar(Clientes entidad);
+        List<Clientes> Consultar();
+        List<Clientes> Buscar(Clientes entidad);
+        Clientes Borrar(Clientes entidad);
+    }
+}
+=== C:\Users\theMA\source\repos\Restaurante\Libreria_restaurante\Interfaces\ICocinerosAplicacion.cs ===
+using Libreria_restaurante.Entidades;
+using System;
+using System.Collections.Generic;
+using System.Text;
+
+namespace Libreria_restaurante.Interfaces
+{
+    public interface ICocinerosAplicacion
+    {
+        Cocineros Insertar(Cocineros entidad);
+        Cocineros Actualizar(Cocineros entidad);
+        List<Cocineros> Consultar();
+        List<Cocineros> Buscar(Cocineros entidad);
+        Cocineros Borrar(Cocineros entidad);
+    }
+}
+=== C:\Users\theMA\source\repos\Restaurante\Libreria_restaurante\Interfaces\IConexion.cs ===
+using Libreria_restaurante.Entidades;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
+
+namespace Libreria_restaurante.Interfaces
+{
+    public interface IConexion
+    {
+        string? StringConexion { get; set; }
+
+        public DbSet<Categorias>? Categorias { get; set; }
+        public DbSet<Clientes>? Clientes { get; set; }
+        public DbSet<Cocineros>? Cocineros { get; set; }
+        public DbSet<Detalles_Pedidos>? Detalles_Pedidos { get; set; }
+        public DbSet<Empleados>? Empleados { get; set; }
+        public DbSet<Facturas>? Facturas { get; set; }
+        public DbSet<Gerentes>? Gerentes { get; set; }
+        public DbSet<Ingredientes>? Ingredientes { get; set; }
+        public DbSet<Inventarios>? Inventarios { get; set; }
+        public DbSet<Menus>? Menus { get; set; }
+        public DbSet<Mesas>? Mesas { get; set; }
+        public DbSet<Meseros>? Meseros { get; set; }
+        public DbSet<MetodosPagos>? MetodosPagos { get; set; }
+        public DbSet<Pagos>? Pagos { get; set; }
+        public DbSet<Pedidos>? Pedidos { get; set; }
+        public DbSet<Productos>? Productos { get; set; }
+        public DbSet<Proveedores>? Proveedores { get; set; }
+        public DbSet<Recetas>? Recetas { get; set; }
+        public DbSet<Reservas>? Reservas { get; set; }
+        public DbSet<Turnos>? Turnos { get; set; }
+        public DbSet<Usuarios>? Usuarios { get; set; }
+        public DbSet<Roles>? Roles { get; set; }
+        public DbSet<Permisos>? Permisos { get; set; }
+
+     public   DbSet<Auditorias>? Auditorias { get; set; }
+
+        EntityEntry<T> Entry<T>(T entity) where T : class;
+        int SaveChanges();
+    }
+}
+=== C:\Users\theMA\source\repos\Restaurante\Libreria_restaurante\Interfaces\IDetalles_PedidosAplicacion.cs ===
+using Libreria_restaurante.Entidades;
+using System;
+using System.Collections.Generic;
+using System.Text;
+
+namespace Libreria_restaurante.Interfaces
+{
+    public interface IDetalles_PedidosAplicacion
+    {
+        Detalles_Pedidos Insertar(Detalles_Pedidos entidad);
+        Detalles_Pedidos Actualizar(Detalles_Pedidos entidad);
+        List<Detalles_Pedidos> Consultar();
+        List<Detalles_Pedidos> Buscar(Detalles_Pedidos entidad);
+        Detalles_Pedidos Borrar(Detalles_Pedidos entidad);
+    }
+}
+=== C:\Users\theMA\source\repos\Restaurante\Libreria_restaurante\Interfaces\IEmpleadosAplicacion.cs ===
+using Libreria_restaurante.Entidades;
+using System;
+using System.Collections.Generic;
+using System.Text;
+
+namespace Libreria_restaurante.Interfaces
+{
+    public interface IEmpleadosAplicacion
+    {
+        Empleados Insertar(Empleados entidad);
+        Empleados Actualizar(Empleados entidad);
+        List<Empleados> Consultar();
+        List<Empleados> Buscar(Empleados entidad);
+        Empleados Borrar(Empleados entidad);
+    }
+}
+=== C:\Users\theMA\source\repos\Restaurante\Libreria_restaurante\Interfaces\IFacturasAplicacion.cs ===
+using Libreria_restaurante.Entidades;
+using System;
+using System.Collections.Generic;
+using System.Text;
+
+namespace Libreria_restaurante.Interfaces
+{
+    public interface IFacturasAplicacion
+    {
+        Facturas Insertar(Facturas entidad);
+        Facturas Actualizar(Facturas entidad);
+        List<Facturas> Consultar();
+        List<Facturas> Buscar(Facturas entidad);
+        Facturas Borrar(Facturas entidad);
+    }
+}
+=== C:\Users\theMA\source\repos\Restaurante\Libreria_restaurante\Interfaces\IGerentesAplicacion.cs ===
+using Libreria_restaurante.Entidades;
+using System;
+using System.Collections.Generic;
+using System.Text;
+
+namespace Libreria_restaurante.Interfaces
+{
+    public interface IGerentesAplicacion
+    {
+        Gerentes Insertar(Gerentes entidad);
+        Gerentes Actualizar(Gerentes entidad);
+        List<Gerentes> Consultar();
+        List<Gerentes> Buscar(Gerentes entidad);
+        Gerentes Borrar(Gerentes entidad);
+    }
+}
+=== C:\Users\theMA\source\repos\Restaurante\Libreria_restaurante\Interfaces\IIngredientesAplicacion.cs ===
+using Libreria_restaurante.Entidades;
+using System;
+using System.Collections.Generic;
+using System.Text;
+
+namespace Libreria_restaurante.Interfaces
+{
+    public interface IIngredientesAplicacion
+    {
+        Ingredientes Insertar(Ingredientes entidad);
+        Ingredientes Actualizar(Ingredientes entidad);
+        List<Ingredientes> Consultar();
+        List<Ingredientes> Buscar(Ingredientes entidad);
+        Ingredientes Borrar(Ingredientes entidad);
+    }
+}
+=== C:\Users\theMA\source\repos\Restaurante\Libreria_restaurante\Interfaces\IInventariosAplicacion.cs ===
+using Libreria_restaurante.Entidades;
+using System;
+using System.Collections.Generic;
+using System.Text;
+
+namespace Libreria_restaurante.Interfaces
+{
+    public interface IInventariosAplicacion
+    {
+        Inventarios Insertar(Inventarios entidad);
+        Inventarios Actualizar(Inventarios entidad);
+        List<Inventarios> Consultar();
+        List<Inventarios> Buscar(Inventarios entidad);
+        Inventarios Borrar(Inventarios entidad);
+    }
+}
+=== C:\Users\theMA\source\repos\Restaurante\Libreria_restaurante\Interfaces\IMenusAplicacion.cs ===
+using Libreria_restaurante.Entidades;
+using System;
+using System.Collections.Generic;
+using System.Text;
+
+namespace Libreria_restaurante.Interfaces
+{
+    public interface IMenusAplicacion
+    {
+        Menus Insertar(Menus entidad);
+        Menus Actualizar(Menus entidad);
+        List<Menus> Consultar();
+        List<Menus> Buscar(Menus entidad);
+        Menus Borrar(Menus entidad);
+    }
+}
+=== C:\Users\theMA\source\repos\Restaurante\Libreria_restaurante\Interfaces\IMesasAplicacion.cs ===
+using Libreria_restaurante.Entidades;
+using System;
+using System.Collections.Generic;
+using System.Text;
+
+namespace Libreria_restaurante.Interfaces
+{
+    public interface IMesasAplicacion
+    {
+        Mesas Insertar(Mesas entidad);
+        Mesas Actualizar(Mesas entidad);
+        List<Mesas> Consultar();
+        List<Mesas> Buscar(Mesas entidad);
+        Mesas Borrar(Mesas entidad);
+    }
+}
+=== C:\Users\theMA\source\repos\Restaurante\Libreria_restaurante\Interfaces\IMeserosAplicacion.cs ===
+using Libreria_restaurante.Entidades;
+using System;
+using System.Collections.Generic;
+using System.Text;
+
+namespace Libreria_restaurante.Interfaces
+{
+    public interface IMeserosAplicacion
+    {
+        Meseros Insertar(Meseros entidad);
+        Meseros Actualizar(Meseros entidad);
+        List<Meseros> Consultar();
+        List<Meseros> Buscar(Meseros entidad);
+        Meseros Borrar(Meseros entidad);
+    }
+}
+=== C:\Users\theMA\source\repos\Restaurante\Libreria_restaurante\Interfaces\IMetodosPagosAplicacion.cs ===
+using Libreria_restaurante.Entidades;
+using System;
+using System.Collections.Generic;
+using System.Text;
+
+namespace Libreria_restaurante.Interfaces
+{
+    public interface IMetodosPagosAplicacion
+    {
+        MetodosPagos Insertar(MetodosPagos entidad);
+        MetodosPagos Actualizar(MetodosPagos entidad);
+        List<MetodosPagos> Consultar();
+        List<MetodosPagos> Buscar(MetodosPagos entidad);
+        MetodosPagos Borrar(MetodosPagos entidad);
+    }
+}
+=== C:\Users\theMA\source\repos\Restaurante\Libreria_restaurante\Interfaces\IPagosAplicacion.cs ===
+using Libreria_restaurante.Entidades;
+using System;
+using System.Collections.Generic;
+using System.Text;
+
+namespace Libreria_restaurante.Interfaces
+{
+    public interface IPagosAplicacion
+    {
+        Pagos Insertar(Pagos entidad);
+        Pagos Actualizar(Pagos entidad);
+        List<Pagos> Consultar();
+        List<Pagos> Buscar(Pagos entidad);
+        Pagos Borrar(Pagos entidad);
+    }
+}
+=== C:\Users\theMA\source\repos\Restaurante\Libreria_restaurante\Interfaces\IPedidosAplicacion.cs ===
+using Libreria_restaurante.Entidades;
+using System;
+using System.Collections.Generic;
+using System.Text;
+
+namespace Libreria_restaurante.Interfaces
+{
+    public interface IPedidosAplicacion
+    {
+        Pedidos Insertar(Pedidos entidad);
+        Pedidos Actualizar(Pedidos entidad);
+        List<Pedidos> Consultar();
+        List<Pedidos> Buscar(Pedidos entidad);
+        Pedidos Borrar(Pedidos entidad);
+    }
+}
+=== C:\Users\theMA\source\repos\Restaurante\Libreria_restaurante\Interfaces\IPermisosAplicacion.cs ===
+using Libreria_restaurante.Entidades;
+using System;
+using System.Collections.Generic;
+using System.Text;
+
+namespace Libreria_restaurante.Interfaces
+{
+    public interface IPermisosAplicacion
+    {
+        Permisos Insertar(Permisos entidad);
+        Permisos Actualizar(Permisos entidad);
+        List<Permisos> Consultar();
+        List<Permisos> Buscar(Permisos entidad);
+        Permisos Borrar(Permisos entidad);
+    }
+}
+=== C:\Users\theMA\source\repos\Restaurante\Libreria_restaurante\Interfaces\IProductosAplicacion.cs ===
+using Libreria_restaurante.Entidades;
+using System;
+using System.Collections.Generic;
+using System.Text;
+
+namespace Libreria_restaurante.Interfaces
+{
+    public interface IProductosAplicacion
+    {
+        Productos Insertar(Productos entidad);
+        Productos Actualizar(Productos entidad);
+        List<Productos> Consultar();
+        List<Productos> Buscar(Productos entidad);
+        Productos Borrar(Productos entidad);
+    }
+}
+=== C:\Users\theMA\source\repos\Restaurante\Libreria_restaurante\Interfaces\IProveedoresAplicacion.cs ===
+using Libreria_restaurante.Entidades;
+using System;
+using System.Collections.Generic;
+using System.Text;
+
+namespace Libreria_restaurante.Interfaces
+{
+    public interface IProveedoresAplicacion
+    {
+        Proveedores Insertar(Proveedores entidad);
+        Proveedores Actualizar(Proveedores entidad);
+        List<Proveedores> Consultar();
+        List<Proveedores> Buscar(Proveedores entidad);
+        Proveedores Borrar(Proveedores entidad);
+    }
+}
+=== C:\Users\theMA\source\repos\Restaurante\Libreria_restaurante\Interfaces\IRecetasAplicacion.cs ===
+using Libreria_restaurante.Entidades;
+using System;
+using System.Collections.Generic;
+using System.Text;
+
+namespace Libreria_restaurante.Interfaces
+{
+    public interface IRecetasAplicacion
+    {
+        Recetas Insertar(Recetas entidad);
+        Recetas Actualizar(Recetas entidad);
+        List<Recetas> Consultar();
+        List<Recetas> Buscar(Recetas entidad);
+        Recetas Borrar(Recetas entidad);
+    }
+}
+=== C:\Users\theMA\source\repos\Restaurante\Libreria_restaurante\Interfaces\IReservasAplicacion.cs ===
+using Libreria_restaurante.Entidades;
+using System;
+using System.Collections.Generic;
+using System.Text;
+
+namespace Libreria_restaurante.Interfaces
+{
+    public interface IReservasAplicacion
+    {
+        Reservas Insertar(Reservas entidad);
+        Reservas Actualizar(Reservas entidad);
+        List<Reservas> Consultar();
+        List<Reservas> Buscar(Reservas entidad);
+        Reservas Borrar(Reservas entidad);
+    }
+}
+=== C:\Users\theMA\source\repos\Restaurante\Libreria_restaurante\Interfaces\IRolesAplicacion.cs ===
+using Libreria_restaurante.Entidades;
+using System;
+using System.Collections.Generic;
+using System.Text;
+
+namespace Libreria_restaurante.Interfaces
+{
+    public interface IRolesAplicacion
+    {
+        Roles Insertar(Roles entidad);
+        Roles Actualizar(Roles entidad);
+        List<Roles> Consultar();
+        List<Roles> Buscar(Roles entidad);
+        Roles Borrar(Roles entidad);
+    }
+}
+=== C:\Users\theMA\source\repos\Restaurante\Libreria_restaurante\Interfaces\ITurnosAplicacion.cs ===
+using Libreria_restaurante.Entidades;
+using System;
+using System.Collections.Generic;
+using System.Text;
+
+namespace Libreria_restaurante.Interfaces
+{
+    public interface ITurnosAplicacion
+    {
+        Turnos Insertar(Turnos entidad);
+        Turnos Actualizar(Turnos entidad);
+        List<Turnos> Consultar();
+        List<Turnos> Buscar(Turnos entidad);
+        Turnos Borrar(Turnos entidad);
+    }
+}
+=== C:\Users\theMA\source\repos\Restaurante\Libreria_restaurante\Interfaces\IUsuariosAplicacion.cs ===
+using Libreria_restaurante.Entidades;
+using System;
+using System.Collections.Generic;
+using System.Text;
+
+namespace Libreria_restaurante.Interfaces
+{
+    public interface IUsuariosAplicacion
+    {
+        Usuarios Insertar(Usuarios entidad);
+        Usuarios Actualizar(Usuarios entidad);
+        List<Usuarios> Consultar();
+        List<Usuarios> Buscar(Usuarios entidad);
+        Usuarios Borrar(Usuarios entidad);
+        Usuarios Login(Usuarios entidad);
+    }
+}
+=== C:\Users\theMA\source\repos\Restaurante\Libreria_restaurante\Nucleo\MetodosGenerales.cs ===
+using System;
+using System.Collections.Generic;
+using System.Text;
+
+namespace Libreria_restaurante.Nucleo
+{
+   public class MetodosGenerales
+    {
+        public static string ObtenerStringConexion(string v)
+        {
+            return "server=localhost;database=db_Restaurante;Integrated Security=True;TrustServerCertificate=true;";
+        }
+    }
+}

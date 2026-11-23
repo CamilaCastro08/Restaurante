@@ -25,6 +25,11 @@ namespace Libreria_restaurante.Implementaciones
             if (pedido == null)
                 throw new Exception("El pedido no existe");
 
+            // Si ya existe factura para este pedido, devolverla en lugar de bloquear el cobro
+            var facturaExistente = this.IConexion.Facturas!.FirstOrDefault(f => f.pedido == entidad.pedido);
+            if (facturaExistente != null)
+                return facturaExistente;
+
             if (string.IsNullOrEmpty(entidad.numero))
                 entidad.numero = $"FAC-{DateTime.Now:yyyyMMddHHmmss}";
 
@@ -36,23 +41,22 @@ namespace Libreria_restaurante.Implementaciones
                 var detalles = this.IConexion.Detalles_Pedidos!
                     .Where(d => d.pedido == entidad.pedido)
                     .ToList();
+
+                if (!detalles.Any())
+                    throw new Exception("El pedido no tiene productos agregados para facturar.");
+
                 entidad.subtotal = detalles.Sum(d => d.subtotal);
             }
 
             if (entidad.total <= 0)
             {
-                entidad.total = Math.Round(entidad.subtotal * 1.08m, 2);
+                // Impoconsumo 8% (coherente con Pedidos e Impresión)
+                decimal impuesto = Math.Round(entidad.subtotal * 0.08m, 2);
+                entidad.total = entidad.subtotal + impuesto;
             }
 
-            pedido.estado = "Pagado";
-            this.IConexion.Entry(pedido).State = EntityState.Modified;
-
-            var mesa = this.IConexion.Mesas!.FirstOrDefault(m => m.id == pedido.mesa);
-            if (mesa != null)
-            {
-                mesa.estado = "Disponible";
-                this.IConexion.Entry(mesa).State = EntityState.Modified;
-            }
+            entidad._pedido = null;
+            entidad.Pagos = new();
 
             this.IConexion.Facturas!.Add(entidad);
             this.IConexion.SaveChanges();
@@ -81,6 +85,9 @@ namespace Libreria_restaurante.Implementaciones
             var anterior = this.IConexion.Facturas!.AsNoTracking().FirstOrDefault(x => x.id == entidad.id);
             if (anterior == null)
                 throw new Exception("No existe");
+
+            entidad._pedido = null;
+            entidad.Pagos = new();
 
             var entry = this.IConexion.Entry<Facturas>(entidad);
             entry.State = EntityState.Modified;
@@ -117,19 +124,26 @@ namespace Libreria_restaurante.Implementaciones
             if (entidad.id == 0)
                 throw new Exception("No se ha guardo");
 
-            this.IConexion.Facturas!.Remove(entidad);
+            var itemDb = this.IConexion.Facturas!.FirstOrDefault(x => x.id == entidad.id);
+            if (itemDb == null)
+                throw new Exception("La factura no existe");
+
+            if (this.IConexion.Pagos!.Any(p => p.factura == itemDb.id))
+                throw new Exception("No se puede eliminar la factura porque ya registra pagos asociados.");
+
+            this.IConexion.Facturas!.Remove(itemDb);
 
             var audit = new Auditorias
             {
                 tabla = "Facturas",
                 accion = "Borrar",
                 fecha = DateTime.Now,
-                datosAnteriores = "id: " + entidad.id + ", numero: " + entidad.numero,
+                datosAnteriores = "id: " + itemDb.id + ", numero: " + itemDb.numero,
                 datosNuevos = ""
             };
             this.IConexion.Auditorias!.Add(audit);
             this.IConexion.SaveChanges();
-            return entidad;
+            return itemDb;
         }
 
         private bool Validar(Facturas entidad)

@@ -48,7 +48,7 @@ namespace Libreria_restaurante.Implementaciones
             if (Validar(entidad))
                 throw new Exception("Falta informacion");
 
-            var anterior = this.IConexion.MetodosPagos!.FirstOrDefault(x => x.id == entidad.id);
+            var anterior = this.IConexion.MetodosPagos!.AsNoTracking().FirstOrDefault(x => x.id == entidad.id);
             if (anterior == null)
                 throw new Exception("No existe");
 
@@ -85,19 +85,26 @@ namespace Libreria_restaurante.Implementaciones
             if (entidad.id == 0)
                 throw new Exception("No se ha guardo");
 
-            this.IConexion.MetodosPagos!.Remove(entidad);
+            var itemDb = this.IConexion.MetodosPagos!.FirstOrDefault(x => x.id == entidad.id);
+            if (itemDb == null)
+                throw new Exception("El método de pago no existe");
+
+            if (this.IConexion.Pagos!.Any(p => p.metodoPago == itemDb.id))
+                throw new Exception("No se puede eliminar el método de pago porque tiene pagos asociados.");
+
+            this.IConexion.MetodosPagos!.Remove(itemDb);
 
             var audit = new Auditorias
             {
                 tabla = "MetodosPagos",
                 accion = "Borrar",
                 fecha = DateTime.Now,
-                datosAnteriores = "id: " + entidad.id + ", tipo: " + entidad.tipo,
+                datosAnteriores = "id: " + itemDb.id + ", tipo: " + itemDb.tipo,
                 datosNuevos = ""
             };
             this.IConexion.Auditorias!.Add(audit);
             this.IConexion.SaveChanges();
-            return entidad;
+            return itemDb;
         }
 
         private bool Validar(MetodosPagos entidad)

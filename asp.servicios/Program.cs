@@ -51,7 +51,8 @@ app.UseExceptionHandler(a => a.Run(async context =>
     var error = context.Features.Get<IExceptionHandlerFeature>()?.Error;
     context.Response.StatusCode = 400;
     context.Response.ContentType = "text/plain; charset=utf-8";
-    await context.Response.WriteAsync(error != null && error.GetType() == typeof(Exception) ? error.Message : "Error en el servidor");
+    var msg = error?.GetBaseException().Message ?? "Error en el servidor";
+    await context.Response.WriteAsync(msg);
 }));
 
 app.UseCors("AllowAll");

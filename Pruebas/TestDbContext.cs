@@ -11,6 +11,7 @@ namespace pruebas
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             optionsBuilder.UseInMemoryDatabase("RestauranteTestDB");
+            optionsBuilder.UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking);
         }
 
         public DbSet<Categorias>? Categorias { get; set; }

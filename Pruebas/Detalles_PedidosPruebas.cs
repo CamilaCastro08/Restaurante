@@ -42,7 +42,7 @@ namespace pruebas
         {
             var p0 = new Pedidos();
             this.conexion.Pedidos!.Add(p0);
-            var p1 = new Productos();
+            var p1 = new Productos { nombre = "Plato Especial", precio = 28000m };
             this.conexion.Productos!.Add(p1);
             this.conexion.SaveChanges();
 

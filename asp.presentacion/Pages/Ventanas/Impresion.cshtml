@@ -1,23 +1,34 @@
 @page
 @model asp.presentacion.Pages.Ventanas.ImpresionModel
 @{
-    ViewData["Title"] = "Impresión de Comandas y Facturas";
+    ViewData["Title"] = "Impresión de Factura";
 }
 
 <div class="d-flex justify-content-between align-items-center mb-4 no-print">
     <div>
-        <h2 class="fw-bold mb-1"><i class="bi bi-printer"></i> Módulo de Impresión</h2>
-        <p class="text-muted mb-0">Impresión térmica de comandas para cocina y facturas / pre-cuentas de clientes</p>
+        <h2 class="fw-bold mb-1"><i class="bi bi-printer"></i> Módulo de Impresión de Facturas</h2>
+        <p class="text-muted mb-0">Impresión térmica de facturas y pre-cuentas de clientes</p>
     </div>
     <div class="d-flex gap-2">
-        <button type="button" class="btn btn-outline-dark" onclick="imprimirElemento('ticketCocina')">
-            <i class="bi bi-fire"></i> Imprimir Comanda Cocina
-        </button>
-        <button type="button" class="btn btn-primary" onclick="imprimirElemento('ticketFactura')">
+        <a asp-page="/Ventanas/MapaMesas" class="btn btn-outline-dark">
+            <i class="bi bi-grid-3x3-gap"></i> Plano de Mesas
+        </a>
+        <a asp-page="/Ventanas/Pagos" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left"></i> Volver a Pagos
+        </a>
+        <button type="button" class="btn btn-primary fw-bold" onclick="window.print()">
             <i class="bi bi-receipt"></i> Imprimir Factura Cliente
         </button>
     </div>
 </div>
+
+@if (TempData["Mensaje"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show no-print" role="alert">
+        <i class="bi bi-check-circle-fill me-1"></i> @TempData["Mensaje"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
 
 @if (!string.IsNullOrEmpty(Model.Mensaje))
 {
@@ -63,75 +74,13 @@
 }
 else
 {
-    <div class="row g-4">
-        <!-- Ticket de Cocina -->
-        <div class="col-lg-6">
-            <div class="card shadow-sm border-0 h-100">
-                <div class="card-header bg-dark text-white py-2 d-flex justify-content-between align-items-center no-print">
-                    <span class="fw-bold"><i class="bi bi-fire"></i> Formato Comanda Cocina (Ticket 80mm)</span>
-                    <button class="btn btn-sm btn-light" onclick="imprimirElemento('ticketCocina')">
-                        <i class="bi bi-printer"></i> Imprimir
-                    </button>
-                </div>
-                <div class="card-body p-4 d-flex justify-content-center bg-light">
-                    <div id="ticketCocina" class="ticket-box bg-white p-4 shadow-sm">
-                        <div class="text-center border-bottom pb-2 mb-2">
-                            <h5 class="fw-bold mb-0">*** COMANDA COCINA ***</h5>
-                            <span class="fw-bold fs-4">MESA @(Model.MesaAsociada?.numero.ToString() ?? Model.PedidoSeleccionado.mesa.ToString())</span><br />
-                            <small class="text-muted">Zona: @(Model.MesaAsociada?.ubicacion ?? "Salón")</small>
-                        </div>
-                        <div class="small mb-2">
-                            <strong>Pedido N°:</strong> #@Model.PedidoSeleccionado.id<br />
-                            <strong>Mesero:</strong> @(Model.EmpleadoMesero?.nombre ?? "Mesero General")<br />
-                            <strong>Hora:</strong> @Model.PedidoSeleccionado.fecha_hora.ToString("dd/MM/yyyy HH:mm:ss")<br />
-                            <strong>Personas:</strong> @Model.PedidoSeleccionado.numero_personas<br />
-                            <strong>Estado:</strong> @Model.PedidoSeleccionado.estado
-                        </div>
-                        <div class="border-top border-bottom py-2 my-2">
-                            <table class="table table-sm table-borderless mb-0 ticket-table">
-                                <thead>
-                                    <tr class="border-bottom">
-                                        <th style="width: 20%;">CANT</th>
-                                        <th style="width: 80%;">DESCRIPCIÓN</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @if (!Model.DetallesPedido.Any())
-                                    {
-                                        <tr><td colspan="2" class="text-center text-muted">Sin detalles de productos</td></tr>
-                                    }
-                                    @foreach (var d in Model.DetallesPedido)
-                                    {
-                                        var nombreProd = Model.NombresProductos.ContainsKey(d.producto) ? Model.NombresProductos[d.producto] : $"Producto #{d.producto}";
-                                        <tr>
-                                            <td class="fw-bold fs-6">@d.cantidad x</td>
-                                            <td>
-                                                <span class="fw-bold">@nombreProd</span>
-                                                @if (!string.IsNullOrEmpty(d.comentarios))
-                                                {
-                                                    <div class="text-danger small fst-italic">>> NOTA: @d.comentarios</div>
-                                                }
-                                            </td>
-                                        </tr>
-                                    }
-                                </tbody>
-                            </table>
-                        </div>
-                        <div class="text-center pt-2 small text-muted">
-                            ------------------------------------<br />
-                            ORDEN ENVIADA A COCINA
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
+    <div class="row justify-content-center">
         <!-- Factura / Pre-cuenta Cliente -->
-        <div class="col-lg-6">
-            <div class="card shadow-sm border-0 h-100">
+        <div class="col-lg-6 col-md-8">
+            <div class="card shadow-sm border-0">
                 <div class="card-header bg-primary text-white py-2 d-flex justify-content-between align-items-center no-print">
                     <span class="fw-bold"><i class="bi bi-receipt"></i> Formato Factura / Pre-cuenta Cliente</span>
-                    <button class="btn btn-sm btn-light" onclick="imprimirElemento('ticketFactura')">
+                    <button type="button" class="btn btn-sm btn-light fw-bold" onclick="window.print()">
                         <i class="bi bi-printer"></i> Imprimir
                     </button>
                 </div>
@@ -150,7 +99,7 @@ else
                             <strong>Fecha:</strong> @(Model.FacturaAsociada?.fecha_emision.ToString("dd/MM/yyyy HH:mm") ?? DateTime.Now.ToString("dd/MM/yyyy HH:mm"))<br />
                             <strong>Mesa:</strong> @(Model.MesaAsociada?.numero.ToString() ?? Model.PedidoSeleccionado.mesa.ToString()) (@(Model.MesaAsociada?.ubicacion ?? "Salón"))<br />
                             <strong>Cliente:</strong> @(Model.ClienteAsociado?.nombre ?? "Consumidor Final")<br />
-                            <strong>Cédula/NIT:</strong> @(Model.ClienteAsociado?.cedula ?? "222222222222")<br />
+                            <strong>Cédula/NIT:</strong> @(Model.ClienteAsociado?.cedula ?? "2222222222")<br />
                             <strong>Atendido por:</strong> @(Model.EmpleadoMesero?.nombre ?? "Mesero Asignado")
                         </div>
                         <div class="border-top border-bottom py-2 my-2">
@@ -163,6 +112,10 @@ else
                                     </tr>
                                 </thead>
                                 <tbody>
+                                    @if (!Model.DetallesPedido.Any())
+                                    {
+                                        <tr><td colspan="3" class="text-center text-muted">Sin productos registrados</td></tr>
+                                    }
                                     @foreach (var d in Model.DetallesPedido)
                                     {
                                         var nombreProd = Model.NombresProductos.ContainsKey(d.producto) ? Model.NombresProductos[d.producto] : $"Producto #{d.producto}";
@@ -177,9 +130,9 @@ else
                         </div>
                         @{
                             decimal subtotal = Model.FacturaAsociada?.subtotal ?? Model.DetallesPedido.Sum(x => x.subtotal);
-                            decimal iva = subtotal * 0.08m; // Impoconsumo 8%
-                            decimal propina = subtotal * 0.10m; // Propina sugerida 10%
-                            decimal total = Model.FacturaAsociada?.total ?? (subtotal + iva);
+                            decimal impoconsumo = Math.Round(subtotal * 0.08m, 2);
+                            decimal propina = Math.Round(subtotal * 0.10m, 2);
+                            decimal total = Model.FacturaAsociada?.total ?? (subtotal + impoconsumo);
                         }
                         <div class="small">
                             <div class="d-flex justify-content-between">
@@ -188,7 +141,7 @@ else
                             </div>
                             <div class="d-flex justify-content-between text-muted">
                                 <span>Impuesto al Consumo (8%):</span>
-                                <span>$ @iva.ToString("N2")</span>
+                                <span>$ @impoconsumo.ToString("N2")</span>
                             </div>
                             <div class="d-flex justify-content-between text-muted">
                                 <span>Propina Sugerida (10%):</span>
@@ -217,7 +170,7 @@ else
 
 <style>
     .ticket-box {
-        width: 320px;
+        width: 340px;
         font-family: 'Courier New', Courier, monospace;
         color: #000;
         border: 1px dashed #ccc;
@@ -227,43 +180,24 @@ else
         font-size: 0.85rem;
     }
     @@media print {
-        .no-print {
-            display: none !important;
+        body * {
+            visibility: hidden !important;
         }
-        body {
-            background-color: #fff !important;
-            margin: 0 !important;
-            padding: 0 !important;
+        #ticketFactura, #ticketFactura * {
+            visibility: visible !important;
         }
-        .ticket-box {
+        #ticketFactura {
+            position: fixed !important;
+            left: 50% !important;
+            top: 10px !important;
+            transform: translateX(-50%) !important;
             border: none !important;
             box-shadow: none !important;
-            width: 100% !important;
-            max-width: 350px !important;
-            margin: 0 auto !important;
+            width: 340px !important;
+            background: #fff !important;
+        }
+        .no-print, header, footer, nav {
+            display: none !important;
         }
     }
 </style>
-
-@section Scripts {
-    <script>
-        function imprimirElemento(idElemento) {
-            var elemento = document.getElementById(idElemento);
-            if (!elemento) return;
-
-            var ventana = window.open('', '_blank', 'width=450,height=600');
-            ventana.document.write('<html><head><title>Impresión de Ticket</title>');
-            ventana.document.write('<link rel="stylesheet" href="/lib/bootstrap/dist/css/bootstrap.min.css">');
-            ventana.document.write('<style>body{font-family: monospace; padding: 20px;} table{width: 100%;} th, td{padding: 2px 4px; font-size: 13px;}</style>');
-            ventana.document.write('</head><body>');
-            ventana.document.write(elemento.outerHTML);
-            ventana.document.write('</body></html>');
-            ventana.document.close();
-            ventana.focus();
-            setTimeout(function () {
-                ventana.print();
-                ventana.close();
-            }, 300);
-        }
-    </script>
-}
