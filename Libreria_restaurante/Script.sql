@@ -46,7 +46,7 @@ GO
 CREATE TABLE [Clientes]
 (
 	[id] INT PRIMARY KEY IDENTITY(1, 1) NOT NULL,
-	[nombre] NVARCHAR(20) NOT NULL,
+	[nombre] NVARCHAR(50) NOT NULL,
 	[telefono] NVARCHAR(20) NOT NULL,
 	[cedula] NVARCHAR(20) NOT NULL,
 	[direccion] NVARCHAR(50) NOT NULL
@@ -66,7 +66,7 @@ GO
 CREATE TABLE [Empleados]
 (
 	[id] INT PRIMARY KEY IDENTITY(1, 1) NOT NULL,
-	[nombre] NVARCHAR(20) NOT NULL,
+	[nombre] NVARCHAR(50) NOT NULL,
 	[telefono] NVARCHAR(20) NOT NULL,
 	[direccion] NVARCHAR(50) NOT NULL,
 	[salario] DECIMAL(18, 2) NOT NULL,
@@ -89,6 +89,7 @@ CREATE TABLE [Productos]
 (
 	[id] INT PRIMARY KEY IDENTITY(1, 1) NOT NULL,
 	[nombre] NVARCHAR(50) NOT NULL,
+	[precio] DECIMAL(18, 2) NOT NULL DEFAULT 0,
 	[vigencia_desde] DATETIME NOT NULL,
 	[vigencia_hasta] DATETIME NOT NULL,
 	[tipo] NVARCHAR(20) NOT NULL,
@@ -311,7 +312,7 @@ INSERT INTO Menus (nombre, vigencia_desde, vigencia_hasta, tipo) VALUES
 (N'Menú Ejecutivo', '2026-01-01', '2026-12-31', N'Almuerzo'),
 (N'Especial Fin de Semana', '2026-01-01', '2026-12-31', N'Fin de Semana');
 
--- 3. Productos
+-- 3. Productos (con precio incluido)
 DECLARE @catCarnes INT = (SELECT TOP 1 id FROM Categorias WHERE nombre = N'Carnes y Parrilla');
 DECLARE @catPastas INT = (SELECT TOP 1 id FROM Categorias WHERE nombre = N'Pastas y Arroces');
 DECLARE @catBebidas INT = (SELECT TOP 1 id FROM Categorias WHERE nombre = N'Bebidas');
@@ -319,14 +320,14 @@ DECLARE @catPostres INT = (SELECT TOP 1 id FROM Categorias WHERE nombre = N'Post
 DECLARE @catEntradas INT = (SELECT TOP 1 id FROM Categorias WHERE nombre = N'Entradas');
 DECLARE @menuCarta INT = (SELECT TOP 1 id FROM Menus WHERE nombre = N'Carta Principal');
 
-INSERT INTO Productos (nombre, vigencia_desde, vigencia_hasta, tipo, categoria, menu) VALUES
-(N'Lomo al Trapo Angus 350g', '2026-01-01', '2026-12-31', N'Plato Fuerte', @catCarnes, @menuCarta),
-(N'Fettuccine Alfredo con Camarón', '2026-01-01', '2026-12-31', N'Plato Fuerte', @catPastas, @menuCarta),
-(N'Carpaccio de Salmón Ahumado', '2026-01-01', '2026-12-31', N'Entrada', @catEntradas, @menuCarta),
-(N'Limonada de Coco Cremosita', '2026-01-01', '2026-12-31', N'Bebida', @catBebidas, @menuCarta),
-(N'Copa de Vino Tinto Malbec Reserva', '2026-01-01', '2026-12-31', N'Bebida', @catBebidas, @menuCarta),
-(N'Cheesecake de Frutos Rojos', '2026-01-01', '2026-12-31', N'Postre', @catPostres, @menuCarta),
-(N'Tiramisú Artesanal Italiano', '2026-01-01', '2026-12-31', N'Postre', @catPostres, @menuCarta);
+INSERT INTO Productos (nombre, precio, vigencia_desde, vigencia_hasta, tipo, categoria, menu) VALUES
+(N'Lomo al Trapo Angus 350g', 45000.00, '2026-01-01', '2026-12-31', N'Plato Fuerte', @catCarnes, @menuCarta),
+(N'Fettuccine Alfredo con Camarón', 38000.00, '2026-01-01', '2026-12-31', N'Plato Fuerte', @catPastas, @menuCarta),
+(N'Carpaccio de Salmón Ahumado', 26000.00, '2026-01-01', '2026-12-31', N'Entrada', @catEntradas, @menuCarta),
+(N'Limonada de Coco Cremosita', 12000.00, '2026-01-01', '2026-12-31', N'Bebida', @catBebidas, @menuCarta),
+(N'Copa de Vino Tinto Malbec Reserva', 22000.00, '2026-01-01', '2026-12-31', N'Bebida', @catBebidas, @menuCarta),
+(N'Cheesecake de Frutos Rojos', 16500.00, '2026-01-01', '2026-12-31', N'Postre', @catPostres, @menuCarta),
+(N'Tiramisú Artesanal Italiano', 18000.00, '2026-01-01', '2026-12-31', N'Postre', @catPostres, @menuCarta);
 
 -- 4. Proveedores
 INSERT INTO Proveedores (nombre, contacto, direccion, telefono) VALUES
@@ -352,21 +353,22 @@ DECLARE @ing1 INT = (SELECT TOP 1 id FROM Ingredientes);
 INSERT INTO Inventarios (ingrediente, stock_actual, stock_minimo, fecha_actualizacion) VALUES
 (@ing1, 35.50, 10.00, GETDATE());
 
--- 7. Mesas
+-- 7. Mesas (solo la Mesa 2 queda Ocupada porque tiene el pedido activo #1)
 INSERT INTO Mesas (numero, capacidad, estado, ubicacion) VALUES
 (1, 4, N'Disponible', N'Salón Principal'),
 (2, 2, N'Ocupada', N'Salón Principal'),
 (3, 6, N'Reservada', N'Salón Principal'),
 (4, 4, N'Disponible', N'Salón Principal'),
 (5, 2, N'Disponible', N'Terraza'),
-(6, 4, N'Ocupada', N'Terraza'),
+(6, 4, N'Disponible', N'Terraza'),
 (7, 4, N'Reservada', N'Terraza'),
 (8, 8, N'Disponible', N'Zona VIP'),
-(9, 10, N'Ocupada', N'Zona VIP'),
+(9, 10, N'Disponible', N'Zona VIP'),
 (10, 2, N'Disponible', N'Barra');
 
--- 8. Clientes
+-- 8. Clientes (incluyendo Consumidor Final para pedidos sin cliente registrado)
 INSERT INTO Clientes (nombre, telefono, cedula, direccion) VALUES
+(N'Consumidor Final', N'N/A', N'2222222222', N'Mostrador / Salón'),
 (N'Juan David Pérez', N'3001122334', N'1020304050', N'Calle 100 # 15-20, Apto 501'),
 (N'María Fernanda Ortiz', N'3119988776', N'1030405060', N'Carrera 7 # 120-45'),
 (N'Santiago Gómez Vélez', N'3205544332', N'1040506070', N'Calle 85 # 11-18'),
@@ -401,7 +403,7 @@ INSERT INTO MetodosPagos (tipo) VALUES
 (N'Tarjeta Debito'),
 (N'Transf Nequi');
 
--- 11. Pedidos, Detalles, Facturas y Pagos
+-- 11. Pedido activo de ejemplo en Mesa 2
 DECLARE @cli1 INT = (SELECT TOP 1 id FROM Clientes WHERE cedula = N'1020304050');
 DECLARE @mesa2 INT = (SELECT TOP 1 id FROM Mesas WHERE numero = 2);
 DECLARE @mesero1 INT = (SELECT TOP 1 id FROM Meseros);
@@ -409,7 +411,7 @@ DECLARE @prod1 INT = (SELECT TOP 1 id FROM Productos WHERE nombre LIKE N'%Lomo%'
 DECLARE @prod2 INT = (SELECT TOP 1 id FROM Productos WHERE nombre LIKE N'%Limonada%');
 
 INSERT INTO Pedidos (cliente, mesa, mesero, fecha_hora, numero_personas, estado) VALUES
-(@cli1, @mesa2, @mesero1, GETDATE(), 2, N'En Preparación');
+(@cli1, @mesa2, @mesero1, GETDATE(), 2, N'En preparación');
 
 DECLARE @idPedido INT = SCOPE_IDENTITY();
 
@@ -417,51 +419,63 @@ INSERT INTO Detalles_Pedidos (pedido, producto, cantidad, subtotal, comentarios)
 (@idPedido, @prod1, 2, 90000.00, N'Término 3/4, una sin sal'),
 (@idPedido, @prod2, 2, 24000.00, N'Bien frías');
 
-INSERT INTO Facturas (pedido, numero, fecha_emision, subtotal, total) VALUES
-(@idPedido, N'FAC-2026-001', GETDATE(), 114000.00, 135660.00);
-
-DECLARE @idFactura INT = SCOPE_IDENTITY();
-DECLARE @metodoPagoTarj INT = (SELECT TOP 1 id FROM MetodosPagos WHERE tipo LIKE N'%Credito%');
-
-INSERT INTO Pagos (factura, metodoPago, monto, fecha, referencia, estado) VALUES
-(@idFactura, @metodoPagoTarj, 135660.00, GETDATE(), N'TX-9876543210', N'Aprobado');
-
--- 12. Roles, Permisos y Usuario Administrador
+-- 12. Rol 1: Administrador y Usuario Admin
 INSERT INTO [Roles] ([nombre], [descripcion], [activo])
 VALUES (N'Administrador', N'Acceso total al sistema', 1);
 
-DECLARE @idRol INT = SCOPE_IDENTITY();
+DECLARE @idRolAdmin INT = SCOPE_IDENTITY();
 
 INSERT INTO [Permisos] ([nombre], [descripcion], [rol])
 VALUES
-(N'Categorias', N'Acceso a Categorias', @idRol),
-(N'Clientes', N'Acceso a Clientes', @idRol),
-(N'Cocineros', N'Acceso a Cocineros', @idRol),
-(N'Detalles_Pedidos', N'Acceso a Detalles_Pedidos', @idRol),
-(N'Empleados', N'Acceso a Empleados', @idRol),
-(N'Facturas', N'Acceso a Facturas', @idRol),
-(N'Gerentes', N'Acceso a Gerentes', @idRol),
-(N'Ingredientes', N'Acceso a Ingredientes', @idRol),
-(N'Inventarios', N'Acceso a Inventarios', @idRol),
-(N'Menus', N'Acceso a Menus', @idRol),
-(N'Mesas', N'Acceso a Mesas', @idRol),
-(N'Meseros', N'Acceso a Meseros', @idRol),
-(N'MetodosPagos', N'Acceso a MetodosPagos', @idRol),
-(N'Pagos', N'Acceso a Pagos', @idRol),
-(N'Pedidos', N'Acceso a Pedidos', @idRol),
-(N'Productos', N'Acceso a Productos', @idRol),
-(N'Proveedores', N'Acceso a Proveedores', @idRol),
-(N'Recetas', N'Acceso a Recetas', @idRol),
-(N'Reservas', N'Acceso a Reservas', @idRol),
-(N'Turnos', N'Acceso a Turnos', @idRol),
-(N'Roles', N'Acceso a Roles', @idRol),
-(N'Usuarios', N'Acceso a Usuarios', @idRol),
-(N'Permisos', N'Acceso a Permisos', @idRol),
-(N'Auditorias', N'Acceso a Auditorias', @idRol),
-(N'Reportes', N'Acceso a Reportes PDF y Excel', @idRol),
-(N'MapaMesas', N'Acceso a Mapa de Mesas y Geolocalizacion', @idRol),
-(N'Impresion', N'Acceso a Impresion de Comandas y Facturas', @idRol);
+(N'Categorias', N'Acceso a Categorias', @idRolAdmin),
+(N'Clientes', N'Acceso a Clientes', @idRolAdmin),
+(N'Cocineros', N'Acceso a Cocineros', @idRolAdmin),
+(N'Detalles_Pedidos', N'Acceso a Detalles_Pedidos', @idRolAdmin),
+(N'Empleados', N'Acceso a Empleados', @idRolAdmin),
+(N'Facturas', N'Acceso a Facturas', @idRolAdmin),
+(N'Gerentes', N'Acceso a Gerentes', @idRolAdmin),
+(N'Ingredientes', N'Acceso a Ingredientes', @idRolAdmin),
+(N'Inventarios', N'Acceso a Inventarios', @idRolAdmin),
+(N'Menus', N'Acceso a Menus', @idRolAdmin),
+(N'Mesas', N'Acceso a Mesas', @idRolAdmin),
+(N'Meseros', N'Acceso a Meseros', @idRolAdmin),
+(N'MetodosPagos', N'Acceso a MetodosPagos', @idRolAdmin),
+(N'Pagos', N'Acceso a Pagos', @idRolAdmin),
+(N'Pedidos', N'Acceso a Pedidos', @idRolAdmin),
+(N'Productos', N'Acceso a Productos', @idRolAdmin),
+(N'Proveedores', N'Acceso a Proveedores', @idRolAdmin),
+(N'Recetas', N'Acceso a Recetas', @idRolAdmin),
+(N'Reservas', N'Acceso a Reservas', @idRolAdmin),
+(N'Turnos', N'Acceso a Turnos', @idRolAdmin),
+(N'Roles', N'Acceso a Roles', @idRolAdmin),
+(N'Usuarios', N'Acceso a Usuarios', @idRolAdmin),
+(N'Permisos', N'Acceso a Permisos', @idRolAdmin),
+(N'Auditorias', N'Acceso a Auditorias', @idRolAdmin),
+(N'Reportes', N'Acceso a Reportes PDF y Excel', @idRolAdmin),
+(N'MapaMesas', N'Acceso a Plano Interactivo de Mesas', @idRolAdmin),
+(N'Impresion', N'Acceso a Impresion de Comandas y Facturas', @idRolAdmin);
 
 INSERT INTO [Usuarios] ([nombreUsuario], [correo], [contraseña], [activo], [fechaCreacion], [rol])
-VALUES (N'admin', N'admin@restaurante.com', N'1234', 1, GETDATE(), @idRol);
+VALUES (N'admin', N'admin@restaurante.com', N'1234', 1, GETDATE(), @idRolAdmin);
+
+-- 13. Rol 2: Mesero y Usuario Mesero
+INSERT INTO [Roles] ([nombre], [descripcion], [activo])
+VALUES (N'Mesero', N'Atención de mesas, toma de pedidos, reservas y facturación', 1);
+
+DECLARE @idRolMesero INT = SCOPE_IDENTITY();
+
+INSERT INTO [Permisos] ([nombre], [descripcion], [rol])
+VALUES
+(N'MapaMesas', N'Acceso a Plano Interactivo de Mesas', @idRolMesero),
+(N'Pedidos', N'Toma y gestión de pedidos', @idRolMesero),
+(N'Detalles_Pedidos', N'Gestión de platos en pedidos', @idRolMesero),
+(N'Clientes', N'Registro opcional de clientes', @idRolMesero),
+(N'Reservas', N'Consulta y registro de reservas', @idRolMesero),
+(N'Productos', N'Consulta de carta y precios', @idRolMesero),
+(N'Facturas', N'Generación y consulta de facturas', @idRolMesero),
+(N'Pagos', N'Registro de pagos', @idRolMesero),
+(N'Impresion', N'Impresión de comandas y tickets', @idRolMesero);
+
+INSERT INTO [Usuarios] ([nombreUsuario], [correo], [contraseña], [activo], [fechaCreacion], [rol])
+VALUES (N'mesero', N'mesero@restaurante.com', N'1234', 1, GETDATE(), @idRolMesero);
 GO

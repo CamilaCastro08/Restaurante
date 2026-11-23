@@ -1,9 +1,6 @@
 using Libreria_restaurante.Entidades;
 using Libreria_restaurante.Interfaces;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace Libreria_restaurante.Implementaciones
 {
@@ -31,7 +28,6 @@ namespace Libreria_restaurante.Implementaciones
                 throw new Exception("Ya existe el usuario");
 
             entidad.fechaCreacion = DateTime.Now;
-            entidad.contraseña = BCrypt.Net.BCrypt.HashPassword(entidad.contraseña);
 
             this.IConexion.Usuarios!.Add(entidad);
             this.IConexion.SaveChanges();
@@ -42,10 +38,12 @@ namespace Libreria_restaurante.Implementaciones
                 accion = "Insertar",
                 fecha = DateTime.Now,
                 datosAnteriores = "",
-                datosNuevos = "id: " + entidad.id + ", nombreUsuario: " + entidad.nombreUsuario + ", correo: " + entidad.correo + ", rol: " + entidad.rol
+                datosNuevos = "id: " + entidad.id + ", nombreUsuario: " + entidad.nombreUsuario + ", correo: " + entidad.correo + ", rol: " + entidad.rol,
+                usuario = entidad.id
             };
             this.IConexion.Auditorias!.Add(audit);
             this.IConexion.SaveChanges();
+
             this.IConexion.Entry<Usuarios>(entidad).State = EntityState.Detached;
             entidad.contraseña = null;
             return entidad;
@@ -65,8 +63,6 @@ namespace Libreria_restaurante.Implementaciones
 
             if (string.IsNullOrEmpty(entidad.contraseña))
                 entidad.contraseña = anterior.contraseña;
-            else
-                entidad.contraseña = BCrypt.Net.BCrypt.HashPassword(entidad.contraseña);
 
             entidad.fechaCreacion = anterior.fechaCreacion;
 
@@ -79,10 +75,12 @@ namespace Libreria_restaurante.Implementaciones
                 accion = "Actualizar",
                 fecha = DateTime.Now,
                 datosAnteriores = "id: " + anterior.id + ", nombreUsuario: " + anterior.nombreUsuario + ", correo: " + anterior.correo + ", rol: " + anterior.rol,
-                datosNuevos = "id: " + entidad.id + ", nombreUsuario: " + entidad.nombreUsuario + ", correo: " + entidad.correo + ", rol: " + entidad.rol
+                datosNuevos = "id: " + entidad.id + ", nombreUsuario: " + entidad.nombreUsuario + ", correo: " + entidad.correo + ", rol: " + entidad.rol,
+                usuario = entidad.id
             };
             this.IConexion.Auditorias!.Add(audit);
             this.IConexion.SaveChanges();
+
             this.IConexion.Entry<Usuarios>(entidad).State = EntityState.Detached;
             entidad.contraseña = null;
             return entidad;
@@ -130,9 +128,22 @@ namespace Libreria_restaurante.Implementaciones
 
         public Usuarios Login(Usuarios entidad)
         {
-            var usuario = this.IConexion.Usuarios!.FirstOrDefault(x => x.nombreUsuario == entidad.nombreUsuario && x.activo == true);
+            var usuario = this.IConexion.Usuarios!
+                .FirstOrDefault(x => x.nombreUsuario == entidad.nombreUsuario && x.activo == true);
+
             if (usuario == null || string.IsNullOrEmpty(entidad.contraseña) || usuario.contraseña != entidad.contraseña)
                 throw new Exception("Usuario o contraseña incorrectos");
+
+            this.IConexion.Auditorias!.Add(new Auditorias
+            {
+                tabla = "Usuarios",
+                accion = "Login",
+                fecha = DateTime.Now,
+                datosAnteriores = "",
+                datosNuevos = "Inicio de sesión: " + usuario.nombreUsuario,
+                usuario = usuario.id
+            });
+            this.IConexion.SaveChanges();
 
             usuario.contraseña = null;
             return usuario;

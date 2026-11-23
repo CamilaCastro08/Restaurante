@@ -1,90 +1,351 @@
 @page
 @model asp.presentacion.Pages.Ventanas.PedidosModel
 @{
-    ViewData["Title"] = "Pedidos";
+    ViewData["Title"] = "Gestión de Pedidos";
+    decimal totalConsumo = Model.DetallesPedidoActual.Sum(d => d.subtotal);
 }
 
-<h2>Pedidos</h2>
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <div>
+        <h2 class="fw-bold mb-0"><i class="bi bi-receipt-cutoff"></i> Toma y Gestión de Pedidos</h2>
+        <small class="text-muted">Selecciona mesa y mesero, carga los platos y cobra cuando terminen</small>
+    </div>
+    <div class="d-flex gap-2">
+        <a asp-page="/Ventanas/MapaMesas" class="btn btn-outline-dark">
+            <i class="bi bi-grid-3x3-gap"></i> Plano de Mesas
+        </a>
+        <a asp-page="Pedidos" class="btn btn-secondary">
+            <i class="bi bi-plus-lg"></i> Nuevo Pedido
+        </a>
+    </div>
+</div>
 
 @if (!string.IsNullOrEmpty(Model.Mensaje))
 {
-    <div class="alert alert-danger">@Model.Mensaje</div>
+    <div class="alert alert-danger alert-dismissible fade show">
+        @Model.Mensaje
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
 }
 @if (TempData["Mensaje"] != null)
 {
-    <div class="alert alert-success">@TempData["Mensaje"]</div>
+    <div class="alert alert-success alert-dismissible fade show">
+        @TempData["Mensaje"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
 }
 
-<form method="post" asp-page-handler="Guardar" class="mb-4">
-    <input type="hidden" asp-for="Entidad.id" />
-    <div class="mb-2">
-        <label asp-for="Entidad.cliente" class="form-label"></label>
-        <input asp-for="Entidad.cliente" class="form-control" type="number" />
-    </div>
-    <div class="mb-2">
-        <label asp-for="Entidad.mesa" class="form-label"></label>
-        <input asp-for="Entidad.mesa" class="form-control" type="number" />
-    </div>
-    <div class="mb-2">
-        <label asp-for="Entidad.mesero" class="form-label"></label>
-        <input asp-for="Entidad.mesero" class="form-control" type="number" />
-    </div>
-    <div class="mb-2">
-        <label asp-for="Entidad.fecha_hora" class="form-label"></label>
-        <input asp-for="Entidad.fecha_hora" class="form-control" type="datetime-local" />
-    </div>
-    <div class="mb-2">
-        <label asp-for="Entidad.numero_personas" class="form-label"></label>
-        <input asp-for="Entidad.numero_personas" class="form-control" type="number" />
-    </div>
-    <div class="mb-2">
-        <label asp-for="Entidad.estado" class="form-label"></label>
-        <input asp-for="Entidad.estado" class="form-control" />
-    </div>
-    <button type="submit" class="btn btn-success">Guardar</button>
-    <a asp-page="Pedidos" class="btn btn-secondary">Nuevo</a>
-</form>
+<div class="row g-4 mb-4">
+    <!-- Columna Izquierda: Cabecera del Pedido -->
+    <div class="col-lg-5">
+        <div class="card shadow-sm border-0 h-100">
+            <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center">
+                <span class="fw-bold">
+                    @(Model.Entidad.id == 0 ? "1. Abrir Nuevo Pedido" : $"Pedido #{Model.Entidad.id}")
+                </span>
+                @if (Model.Entidad.id > 0)
+                {
+                    var badgeEstado = Model.Entidad.estado == "Pagado" ? "bg-success" :
+                                      (Model.Entidad.estado == "Cancelado" ? "bg-danger" :
+                                      (Model.Entidad.estado == "Servido" ? "bg-info text-dark" : "bg-warning text-dark"));
+                    <span class="badge @badgeEstado">@Model.Entidad.estado</span>
+                }
+            </div>
+            <div class="card-body">
+                <form method="post" asp-page-handler="Guardar">
+                    <input type="hidden" asp-for="Entidad.id" />
+                    <input type="hidden" asp-for="Entidad.estado" />
 
-<form method="post" asp-page-handler="Buscar" class="row g-2 mb-3">
-    <div class="col">
-        <input asp-for="Filtro.estado" class="form-control" placeholder="Buscar por estado" />
-    </div>
-    <div class="col-auto">
-        <button type="submit" class="btn btn-primary">Buscar</button>
-    </div>
-</form>
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Mesa *</label>
+                        <select asp-for="Entidad.mesa" class="form-select" required>
+                            <option value="">-- Seleccione una mesa --</option>
+                            @foreach (var m in Model.ListaMesas)
+                            {
+                                <option value="@m.id">
+                                    Mesa @m.numero - @m.ubicacion (@m.capacidad pers.) [@m.estado]
+                                </option>
+                            }
+                        </select>
+                    </div>
 
-<table class="table table-striped">
-    <thead>
-        <tr>
-            <th>Id</th>
-            <th>Cliente</th>
-            <th>Mesa</th>
-            <th>Mesero</th>
-            <th>Fecha hora</th>
-            <th>Numero personas</th>
-            <th>Estado</th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var item in Model.Lista)
-        {
-            <tr>
-                <td>@item.id</td>
-                <td>@item.cliente</td>
-                <td>@item.mesa</td>
-                <td>@item.mesero</td>
-                <td>@item.fecha_hora</td>
-                <td>@item.numero_personas</td>
-                <td>@item.estado</td>
-                <td>
-                    <form method="post" class="d-inline">
-                        <button type="submit" asp-page-handler="Editar" asp-route-id="@item.id" class="btn btn-sm btn-warning">Editar</button>
-                        <button type="submit" asp-page-handler="Borrar" asp-route-id="@item.id" class="btn btn-sm btn-danger" onclick="return confirm('Borrar este registro?')">Borrar</button>
-                    </form>
-                </td>
-            </tr>
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Mesero que atiende *</label>
+                        <select asp-for="Entidad.mesero" class="form-select" required>
+                            <option value="">-- Seleccione un mesero --</option>
+                            @foreach (var mes in Model.ListaMeseros)
+                            {
+                                <option value="@mes.id">@Model.NombreMesero(mes.id)</option>
+                            }
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Cliente <span class="text-muted fw-normal">(Opcional)</span></label>
+                        <select asp-for="Entidad.cliente" class="form-select">
+                            <option value="0">Consumidor Final (Sin registrar cliente)</option>
+                            @foreach (var c in Model.ListaClientes.Where(c => c.nombre != "Consumidor Final"))
+                            {
+                                <option value="@c.id">@c.nombre (@c.cedula)</option>
+                            }
+                        </select>
+                    </div>
+
+                    <div class="row g-2 mb-3">
+                        <div class="col-md-7">
+                            <label class="form-label fw-semibold">Fecha y Hora</label>
+                            <input asp-for="Entidad.fecha_hora" class="form-control" type="datetime-local" />
+                        </div>
+                        <div class="col-md-5">
+                            <label class="form-label fw-semibold">Comensales</label>
+                            <input asp-for="Entidad.numero_personas" class="form-control" type="number" min="1" max="30" />
+                        </div>
+                    </div>
+
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-success fw-bold">
+                            <i class="bi bi-check-circle"></i> @(Model.Entidad.id == 0 ? "Abrir Pedido y Agregar Platos" : "Guardar Cambios")
+                        </button>
+                    </div>
+                </form>
+
+                <!-- Botones automáticos de flujo del pedido -->
+                @if (Model.Entidad.id > 0 && Model.Entidad.estado != "Pagado" && Model.Entidad.estado != "Cancelado")
+                {
+                    <hr />
+                    <div class="d-flex flex-wrap gap-2">
+                        @if (Model.Entidad.estado == "En preparación")
+                        {
+                            <form method="post" asp-page-handler="CambiarEstadoPedido" class="flex-fill">
+                                <input type="hidden" name="pedidoId" value="@Model.Entidad.id" />
+                                <input type="hidden" name="nuevoEstado" value="Servido" />
+                                <button type="submit" class="btn btn-outline-info w-100 fw-semibold">
+                                    <i class="bi bi-bell"></i> Marcar como Servido
+                                </button>
+                            </form>
+                        }
+                        <form method="post" asp-page-handler="CambiarEstadoPedido">
+                            <input type="hidden" name="pedidoId" value="@Model.Entidad.id" />
+                            <input type="hidden" name="nuevoEstado" value="Cancelado" />
+                            <button type="submit" class="btn btn-outline-danger" onclick="return confirm('¿Cancelar este pedido y liberar la mesa?')">
+                                <i class="bi bi-x-circle"></i> Cancelar
+                            </button>
+                        </form>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+
+    <!-- Columna Derecha: Platos / Detalles del Pedido Seleccionado -->
+    <div class="col-lg-7">
+        <div class="card shadow-sm border-0 h-100">
+            <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                <span class="fw-bold"><i class="bi bi-bag-plus"></i> 2. Platos y Bebidas del Pedido @(Model.Entidad.id > 0 ? $"#{Model.Entidad.id}" : "")</span>
+                @if (Model.Entidad.id > 0)
+                {
+                    <div class="d-flex gap-1">
+                        <a asp-page="/Ventanas/Impresion" asp-route-PedidoId="@Model.Entidad.id" class="btn btn-sm btn-light">
+                            <i class="bi bi-printer"></i> Comanda / Ticket
+                        </a>
+                        @if (Model.Entidad.estado != "Pagado" && Model.Entidad.estado != "Cancelado" && Model.DetallesPedidoActual.Any())
+                        {
+                            <form method="post" asp-page-handler="FacturarPedido" class="d-inline">
+                                <input type="hidden" name="pedidoId" value="@Model.Entidad.id" />
+                                <button type="submit" class="btn btn-sm btn-warning fw-bold" onclick="return confirm('¿Generar factura, cobrar y liberar la mesa?')">
+                                    <i class="bi bi-cash-coin"></i> Facturar y Cobrar
+                                </button>
+                            </form>
+                        }
+                    </div>
+                }
+            </div>
+            <div class="card-body">
+                @if (Model.Entidad.id == 0)
+                {
+                    <div class="text-center py-5 text-muted">
+                        <i class="bi bi-arrow-left-circle fs-1 d-block mb-2"></i>
+                        <h5>Primero abre el pedido a la izquierda</h5>
+                        <p class="small mb-0">Solo necesitas elegir la <strong>Mesa</strong> y el <strong>Mesero</strong> (el cliente es opcional).</p>
+                    </div>
+                }
+                else
+                {
+                    @if (Model.Entidad.estado != "Pagado" && Model.Entidad.estado != "Cancelado")
+                    {
+                        <!-- Formulario rápido para agregar plato -->
+                        <form method="post" asp-page-handler="AgregarProducto" class="row g-2 align-items-end mb-3 p-3 bg-light rounded border">
+                            <input type="hidden" asp-for="NuevoDetalle.pedido" value="@Model.Entidad.id" />
+                            <div class="col-md-5">
+                                <label class="form-label small fw-bold">Producto</label>
+                                <select asp-for="NuevoDetalle.producto" id="selectProducto" class="form-select form-select-sm" required onchange="actualizarSubtotal()">
+                                    <option value="" data-precio="0">-- Elegir plato --</option>
+                                    @foreach (var prod in Model.ListaProductos)
+                                    {
+                                        <option value="@prod.id" data-precio="@prod.precio.ToString(System.Globalization.CultureInfo.InvariantCulture)">
+                                            @prod.nombre - $@prod.precio.ToString("N0")
+                                        </option>
+                                    }
+                                </select>
+                            </div>
+                            <div class="col-md-2">
+                                <label class="form-label small fw-bold">Cant.</label>
+                                <input asp-for="NuevoDetalle.cantidad" id="inputCantidad" type="number" min="1" value="1" class="form-control form-control-sm" required oninput="actualizarSubtotal()" />
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label small fw-bold">Subtotal ($)</label>
+                                <input asp-for="NuevoDetalle.subtotal" id="inputSubtotal" type="text" class="form-control form-control-sm bg-white fw-bold text-end" value="0.00" readonly />
+                            </div>
+                            <div class="col-md-2">
+                                <button type="submit" class="btn btn-sm btn-primary w-100 fw-bold">
+                                    <i class="bi bi-plus-lg"></i> Agregar
+                                </button>
+                            </div>
+                            <div class="col-12">
+                                <input asp-for="NuevoDetalle.comentarios" class="form-control form-control-sm" placeholder="Notas para cocina (opcional: sin cebolla, término medio...)" />
+                            </div>
+                        </form>
+                    }
+
+                    <!-- Tabla de platos agregados -->
+                    <div class="table-responsive">
+                        <table class="table table-sm table-hover align-middle">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Producto</th>
+                                    <th class="text-center">Cant.</th>
+                                    <th class="text-end">Subtotal</th>
+                                    <th>Notas</th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @if (!Model.DetallesPedidoActual.Any())
+                                {
+                                    <tr>
+                                        <td colspan="5" class="text-center text-muted py-3">Aún no hay productos en este pedido.</td>
+                                    </tr>
+                                }
+                                @foreach (var det in Model.DetallesPedidoActual)
+                                {
+                                    var prod = Model.ListaProductos.FirstOrDefault(p => p.id == det.producto);
+                                    <tr>
+                                        <td class="fw-semibold">@(prod?.nombre ?? $"Producto #{det.producto}")</td>
+                                        <td class="text-center"><span class="badge bg-secondary">@det.cantidad</span></td>
+                                        <td class="text-end">$ @det.subtotal.ToString("N2")</td>
+                                        <td class="small text-muted">@det.comentarios</td>
+                                        <td class="text-end">
+                                            @if (Model.Entidad.estado != "Pagado" && Model.Entidad.estado != "Cancelado")
+                                            {
+                                                <form method="post" asp-page-handler="QuitarProducto" class="d-inline">
+                                                    <input type="hidden" name="detalleId" value="@det.id" />
+                                                    <input type="hidden" name="pedidoId" value="@Model.Entidad.id" />
+                                                    <button type="submit" class="btn btn-sm btn-outline-danger" title="Quitar">
+                                                        <i class="bi bi-trash"></i>
+                                                    </button>
+                                                </form>
+                                            }
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                            @if (Model.DetallesPedidoActual.Any())
+                            {
+                                <tfoot class="table-light fw-bold">
+                                    <tr>
+                                        <td colspan="2" class="text-end">Subtotal Consumo:</td>
+                                        <td class="text-end">$ @totalConsumo.ToString("N2")</td>
+                                        <td colspan="2"></td>
+                                    </tr>
+                                    <tr class="text-success">
+                                        <td colspan="2" class="text-end">Total con Impoconsumo (8%):</td>
+                                        <td class="text-end fs-6">$ @((totalConsumo * 1.08m).ToString("N2"))</td>
+                                        <td colspan="2"></td>
+                                    </tr>
+                                </tfoot>
+                            }
+                        </table>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Listado General de Pedidos -->
+<div class="card shadow-sm border-0">
+    <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center flex-wrap gap-2">
+        <h5 class="fw-bold mb-0">Pedidos Recientes</h5>
+        <form method="post" asp-page-handler="Buscar" class="d-flex gap-2">
+            <select asp-for="Filtro.estado" class="form-select form-select-sm">
+                <option value="">Todos los estados</option>
+                <option value="En preparación">En preparación</option>
+                <option value="Servido">Servido</option>
+                <option value="Pagado">Pagado</option>
+                <option value="Cancelado">Cancelado</option>
+            </select>
+            <button type="submit" class="btn btn-sm btn-primary">Filtrar</button>
+        </form>
+    </div>
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-striped table-hover align-middle mb-0">
+                <thead class="table-dark">
+                    <tr>
+                        <th>#</th>
+                        <th>Mesa</th>
+                        <th>Mesero</th>
+                        <th>Cliente</th>
+                        <th>Hora</th>
+                        <th>Pers.</th>
+                        <th>Estado</th>
+                        <th class="text-end">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model.Lista)
+                    {
+                        var cli = Model.ListaClientes.FirstOrDefault(c => c.id == item.cliente);
+                        var mesa = Model.ListaMesas.FirstOrDefault(m => m.id == item.mesa);
+                        var badge = item.estado == "Pagado" ? "bg-success" : (item.estado == "Cancelado" ? "bg-danger" : (item.estado == "Servido" ? "bg-info text-dark" : "bg-warning text-dark"));
+                        <tr class="@(item.id == Model.Entidad.id ? "table-primary" : "")">
+                            <td class="fw-bold">#@item.id</td>
+                            <td>@(mesa != null ? $"Mesa {mesa.numero} ({mesa.ubicacion})" : $"Mesa #{item.mesa}")</td>
+                            <td>@Model.NombreMesero(item.mesero)</td>
+                            <td>@(cli?.nombre ?? "Consumidor Final")</td>
+                            <td>@item.fecha_hora.ToString("dd/MM HH:mm")</td>
+                            <td>@item.numero_personas</td>
+                            <td><span class="badge @badge">@item.estado</span></td>
+                            <td class="text-end">
+                                <a asp-page="Pedidos" asp-route-id="@item.id" class="btn btn-sm btn-primary">
+                                    <i class="bi bi-bag-plus"></i> Abrir / Platos
+                                </a>
+                                <a asp-page="/Ventanas/Impresion" asp-route-PedidoId="@item.id" class="btn btn-sm btn-outline-dark" title="Imprimir">
+                                    <i class="bi bi-printer"></i>
+                                </a>
+                                <form method="post" class="d-inline">
+                                    <button type="submit" asp-page-handler="Borrar" asp-route-id="@item.id" class="btn btn-sm btn-danger" onclick="return confirm('¿Borrar este pedido?')">
+                                        <i class="bi bi-trash"></i>
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function actualizarSubtotal() {
+            const select = document.getElementById('selectProducto');
+            const cant = parseFloat(document.getElementById('inputCantidad').value) || 0;
+            if (!select) return;
+            const opcion = select.options[select.selectedIndex];
+            const precio = parseFloat(opcion ? opcion.getAttribute('data-precio') : '0') || 0;
+            document.getElementById('inputSubtotal').value = (precio * cant).toFixed(2);
         }
-    </tbody>
-</table>
+    </script>
+}

@@ -8,10 +8,12 @@ namespace asp.presentacion.Pages.Ventanas
     public class UsuariosModel : PaginaProtegida
     {
         private readonly IUsuariosPresentacion iPresentacion;
+        private readonly IRolesPresentacion rolesPres;
 
-        public UsuariosModel(IUsuariosPresentacion iPresentacion)
+        public UsuariosModel(IUsuariosPresentacion iPresentacion, IRolesPresentacion rolesPres)
         {
             this.iPresentacion = iPresentacion;
+            this.rolesPres = rolesPres;
         }
 
         protected override string Permiso => "Usuarios";
@@ -19,6 +21,7 @@ namespace asp.presentacion.Pages.Ventanas
         [BindProperty] public Usuarios Entidad { get; set; } = new() { activo = true };
         [BindProperty] public Usuarios Filtro { get; set; } = new();
         public List<Usuarios> Lista { get; set; } = new();
+        public List<Roles> ListaRoles { get; set; } = new();
         public string? Mensaje { get; set; }
 
         public void OnGet()
@@ -30,6 +33,7 @@ namespace asp.presentacion.Pages.Ventanas
         {
             try
             {
+                ListaRoles = rolesPres.Consultar() ?? new();
                 if (string.IsNullOrEmpty(Filtro.nombreUsuario))
                     Lista = iPresentacion.Consultar();
                 else
@@ -92,7 +96,8 @@ namespace asp.presentacion.Pages.Ventanas
         {
             try
             {
-                Lista = iPresentacion.Consultar();
+                Lista = iPresentacion.Consultar() ?? new();
+                ListaRoles = rolesPres.Consultar() ?? new();
             }
             catch (Exception ex)
             {

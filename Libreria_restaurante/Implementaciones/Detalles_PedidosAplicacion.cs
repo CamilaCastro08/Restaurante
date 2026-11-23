@@ -1,9 +1,6 @@
 ﻿using Libreria_restaurante.Entidades;
 using Libreria_restaurante.Interfaces;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace Libreria_restaurante.Implementaciones
 {
@@ -21,8 +18,44 @@ namespace Libreria_restaurante.Implementaciones
             if (entidad.id != 0)
                 throw new Exception("Ya se guardo");
 
-            if (Validar(entidad))
+            if (entidad.pedido == 0 || entidad.producto == 0 || entidad.cantidad <= 0)
                 throw new Exception("Falta informacion");
+
+       
+            var productoDb = this.IConexion.Productos!.FirstOrDefault(p => p.id == entidad.producto);
+            if (productoDb == null)
+                throw new Exception("El producto seleccionado no existe.");
+
+            if (productoDb.precio <= 0)
+                throw new Exception($"El producto '{productoDb.nombre}' no tiene un precio configurado.");
+
+            entidad.subtotal = Math.Round(productoDb.precio * entidad.cantidad, 2);
+
+            
+            var recetasIds = this.IConexion.Recetas!
+                .Where(r => r.producto == entidad.producto)
+                .Select(r => r.id)
+                .ToList();
+
+            var ingredientes = this.IConexion.Ingredientes!
+                .Where(ing => recetasIds.Contains(ing.receta))
+                .ToList();
+
+            foreach (var ing in ingredientes)
+            {
+                var inventario = this.IConexion.Inventarios!
+                    .FirstOrDefault(inv => inv.ingrediente == ing.id);
+
+                if (inventario != null)
+                {
+                    if (inventario.stock_actual < entidad.cantidad)
+                        throw new Exception($"Stock insuficiente para el ingrediente: {ing.nombre}");
+
+                    inventario.stock_actual -= entidad.cantidad;
+                    inventario.fecha_actualizacion = DateTime.Now;
+                    this.IConexion.Entry(inventario).State = EntityState.Modified;
+                }
+            }
 
             this.IConexion.Detalles_Pedidos!.Add(entidad);
             this.IConexion.SaveChanges();
@@ -33,7 +66,7 @@ namespace Libreria_restaurante.Implementaciones
                 accion = "Insertar",
                 fecha = DateTime.Now,
                 datosAnteriores = "",
-                datosNuevos = "id: " + entidad.id + ", pedido: " + entidad.pedido
+                datosNuevos = $"id: {entidad.id}, pedido: {entidad.pedido}, producto: {entidad.producto}, cantidad: {entidad.cantidad}, subtotal: {entidad.subtotal}"
             };
             this.IConexion.Auditorias!.Add(audit);
             this.IConexion.SaveChanges();
@@ -45,10 +78,10 @@ namespace Libreria_restaurante.Implementaciones
             if (entidad.id == 0)
                 throw new Exception("No se ha guardo");
 
-            if (Validar(entidad))
+            if (entidad.pedido == 0 || entidad.producto == 0 || entidad.cantidad <= 0)
                 throw new Exception("Falta informacion");
 
-            var anterior = this.IConexion.Detalles_Pedidos!.FirstOrDefault(x => x.id == entidad.id);
+            var anterior = this.IConexion.Detalles_Pedidos!.AsNoTracking().FirstOrDefault(x => x.id == entidad.id);
             if (anterior == null)
                 throw new Exception("No existe");
 
@@ -89,24 +122,45 @@ namespace Libreria_restaurante.Implementaciones
             if (entidad.id == 0)
                 throw new Exception("No se ha guardo");
 
-            this.IConexion.Detalles_Pedidos!.Remove(entidad);
+            var detalleDb = this.IConexion.Detalles_Pedidos!.FirstOrDefault(d => d.id == entidad.id);
+            if (detalleDb == null)
+                throw new Exception("No existe");
+
+            var recetasIds = this.IConexion.Recetas!
+                .Where(r => r.producto == detalleDb.producto)
+                .Select(r => r.id)
+                .ToList();
+
+            var ingredientes = this.IConexion.Ingredientes!
+                .Where(ing => recetasIds.Contains(ing.receta))
+                .ToList();
+
+            foreach (var ing in ingredientes)
+            {
+                var inventario = this.IConexion.Inventarios!
+                    .FirstOrDefault(inv => inv.ingrediente == ing.id);
+
+                if (inventario != null)
+                {
+                    inventario.stock_actual += detalleDb.cantidad;
+                    inventario.fecha_actualizacion = DateTime.Now;
+                    this.IConexion.Entry(inventario).State = EntityState.Modified;
+                }
+            }
+
+            this.IConexion.Detalles_Pedidos!.Remove(detalleDb);
 
             var audit = new Auditorias
             {
                 tabla = "Detalles_Pedidos",
                 accion = "Borrar",
                 fecha = DateTime.Now,
-                datosAnteriores = "id: " + entidad.id + ", pedido: " + entidad.pedido,
+                datosAnteriores = "id: " + detalleDb.id + ", pedido: " + detalleDb.pedido,
                 datosNuevos = ""
             };
             this.IConexion.Auditorias!.Add(audit);
             this.IConexion.SaveChanges();
-            return entidad;
-        }
-
-        private bool Validar(Detalles_Pedidos entidad)
-        {
-            return entidad.pedido == 0;
+            return detalleDb;
         }
     }
 }

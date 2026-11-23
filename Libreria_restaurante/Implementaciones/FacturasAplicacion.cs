@@ -1,9 +1,6 @@
 ﻿using Libreria_restaurante.Entidades;
 using Libreria_restaurante.Interfaces;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace Libreria_restaurante.Implementaciones
 {
@@ -21,8 +18,41 @@ namespace Libreria_restaurante.Implementaciones
             if (entidad.id != 0)
                 throw new Exception("Ya se guardo");
 
-            if (Validar(entidad))
-                throw new Exception("Falta informacion");
+            if (entidad.pedido == 0)
+                throw new Exception("Debe seleccionar un pedido");
+
+            var pedido = this.IConexion.Pedidos!.FirstOrDefault(p => p.id == entidad.pedido);
+            if (pedido == null)
+                throw new Exception("El pedido no existe");
+
+            if (string.IsNullOrEmpty(entidad.numero))
+                entidad.numero = $"FAC-{DateTime.Now:yyyyMMddHHmmss}";
+
+            if (entidad.fecha_emision == default)
+                entidad.fecha_emision = DateTime.Now;
+
+            if (entidad.subtotal <= 0)
+            {
+                var detalles = this.IConexion.Detalles_Pedidos!
+                    .Where(d => d.pedido == entidad.pedido)
+                    .ToList();
+                entidad.subtotal = detalles.Sum(d => d.subtotal);
+            }
+
+            if (entidad.total <= 0)
+            {
+                entidad.total = Math.Round(entidad.subtotal * 1.08m, 2);
+            }
+
+            pedido.estado = "Pagado";
+            this.IConexion.Entry(pedido).State = EntityState.Modified;
+
+            var mesa = this.IConexion.Mesas!.FirstOrDefault(m => m.id == pedido.mesa);
+            if (mesa != null)
+            {
+                mesa.estado = "Disponible";
+                this.IConexion.Entry(mesa).State = EntityState.Modified;
+            }
 
             this.IConexion.Facturas!.Add(entidad);
             this.IConexion.SaveChanges();
@@ -33,7 +63,7 @@ namespace Libreria_restaurante.Implementaciones
                 accion = "Insertar",
                 fecha = DateTime.Now,
                 datosAnteriores = "",
-                datosNuevos = "id: " + entidad.id + ", numero: " + entidad.numero
+                datosNuevos = $"id: {entidad.id}, numero: {entidad.numero}, total: {entidad.total}"
             };
             this.IConexion.Auditorias!.Add(audit);
             this.IConexion.SaveChanges();
@@ -48,7 +78,7 @@ namespace Libreria_restaurante.Implementaciones
             if (Validar(entidad))
                 throw new Exception("Falta informacion");
 
-            var anterior = this.IConexion.Facturas!.FirstOrDefault(x => x.id == entidad.id);
+            var anterior = this.IConexion.Facturas!.AsNoTracking().FirstOrDefault(x => x.id == entidad.id);
             if (anterior == null)
                 throw new Exception("No existe");
 

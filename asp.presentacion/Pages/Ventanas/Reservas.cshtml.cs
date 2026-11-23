@@ -8,17 +8,23 @@ namespace asp.presentacion.Pages.Ventanas
     public class ReservasModel : PaginaProtegida
     {
         private readonly IReservasPresentacion iPresentacion;
+        private readonly IClientesPresentacion clientesPres;
+        private readonly IMesasPresentacion mesasPres;
 
-        public ReservasModel(IReservasPresentacion iPresentacion)
+        public ReservasModel(IReservasPresentacion iPresentacion, IClientesPresentacion clientesPres, IMesasPresentacion mesasPres)
         {
             this.iPresentacion = iPresentacion;
+            this.clientesPres = clientesPres;
+            this.mesasPres = mesasPres;
         }
 
         protected override string Permiso => "Reservas";
 
-        [BindProperty] public Reservas Entidad { get; set; } = new() { fecha_hora = DateTime.Now };
+        [BindProperty] public Reservas Entidad { get; set; } = new() { fecha_hora = DateTime.Now, numero_personas = 2, estado = "Confirmada" };
         [BindProperty] public Reservas Filtro { get; set; } = new();
         public List<Reservas> Lista { get; set; } = new();
+        public List<Clientes> ListaClientes { get; set; } = new();
+        public List<Mesas> ListaMesas { get; set; } = new();
         public string? Mensaje { get; set; }
 
         public void OnGet()
@@ -30,6 +36,8 @@ namespace asp.presentacion.Pages.Ventanas
         {
             try
             {
+                ListaClientes = clientesPres.Consultar() ?? new();
+                ListaMesas = mesasPres.Consultar() ?? new();
                 if (string.IsNullOrEmpty(Filtro.estado))
                     Lista = iPresentacion.Consultar();
                 else
@@ -92,7 +100,9 @@ namespace asp.presentacion.Pages.Ventanas
         {
             try
             {
-                Lista = iPresentacion.Consultar();
+                Lista = iPresentacion.Consultar() ?? new();
+                ListaClientes = clientesPres.Consultar() ?? new();
+                ListaMesas = mesasPres.Consultar() ?? new();
             }
             catch (Exception ex)
             {

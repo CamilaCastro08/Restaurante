@@ -18,24 +18,41 @@
 <form method="post" asp-page-handler="Guardar" class="mb-4">
     <input type="hidden" asp-for="Entidad.id" />
     <div class="mb-2">
-        <label asp-for="Entidad.cliente" class="form-label"></label>
-        <input asp-for="Entidad.cliente" type="number" class="form-control" />
+        <label asp-for="Entidad.cliente" class="form-label">Cliente</label>
+        <select asp-for="Entidad.cliente" class="form-select" required>
+            <option value="">-- Seleccione un cliente --</option>
+            @foreach (var c in Model.ListaClientes)
+            {
+                <option value="@c.id">@c.nombre (@c.telefono)</option>
+            }
+        </select>
     </div>
     <div class="mb-2">
-        <label asp-for="Entidad.mesa" class="form-label"></label>
-        <input asp-for="Entidad.mesa" type="number" class="form-control" />
+        <label asp-for="Entidad.mesa" class="form-label">Mesa</label>
+        <select asp-for="Entidad.mesa" class="form-select" required>
+            <option value="">-- Seleccione una mesa --</option>
+            @foreach (var m in Model.ListaMesas)
+            {
+                <option value="@m.id">Mesa @m.numero - @m.ubicacion (@m.capacidad pers.)</option>
+            }
+        </select>
     </div>
     <div class="mb-2">
-        <label asp-for="Entidad.fecha_hora" class="form-label"></label>
+        <label asp-for="Entidad.fecha_hora" class="form-label">Fecha y Hora</label>
         <input asp-for="Entidad.fecha_hora" type="datetime-local" class="form-control" />
     </div>
     <div class="mb-2">
-        <label asp-for="Entidad.numero_personas" class="form-label"></label>
-        <input asp-for="Entidad.numero_personas" type="number" class="form-control" />
+        <label asp-for="Entidad.numero_personas" class="form-label">Número de Personas</label>
+        <input asp-for="Entidad.numero_personas" type="number" min="1" class="form-control" />
     </div>
     <div class="mb-2">
-        <label asp-for="Entidad.estado" class="form-label"></label>
-        <input asp-for="Entidad.estado" class="form-control" />
+        <label asp-for="Entidad.estado" class="form-label">Estado</label>
+        <select asp-for="Entidad.estado" class="form-select">
+            <option value="Confirmada">Confirmada</option>
+            <option value="Pendiente">Pendiente</option>
+            <option value="Completada">Completada</option>
+            <option value="Cancelada">Cancelada</option>
+        </select>
     </div>
     <button type="submit" class="btn btn-success">Guardar</button>
     <a asp-page="Reservas" class="btn btn-secondary">Nuevo</a>
@@ -56,8 +73,8 @@
             <th>Id</th>
             <th>Cliente</th>
             <th>Mesa</th>
-            <th>Fecha hora</th>
-            <th>Numero personas</th>
+            <th>Fecha y Hora</th>
+            <th>Personas</th>
             <th>Estado</th>
             <th></th>
         </tr>
@@ -65,17 +82,19 @@
     <tbody>
         @foreach (var item in Model.Lista)
         {
+            var cli = Model.ListaClientes.FirstOrDefault(c => c.id == item.cliente);
+            var mesa = Model.ListaMesas.FirstOrDefault(m => m.id == item.mesa);
             <tr>
                 <td>@item.id</td>
-                <td>@item.cliente</td>
-                <td>@item.mesa</td>
-                <td>@item.fecha_hora</td>
+                <td>@(cli?.nombre ?? $"Cliente #{item.cliente}")</td>
+                <td>@(mesa != null ? $"Mesa {mesa.numero} ({mesa.ubicacion})" : $"Mesa #{item.mesa}")</td>
+                <td>@item.fecha_hora.ToString("dd/MM/yyyy HH:mm")</td>
                 <td>@item.numero_personas</td>
                 <td>@item.estado</td>
                 <td>
                     <form method="post" class="d-inline">
                         <button type="submit" asp-page-handler="Editar" asp-route-id="@item.id" class="btn btn-sm btn-warning">Editar</button>
-                        <button type="submit" asp-page-handler="Borrar" asp-route-id="@item.id" class="btn btn-sm btn-danger" onclick="return confirm('Borrar este registro?')">Borrar</button>
+                        <button type="submit" asp-page-handler="Borrar" asp-route-id="@item.id" class="btn btn-sm btn-danger" onclick="return confirm('¿Borrar este registro?')">Borrar</button>
                     </form>
                 </td>
             </tr>

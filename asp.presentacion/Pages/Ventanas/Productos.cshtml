@@ -17,29 +17,51 @@
 
 <form method="post" asp-page-handler="Guardar" class="mb-4">
     <input type="hidden" asp-for="Entidad.id" />
-    <div class="mb-2">
-        <label asp-for="Entidad.nombre" class="form-label"></label>
-        <input asp-for="Entidad.nombre" class="form-control" />
+    <div class="row g-2 mb-2">
+        <div class="col-md-5">
+            <label asp-for="Entidad.nombre" class="form-label">Nombre</label>
+            <input asp-for="Entidad.nombre" class="form-control" required />
+        </div>
+        <div class="col-md-4">
+            <label asp-for="Entidad.tipo" class="form-label">Tipo</label>
+            <input asp-for="Entidad.tipo" class="form-control" placeholder="Ej: Plato Fuerte, Bebida, Postre" />
+        </div>
+        <div class="col-md-3">
+            <label asp-for="Entidad.precio" class="form-label">Precio ($)</label>
+            <input asp-for="Entidad.precio" type="number" step="0.01" min="0" class="form-control" required />
+        </div>
     </div>
-    <div class="mb-2">
-        <label asp-for="Entidad.vigencia_desde" class="form-label"></label>
-        <input asp-for="Entidad.vigencia_desde" type="datetime-local" class="form-control" />
+    <div class="row g-2 mb-2">
+        <div class="col-md-6">
+            <label asp-for="Entidad.categoria" class="form-label">Categoría</label>
+            <select asp-for="Entidad.categoria" class="form-select" required>
+                <option value="">-- Seleccione una categoría --</option>
+                @foreach (var c in Model.ListaCategorias)
+                {
+                    <option value="@c.id">@c.nombre</option>
+                }
+            </select>
+        </div>
+        <div class="col-md-6">
+            <label asp-for="Entidad.menu" class="form-label">Menú</label>
+            <select asp-for="Entidad.menu" class="form-select" required>
+                <option value="">-- Seleccione un menú --</option>
+                @foreach (var m in Model.ListaMenus)
+                {
+                    <option value="@m.id">@m.nombre (@m.tipo)</option>
+                }
+            </select>
+        </div>
     </div>
-    <div class="mb-2">
-        <label asp-for="Entidad.vigencia_hasta" class="form-label"></label>
-        <input asp-for="Entidad.vigencia_hasta" type="datetime-local" class="form-control" />
-    </div>
-    <div class="mb-2">
-        <label asp-for="Entidad.tipo" class="form-label"></label>
-        <input asp-for="Entidad.tipo" class="form-control" />
-    </div>
-    <div class="mb-2">
-        <label asp-for="Entidad.categoria" class="form-label"></label>
-        <input asp-for="Entidad.categoria" type="number" class="form-control" />
-    </div>
-    <div class="mb-2">
-        <label asp-for="Entidad.menu" class="form-label"></label>
-        <input asp-for="Entidad.menu" type="number" class="form-control" />
+    <div class="row g-2 mb-3">
+        <div class="col-md-6">
+            <label asp-for="Entidad.vigencia_desde" class="form-label">Vigencia desde</label>
+            <input asp-for="Entidad.vigencia_desde" type="datetime-local" class="form-control" />
+        </div>
+        <div class="col-md-6">
+            <label asp-for="Entidad.vigencia_hasta" class="form-label">Vigencia hasta</label>
+            <input asp-for="Entidad.vigencia_hasta" type="datetime-local" class="form-control" />
+        </div>
     </div>
     <button type="submit" class="btn btn-success">Guardar</button>
     <a asp-page="Productos" class="btn btn-secondary">Nuevo</a>
@@ -59,29 +81,31 @@
         <tr>
             <th>Id</th>
             <th>Nombre</th>
-            <th>Vigencia desde</th>
-            <th>Vigencia hasta</th>
             <th>Tipo</th>
-            <th>Categoria</th>
-            <th>Menu</th>
+            <th>Precio</th>
+            <th>Categoría</th>
+            <th>Menú</th>
+            <th>Vigencia</th>
             <th></th>
         </tr>
     </thead>
     <tbody>
         @foreach (var item in Model.Lista)
         {
+            var cat = Model.ListaCategorias.FirstOrDefault(c => c.id == item.categoria);
+            var men = Model.ListaMenus.FirstOrDefault(m => m.id == item.menu);
             <tr>
                 <td>@item.id</td>
                 <td>@item.nombre</td>
-                <td>@item.vigencia_desde</td>
-                <td>@item.vigencia_hasta</td>
                 <td>@item.tipo</td>
-                <td>@item.categoria</td>
-                <td>@item.menu</td>
+                <td class="fw-bold text-success">$ @item.precio.ToString("N2")</td>
+                <td>@(cat?.nombre ?? $"Cat #{item.categoria}")</td>
+                <td>@(men?.nombre ?? $"Menú #{item.menu}")</td>
+                <td>@item.vigencia_desde.ToString("dd/MM/yyyy") - @item.vigencia_hasta.ToString("dd/MM/yyyy")</td>
                 <td>
                     <form method="post" class="d-inline">
                         <button type="submit" asp-page-handler="Editar" asp-route-id="@item.id" class="btn btn-sm btn-warning">Editar</button>
-                        <button type="submit" asp-page-handler="Borrar" asp-route-id="@item.id" class="btn btn-sm btn-danger" onclick="return confirm('Borrar este registro?')">Borrar</button>
+                        <button type="submit" asp-page-handler="Borrar" asp-route-id="@item.id" class="btn btn-sm btn-danger" onclick="return confirm('¿Borrar este registro?')">Borrar</button>
                     </form>
                 </td>
             </tr>

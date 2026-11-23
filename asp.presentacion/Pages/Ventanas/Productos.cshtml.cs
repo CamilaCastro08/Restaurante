@@ -8,17 +8,23 @@ namespace asp.presentacion.Pages.Ventanas
     public class ProductosModel : PaginaProtegida
     {
         private readonly IProductosPresentacion iPresentacion;
+        private readonly ICategoriasPresentacion categoriasPres;
+        private readonly IMenusPresentacion menusPres;
 
-        public ProductosModel(IProductosPresentacion iPresentacion)
+        public ProductosModel(IProductosPresentacion iPresentacion, ICategoriasPresentacion categoriasPres, IMenusPresentacion menusPres)
         {
             this.iPresentacion = iPresentacion;
+            this.categoriasPres = categoriasPres;
+            this.menusPres = menusPres;
         }
 
         protected override string Permiso => "Productos";
 
-        [BindProperty] public Productos Entidad { get; set; } = new() { vigencia_desde = DateTime.Now, vigencia_hasta = DateTime.Now };
+        [BindProperty] public Productos Entidad { get; set; } = new() { vigencia_desde = DateTime.Now, vigencia_hasta = DateTime.Now.AddYears(1) };
         [BindProperty] public Productos Filtro { get; set; } = new();
         public List<Productos> Lista { get; set; } = new();
+        public List<Categorias> ListaCategorias { get; set; } = new();
+        public List<Menus> ListaMenus { get; set; } = new();
         public string? Mensaje { get; set; }
 
         public void OnGet()
@@ -30,6 +36,8 @@ namespace asp.presentacion.Pages.Ventanas
         {
             try
             {
+                ListaCategorias = categoriasPres.Consultar() ?? new();
+                ListaMenus = menusPres.Consultar() ?? new();
                 if (string.IsNullOrEmpty(Filtro.nombre))
                     Lista = iPresentacion.Consultar();
                 else
@@ -92,7 +100,9 @@ namespace asp.presentacion.Pages.Ventanas
         {
             try
             {
-                Lista = iPresentacion.Consultar();
+                Lista = iPresentacion.Consultar() ?? new();
+                ListaCategorias = categoriasPres.Consultar() ?? new();
+                ListaMenus = menusPres.Consultar() ?? new();
             }
             catch (Exception ex)
             {
