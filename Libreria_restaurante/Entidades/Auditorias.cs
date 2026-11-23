@@ -6,7 +6,7 @@ using System.Text;
 
 namespace Libreria_restaurante.Entidades
 {
-    public class CocinerosAuditorias
+    public class Auditorias
     {
         public int id { get; set; }
         public string? tabla { get; set; }

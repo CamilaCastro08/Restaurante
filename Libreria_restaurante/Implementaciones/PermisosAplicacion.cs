@@ -27,7 +27,7 @@ namespace Libreria_restaurante.Implementaciones
             this.IConexion.Permisos!.Add(entidad);
             this.IConexion.SaveChanges();
 
-            var audit = new PermisosAuditorias
+            var audit = new Auditorias
             {
                 tabla = "Permisos",
                 accion = "Insertar",
@@ -35,7 +35,7 @@ namespace Libreria_restaurante.Implementaciones
                 datosAnteriores = "",
                 datosNuevos = "id: " + entidad.id + ", nombre: " + entidad.nombre + ", rol: " + entidad.rol
             };
-            this.IConexion.PermisosAuditorias!.Add(audit);
+            this.IConexion.Auditorias!.Add(audit);
             this.IConexion.SaveChanges();
             return entidad;
         }
@@ -55,7 +55,7 @@ namespace Libreria_restaurante.Implementaciones
             var entry = this.IConexion.Entry<Permisos>(entidad);
             entry.State = EntityState.Modified;
 
-            var audit = new PermisosAuditorias
+            var audit = new Auditorias
             {
                 tabla = "Permisos",
                 accion = "Actualizar",
@@ -63,7 +63,7 @@ namespace Libreria_restaurante.Implementaciones
                 datosAnteriores = "id: " + anterior.id + ", nombre: " + anterior.nombre + ", rol: " + anterior.rol,
                 datosNuevos = "id: " + entidad.id + ", nombre: " + entidad.nombre + ", rol: " + entidad.rol
             };
-            this.IConexion.PermisosAuditorias!.Add(audit);
+            this.IConexion.Auditorias!.Add(audit);
             this.IConexion.SaveChanges();
             return entidad;
         }
@@ -89,7 +89,7 @@ namespace Libreria_restaurante.Implementaciones
 
             this.IConexion.Permisos!.Remove(entidad);
 
-            var audit = new PermisosAuditorias
+            var audit = new Auditorias
             {
                 tabla = "Permisos",
                 accion = "Borrar",
@@ -97,7 +97,7 @@ namespace Libreria_restaurante.Implementaciones
                 datosAnteriores = "id: " + entidad.id + ", nombre: " + entidad.nombre + ", rol: " + entidad.rol,
                 datosNuevos = ""
             };
-            this.IConexion.PermisosAuditorias!.Add(audit);
+            this.IConexion.Auditorias!.Add(audit);
             this.IConexion.SaveChanges();
             return entidad;
         }

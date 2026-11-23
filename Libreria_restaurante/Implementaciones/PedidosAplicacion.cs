@@ -27,7 +27,7 @@ namespace Libreria_restaurante.Implementaciones
             this.IConexion.Pedidos!.Add(entidad);
             this.IConexion.SaveChanges();
 
-            var audit = new PedidosAuditorias
+            var audit = new Auditorias
             {
                 tabla = "Pedidos",
                 accion = "Insertar",
@@ -35,7 +35,7 @@ namespace Libreria_restaurante.Implementaciones
                 datosAnteriores = "",
                 datosNuevos = "id: " + entidad.id + ", estado: " + entidad.estado
             };
-            this.IConexion.PedidosAuditorias!.Add(audit);
+            this.IConexion.Auditorias!.Add(audit);
             this.IConexion.SaveChanges();
             return entidad;
         }
@@ -55,7 +55,7 @@ namespace Libreria_restaurante.Implementaciones
             var entry = this.IConexion.Entry<Pedidos>(entidad);
             entry.State = EntityState.Modified;
 
-            var audit = new PedidosAuditorias
+            var audit = new Auditorias
             {
                 tabla = "Pedidos",
                 accion = "Actualizar",
@@ -63,7 +63,7 @@ namespace Libreria_restaurante.Implementaciones
                 datosAnteriores = "id: " + anterior.id + ", estado: " + anterior.estado,
                 datosNuevos = "id: " + entidad.id + ", estado: " + entidad.estado
             };
-            this.IConexion.PedidosAuditorias!.Add(audit);
+            this.IConexion.Auditorias!.Add(audit);
             this.IConexion.SaveChanges();
             return entidad;
         }
@@ -88,37 +88,24 @@ namespace Libreria_restaurante.Implementaciones
 
         public Pedidos Borrar(Pedidos entidad)
         {
-            if (entidad == null || entidad.id == 0)
-                throw new Exception("No se ha guardado");
+            if (entidad.id == 0)
+                throw new Exception("No se ha guardo");
 
-            var existente = this.IConexion.Pedidos!.FirstOrDefault(x => x.id == entidad.id);
-            if (existente == null)
-                throw new Exception("El pedido no existe");
+            this.IConexion.Pedidos!.Remove(entidad);
 
-            bool tieneDetalles = this.IConexion.Detalles_Pedidos!.Any(x => x.pedido == entidad.id);
-            if (tieneDetalles)
-                throw new Exception("No se puede borrar el pedido porque tiene productos asociados en Detalles de Pedidos.");
-
-            bool tieneFacturas = this.IConexion.Facturas!.Any(x => x.pedido == entidad.id);
-            if (tieneFacturas)
-                throw new Exception("No se puede borrar el pedido porque ya tiene una factura generada.");
-
-            var datosAnt = "id: " + existente.id + ", estado: " + existente.estado;
-
-            this.IConexion.Pedidos!.Remove(existente);
-
-            var audit = new PedidosAuditorias
+            var audit = new Auditorias
             {
                 tabla = "Pedidos",
                 accion = "Borrar",
                 fecha = DateTime.Now,
-                datosAnteriores = datosAnt,
+                datosAnteriores = "id: " + entidad.id + ", estado: " + entidad.estado,
                 datosNuevos = ""
             };
-            this.IConexion.PedidosAuditorias!.Add(audit);
+            this.IConexion.Auditorias!.Add(audit);
             this.IConexion.SaveChanges();
-            return existente;
+            return entidad;
         }
+
         private bool Validar(Pedidos entidad)
         {
             return string.IsNullOrEmpty(entidad.estado);

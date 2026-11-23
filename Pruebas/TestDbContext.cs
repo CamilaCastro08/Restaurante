@@ -1,12 +1,17 @@
-﻿using Microsoft.EntityFrameworkCore;
-using Libreria_restaurante.Entidades;
+﻿using Libreria_restaurante.Entidades;
 using Libreria_restaurante.Interfaces;
+using Microsoft.EntityFrameworkCore;
 
-namespace Libreria_restaurante.Implementaciones
+namespace pruebas
 {
     public class TestDbContext : DbContext, IConexion
     {
         public string? StringConexion { get; set; }
+
+        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        {
+            optionsBuilder.UseInMemoryDatabase("RestauranteTestDB");
+        }
 
         public DbSet<Categorias>? Categorias { get; set; }
         public DbSet<Clientes>? Clientes { get; set; }
@@ -32,11 +37,5 @@ namespace Libreria_restaurante.Implementaciones
         public DbSet<Usuarios>? Usuarios { get; set; }
         public DbSet<Roles>? Roles { get; set; }
         public DbSet<Permisos>? Permisos { get; set; }
-
-        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-        {
-            optionsBuilder.UseInMemoryDatabase("Testdb_InMemory");
-            optionsBuilder.UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking);
-        }
     }
 }

@@ -24,42 +24,27 @@ namespace asp.presentacion.Pages
         {
         }
 
-        public async Task<IActionResult> OnPostAsync()
+        public IActionResult OnPost()
         {
             if (string.IsNullOrWhiteSpace(NombreUsuario) || string.IsNullOrWhiteSpace(Contrasena))
             {
                 Mensaje = "Ingrese usuario y contraseña";
                 return Page();
             }
-
             try
             {
-                var usuario = await Task.Run(() =>
-                    usuarios.Login(new Usuarios { nombreUsuario = NombreUsuario, contraseña = Contrasena }));
-
-                var permisos = await Task.Run(() => permisosPres.Consultar());
+                var usuario = usuarios.Login(new Usuarios { nombreUsuario = NombreUsuario, contraseña = Contrasena });
+                var permisos = permisosPres.Consultar();
                 var nombres = permisos.Where(x => x.rol == usuario.rol).Select(x => x.nombre);
-
                 HttpContext.Session.Clear();
                 HttpContext.Session.SetString("usuario", usuario.id.ToString());
                 HttpContext.Session.SetString("nombre", usuario.nombreUsuario!);
                 HttpContext.Session.SetString("permisos", string.Join(",", nombres));
-
                 return RedirectToPage("/Index");
-            }
-            catch (HttpRequestException)
-            {
-                Mensaje = "No se pudo conectar con el servidor de servicios (asp.servicios). Verifique que esté iniciado.";
-                return Page();
-            }
-            catch (TaskCanceledException)
-            {
-                Mensaje = "El servidor tardó demasiado en responder.";
-                return Page();
             }
             catch (Exception ex)
             {
-                Mensaje = string.IsNullOrWhiteSpace(ex.Message) ? "Usuario o contraseña incorrectos" : ex.Message;
+                Mensaje = ex.Message;
                 return Page();
             }
         }

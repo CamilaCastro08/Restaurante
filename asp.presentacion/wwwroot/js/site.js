@@ -1,40 +1,4 @@
-﻿function rtAbrirModal(idModal, datos) {
-    var modal = document.getElementById(idModal);
-    if (!modal) return;
-    var form = modal.querySelector('form');
+﻿// Please see documentation at https://learn.microsoft.com/aspnet/core/client-side/bundling-and-minification
+// for details on configuring this project to bundle and minify static web assets.
 
-    form.querySelectorAll('input, select, textarea').forEach(function (el) {
-        if (el.name && el.name.indexOf('__') === 0) return;
-        if (el.type === 'checkbox') el.checked = false;
-        else el.value = '';
-    });
-
-    if (datos) {
-        Object.keys(datos).forEach(function (k) {
-            var el = form.querySelector('[name="Entidad.' + k + '"]');
-            if (!el) return;
-            if (el.type === 'checkbox') {
-                el.checked = (datos[k] === true || datos[k] === 'true' || datos[k] === 1);
-            } else if (el.type === 'datetime-local' && datos[k]) {
-                el.value = String(datos[k]).substring(0, 16);
-            } else if (el.type === 'date' && datos[k]) {
-                el.value = String(datos[k]).substring(0, 10);
-            } else {
-                el.value = (datos[k] === null || datos[k] === undefined) ? '' : datos[k];
-            }
-        });
-    }
-
-    var etiqueta = modal.querySelector('.modo-titulo');
-    if (etiqueta) etiqueta.textContent = datos ? 'Editar' : 'Nuevo';
-
-    new bootstrap.Modal(modal).show();
-}
-
-function rtConfirmarBorrado(ev) {
-    if (!confirm('¿Eliminar este registro? Esta acción no se puede deshacer.')) {
-        ev.preventDefault();
-        return false;
-    }
-    return true;
-}
+// Write your JavaScript code.

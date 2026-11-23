@@ -6,50 +6,54 @@ namespace asp.presentacion.Pages
 {
     public class IndexModel : PaginaProtegida
     {
-        private readonly IPedidosPresentacion pedidos;
-        private readonly IReservasPresentacion reservas;
-        private readonly IMesasPresentacion mesas;
-        private readonly IProductosPresentacion productos;
-        private readonly IClientesPresentacion clientes;
+        private readonly IMesasPresentacion mesasPres;
+        private readonly IPedidosPresentacion pedidosPres;
+        private readonly IFacturasPresentacion facturasPres;
+        private readonly IInventariosPresentacion inventariosPres;
 
         public IndexModel(
-            IPedidosPresentacion pedidos,
-            IReservasPresentacion reservas,
-            IMesasPresentacion mesas,
-            IProductosPresentacion productos,
-            IClientesPresentacion clientes)
+            IMesasPresentacion mesasPres,
+            IPedidosPresentacion pedidosPres,
+            IFacturasPresentacion facturasPres,
+            IInventariosPresentacion inventariosPres)
         {
-            this.pedidos = pedidos;
-            this.reservas = reservas;
-            this.mesas = mesas;
-            this.productos = productos;
-            this.clientes = clientes;
+            this.mesasPres = mesasPres;
+            this.pedidosPres = pedidosPres;
+            this.facturasPres = facturasPres;
+            this.inventariosPres = inventariosPres;
         }
 
         protected override string Permiso => "";
 
-        public int TotalPedidosHoy { get; set; }
-        public int TotalPedidos { get; set; }
-        public int TotalReservas { get; set; }
         public int TotalMesas { get; set; }
-        public int TotalProductos { get; set; }
-        public int TotalClientes { get; set; }
-        public List<Pedidos> UltimosPedidos { get; set; } = new();
+        public int MesasDisponibles { get; set; }
+        public int MesasOcupadas { get; set; }
+        public int TotalPedidos { get; set; }
+        public decimal TotalVentas { get; set; }
+        public int StockCritico { get; set; }
 
         public void OnGet()
         {
-            var listaPedidos = pedidos.Consultar();
-            TotalPedidos = listaPedidos.Count;
-            TotalPedidosHoy = listaPedidos.Count(p => p.fecha_hora.Date == DateTime.Today);
-            TotalReservas = reservas.Consultar().Count;
-            TotalMesas = mesas.Consultar().Count;
-            TotalProductos = productos.Consultar().Count;
-            TotalClientes = clientes.Consultar().Count;
+            try
+            {
+                var mesas = mesasPres.Consultar() ?? new();
+                TotalMesas = mesas.Count;
+                MesasDisponibles = mesas.Count(m => m.estado == "Disponible");
+                MesasOcupadas = mesas.Count(m => m.estado == "Ocupada");
 
-            UltimosPedidos = listaPedidos
-                .OrderByDescending(p => p.id)
-                .Take(8)
-                .ToList();
+                var pedidos = pedidosPres.Consultar() ?? new();
+                TotalPedidos = pedidos.Count;
+
+                var facturas = facturasPres.Consultar() ?? new();
+                TotalVentas = facturas.Sum(f => f.total);
+
+                var inventario = inventariosPres.Consultar() ?? new();
+                StockCritico = inventario.Count(i => i.stock_actual <= i.stock_minimo);
+            }
+            catch
+            {
+                // Silently fallback if services are warming up
+            }
         }
     }
 }

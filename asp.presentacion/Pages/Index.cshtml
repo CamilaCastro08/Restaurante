@@ -1,83 +1,210 @@
 @page
 @model IndexModel
 @{
-    ViewData["Title"] = "Panel";
+    ViewData["Title"] = "Panel Principal - Restaurante";
+    var nombre = HttpContext.Session.GetString("nombre") ?? "Usuario";
 }
 
-<div class="d-flex justify-content-between align-items-center mb-4">
-    <div>
-        <h1 class="h3 mb-1" style="color:var(--rt-champan)">Hola, @Model.NombreActual</h1>
-        <p class="text-tenue mb-0">Rol: <strong class="text-white">@Model.RolActual</strong> · @Model.CorreoActual</p>
+<!-- Hero Banner Gastronómico -->
+<div class="p-5 mb-4 rounded-3 text-white shadow" style="background: linear-gradient(135deg, #1f1c18 0%, #362e24 50%, #544431 100%);">
+    <div class="container-fluid py-2">
+        <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+            <div>
+                <span class="badge bg-warning text-dark px-3 py-2 fs-6 mb-2"><i class="bi bi-award"></i> Sistema Integral de Gestión Gastronómica</span>
+                <h1 class="display-5 fw-bold mb-1">🍴 Restaurante Gourmet & Cava</h1>
+                <p class="col-md-9 fs-5 text-light opacity-75 mb-0">
+                    Bienvenido, <strong>@nombre</strong>. Monitorea tu salón, comanda órdenes en cocina, controla inventarios y visualiza la facturación en tiempo real.
+                </p>
+            </div>
+            <div class="d-flex flex-column gap-2">
+                <a asp-page="/Ventanas/MapaMesas" class="btn btn-warning btn-lg fw-bold px-4">
+                    <i class="bi bi-grid-3x3-gap"></i> Abrir Mapa de Mesas
+                </a>
+                <a asp-page="/Ventanas/Reportes" class="btn btn-outline-light px-4">
+                    <i class="bi bi-file-earmark-bar-graph"></i> Reportes PDF / Excel
+                </a>
+            </div>
+        </div>
     </div>
-    @if (Model.TienePermiso("Pedidos"))
-    {
-        <a asp-page="/Ventanas/Pedidos" class="btn btn-oro">+ Nuevo pedido</a>
-    }
 </div>
 
+@if (TempData["Mensaje"] != null)
+{
+    <div class="alert alert-info alert-dismissible fade show" role="alert">
+        @TempData["Mensaje"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
+<!-- Tarjetas de Métricas en Tiempo Real (KPIs) -->
 <div class="row g-3 mb-4">
-    <div class="col-6 col-md-2">
-        <div class="rt-kpi"><div class="t">Pedidos hoy</div><div class="v">@Model.TotalPedidosHoy</div></div>
+    <div class="col-md-3 col-sm-6">
+        <div class="card border-0 shadow-sm h-100 bg-white border-start border-success border-4">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <div class="text-muted small fw-semibold text-uppercase">Mesas Disponibles</div>
+                        <div class="fs-2 fw-bold text-success">@Model.MesasDisponibles <span class="fs-6 text-muted">/ @Model.TotalMesas</span></div>
+                    </div>
+                    <div class="p-3 bg-success-subtle rounded-circle">
+                        <i class="bi bi-table fs-3 text-success"></i>
+                    </div>
+                </div>
+                <div class="mt-2 small text-muted">
+                    <i class="bi bi-people text-danger"></i> @Model.MesasOcupadas ocupadas ahora
+                </div>
+            </div>
+        </div>
     </div>
-    <div class="col-6 col-md-2">
-        <div class="rt-kpi"><div class="t">Total pedidos</div><div class="v">@Model.TotalPedidos</div></div>
+
+    <div class="col-md-3 col-sm-6">
+        <div class="card border-0 shadow-sm h-100 bg-white border-start border-primary border-4">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <div class="text-muted small fw-semibold text-uppercase">Pedidos Registrados</div>
+                        <div class="fs-2 fw-bold text-primary">@Model.TotalPedidos</div>
+                    </div>
+                    <div class="p-3 bg-primary-subtle rounded-circle">
+                        <i class="bi bi-receipt fs-3 text-primary"></i>
+                    </div>
+                </div>
+                <div class="mt-2 small">
+                    <a asp-page="/Ventanas/Pedidos" class="text-decoration-none">Ver flujo de órdenes &rarr;</a>
+                </div>
+            </div>
+        </div>
     </div>
-    <div class="col-6 col-md-2">
-        <div class="rt-kpi"><div class="t">Reservas</div><div class="v">@Model.TotalReservas</div></div>
+
+    <div class="col-md-3 col-sm-6">
+        <div class="card border-0 shadow-sm h-100 bg-white border-start border-warning border-4">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <div class="text-muted small fw-semibold text-uppercase">Facturación Total</div>
+                        <div class="fs-2 fw-bold text-dark">$ @Model.TotalVentas.ToString("N0")</div>
+                    </div>
+                    <div class="p-3 bg-warning-subtle rounded-circle">
+                        <i class="bi bi-cash-stack fs-3 text-warning"></i>
+                    </div>
+                </div>
+                <div class="mt-2 small">
+                    <a asp-page="/Ventanas/Reportes" class="text-decoration-none text-warning fw-semibold">Exportar reporte &rarr;</a>
+                </div>
+            </div>
+        </div>
     </div>
-    <div class="col-6 col-md-2">
-        <div class="rt-kpi"><div class="t">Mesas</div><div class="v">@Model.TotalMesas</div></div>
-    </div>
-    <div class="col-6 col-md-2">
-        <div class="rt-kpi"><div class="t">Productos</div><div class="v">@Model.TotalProductos</div></div>
-    </div>
-    <div class="col-6 col-md-2">
-        <div class="rt-kpi"><div class="t">Clientes</div><div class="v">@Model.TotalClientes</div></div>
+
+    <div class="col-md-3 col-sm-6">
+        <div class="card border-0 shadow-sm h-100 bg-white border-start border-danger border-4">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <div class="text-muted small fw-semibold text-uppercase">Alertas Inventario</div>
+                        <div class="fs-2 fw-bold @(Model.StockCritico > 0 ? "text-danger" : "text-secondary")">
+                            @Model.StockCritico
+                        </div>
+                    </div>
+                    <div class="p-3 bg-danger-subtle rounded-circle">
+                        <i class="bi bi-box-seam fs-3 text-danger"></i>
+                    </div>
+                </div>
+                <div class="mt-2 small text-muted">
+                    @(Model.StockCritico > 0 ? "Ingredientes bajo el stock mínimo" : "Stock en nivel óptimo")
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 
-<div class="rt-card">
-    <div class="rt-card-head">
-        <h2>Últimos pedidos</h2>
-        @if (Model.TienePermiso("Pedidos"))
-        {
-            <a asp-page="/Ventanas/Pedidos" class="btn btn-sm btn-fantasma">Ver todos</a>
-        }
+<!-- Accesos Rápidos a Módulos del Sistema -->
+<h4 class="fw-bold mb-3"><i class="bi bi-compass"></i> Módulos Operativos Principales</h4>
+<div class="row g-3 mb-4">
+    <div class="col-md-4">
+        <div class="card shadow-sm border-0 h-100">
+            <div class="card-body d-flex flex-column">
+                <div class="d-flex align-items-center gap-3 mb-3">
+                    <div class="p-3 bg-primary text-white rounded-3">
+                        <i class="bi bi-map fs-2"></i>
+                    </div>
+                    <div>
+                        <h5 class="fw-bold mb-0">Mapa Interactivo</h5>
+                        <small class="text-muted">Plano de Mesas & Cobertura</small>
+                    </div>
+                </div>
+                <p class="text-muted flex-grow-1 small">
+                    Controla en vivo el estado de mesas (Disponibles, Ocupadas, Reservadas) y visualiza el mapa geográfico de delivery.
+                </p>
+                <a asp-page="/Ventanas/MapaMesas" class="btn btn-outline-primary w-100">
+                    Ir al Mapa <i class="bi bi-arrow-right"></i>
+                </a>
+            </div>
+        </div>
     </div>
-    <div class="rt-card-body p-0">
-        <table class="rt-table">
-            <thead>
-                <tr>
-                    <th>#</th>
-                    <th>Fecha y hora</th>
-                    <th>Mesa</th>
-                    <th>Cliente</th>
-                    <th>Mesero</th>
-                    <th>Personas</th>
-                    <th>Estado</th>
-                </tr>
-            </thead>
-            <tbody>
-                @if (Model.UltimosPedidos.Count == 0)
-                {
-                    <tr><td colspan="7" class="text-center text-tenue py-4">Sin pedidos registrados</td></tr>
-                }
-                else
-                {
-                    foreach (var p in Model.UltimosPedidos)
-                    {
-                        <tr>
-                            <td>#@p.id</td>
-                            <td>@p.fecha_hora.ToString("dd/MM/yyyy HH:mm")</td>
-                            <td>@(p._mesa != null ? $"Mesa {p._mesa.numero}" : p.mesa.ToString())</td>
-                            <td>@(p._cliente?.nombre ?? p.cliente.ToString())</td>
-                            <td>@(p._mesero?._empleado?.nombre ?? p.mesero.ToString())</td>
-                            <td>@p.numero_personas</td>
-                            <td><span class="estado pend">@(p.estado ?? "Pendiente")</span></td>
-                        </tr>
-                    }
-                }
-            </tbody>
-        </table>
+
+    <div class="col-md-4">
+        <div class="card shadow-sm border-0 h-100">
+            <div class="card-body d-flex flex-column">
+                <div class="d-flex align-items-center gap-3 mb-3">
+                    <div class="p-3 bg-success text-white rounded-3">
+                        <i class="bi bi-file-earmark-spreadsheet fs-2"></i>
+                    </div>
+                    <div>
+                        <h5 class="fw-bold mb-0">Reportes Ejecutivos</h5>
+                        <small class="text-muted">PDF & Excel</small>
+                    </div>
+                </div>
+                <p class="text-muted flex-grow-1 small">
+                    Genera balances consolidados de ventas por rango de fechas, estados de stock y capacidad de atención exportables con un clic.
+                </p>
+                <a asp-page="/Ventanas/Reportes" class="btn btn-outline-success w-100">
+                    Abrir Reportes <i class="bi bi-arrow-right"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card shadow-sm border-0 h-100">
+            <div class="card-body d-flex flex-column">
+                <div class="d-flex align-items-center gap-3 mb-3">
+                    <div class="p-3 bg-dark text-white rounded-3">
+                        <i class="bi bi-printer fs-2"></i>
+                    </div>
+                    <div>
+                        <h5 class="fw-bold mb-0">Impresión Térmica</h5>
+                        <small class="text-muted">Comandas & Pre-cuentas</small>
+                    </div>
+                </div>
+                <p class="text-muted flex-grow-1 small">
+                    Emite tickets para cocina con notas especiales de preparación e imprime facturas y pre-cuentas de mesa con desglose fiscal.
+                </p>
+                <a asp-page="/Ventanas/Impresion" class="btn btn-outline-dark w-100">
+                    Imprimir Tickets <i class="bi bi-arrow-right"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Ficha de Competencias del Proyecto (Final 20%) -->
+<div class="card border-0 shadow-sm bg-light">
+    <div class="card-body p-4">
+        <div class="row align-items-center">
+            <div class="col-md-8">
+                <h5 class="fw-bold text-dark mb-1"><i class="bi bi-check2-all text-success"></i> Competencias Integradas - Proyecto Final 20%</h5>
+                <p class="text-muted small mb-0">
+                    Arquitectura multicapa en C# y .NET 10: <strong>POO</strong> aplicada, persistencia <strong>ORM Entity Framework Core</strong>, <strong>WebAPIs RESTful</strong> para 24 entidades, capa de presentación en <strong>ASP.NET Core Razor</strong>, control de sesiones, pruebas unitarias automatizadas y soporte para publicación en <strong>IIS</strong> y contenedores en la nube.
+                </p>
+            </div>
+            <div class="col-md-4 text-md-end mt-3 mt-md-0">
+                <a asp-page="/Ventanas/Auditorias" class="btn btn-outline-secondary btn-sm me-1">
+                    <i class="bi bi-shield-check"></i> Auditorías
+                </a>
+                <a href="http://localhost:5216/swagger" target="_blank" class="btn btn-primary btn-sm">
+                    <i class="bi bi-code-slash"></i> Swagger WebAPI
+                </a>
+            </div>
+        </div>
     </div>
 </div>

@@ -27,7 +27,7 @@ namespace Libreria_restaurante.Implementaciones
             this.IConexion.Inventarios!.Add(entidad);
             this.IConexion.SaveChanges();
 
-            var audit = new InventariosAuditorias
+            var audit = new Auditorias
             {
                 tabla = "Inventarios",
                 accion = "Insertar",
@@ -35,7 +35,7 @@ namespace Libreria_restaurante.Implementaciones
                 datosAnteriores = "",
                 datosNuevos = "id: " + entidad.id + ", ingrediente: " + entidad.ingrediente
             };
-            this.IConexion.InventariosAuditorias!.Add(audit);
+            this.IConexion.Auditorias!.Add(audit);
             this.IConexion.SaveChanges();
             return entidad;
         }
@@ -55,7 +55,7 @@ namespace Libreria_restaurante.Implementaciones
             var entry = this.IConexion.Entry<Inventarios>(entidad);
             entry.State = EntityState.Modified;
 
-            var audit = new InventariosAuditorias
+            var audit = new Auditorias
             {
                 tabla = "Inventarios",
                 accion = "Actualizar",
@@ -63,7 +63,7 @@ namespace Libreria_restaurante.Implementaciones
                 datosAnteriores = "id: " + anterior.id + ", ingrediente: " + anterior.ingrediente,
                 datosNuevos = "id: " + entidad.id + ", ingrediente: " + entidad.ingrediente
             };
-            this.IConexion.InventariosAuditorias!.Add(audit);
+            this.IConexion.Auditorias!.Add(audit);
             this.IConexion.SaveChanges();
             return entidad;
         }
@@ -89,7 +89,7 @@ namespace Libreria_restaurante.Implementaciones
 
             this.IConexion.Inventarios!.Remove(entidad);
 
-            var audit = new InventariosAuditorias
+            var audit = new Auditorias
             {
                 tabla = "Inventarios",
                 accion = "Borrar",
@@ -97,7 +97,7 @@ namespace Libreria_restaurante.Implementaciones
                 datosAnteriores = "id: " + entidad.id + ", ingrediente: " + entidad.ingrediente,
                 datosNuevos = ""
             };
-            this.IConexion.InventariosAuditorias!.Add(audit);
+            this.IConexion.Auditorias!.Add(audit);
             this.IConexion.SaveChanges();
             return entidad;
         }

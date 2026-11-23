@@ -2,37 +2,64 @@
 @model LoginModel
 @{
     Layout = "_LayoutLogin";
-    ViewData["Title"] = "Acceso";
+    ViewData["Title"] = "Iniciar Sesión - Restaurante Gourmet";
 }
 
-<div class="rt-login-wrap">
-    <form method="post" class="rt-login">
-        <div class="marca">
-            <div class="rt-brand justify-content-center">
-                <span class="emblema"></span>
-                <span class="nombre" style="font-size:1.5rem">Restaurante <b>Gourmet</b></span>
+<div class="row justify-content-center">
+    <div class="col-md-5 col-lg-4">
+        <div class="card shadow-lg border-0 rounded-4 overflow-hidden">
+            <div class="card-header bg-dark text-center py-4 border-0" style="background: #181512 !important;">
+                <div class="mb-2">
+                    <span class="p-3 bg-warning-subtle text-warning rounded-circle d-inline-block">
+                        <i class="bi bi-egg-fried fs-1 text-warning"></i>
+                    </span>
+                </div>
+                <h3 class="fw-bold text-white mb-0">Restaurante Gourmet</h3>
+                <small class="text-warning-emphasis">Portal de Gestión & Operaciones</small>
             </div>
-            <p class="text-tenue mt-2 mb-0">Acceso al sistema de gestión</p>
+            <div class="card-body p-4 bg-white">
+                <h5 class="fw-bold text-dark text-center mb-3">Iniciar Sesión</h5>
+
+                @if (!string.IsNullOrEmpty(Model.Mensaje))
+                {
+                    <div class="alert alert-danger py-2 small text-center" role="alert">
+                        <i class="bi bi-exclamation-triangle"></i> @Model.Mensaje
+                    </div>
+                }
+
+                <form method="post">
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold text-muted" asp-for="NombreUsuario">
+                            <i class="bi bi-person"></i> Nombre de Usuario
+                        </label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-light"><i class="bi bi-person-fill"></i></span>
+                            <input class="form-control" asp-for="NombreUsuario" placeholder="Ej: admin" autofocus required />
+                        </div>
+                    </div>
+                    <div class="mb-4">
+                        <label class="form-label small fw-bold text-muted" asp-for="Contrasena">
+                            <i class="bi bi-lock"></i> Contraseña
+                        </label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-light"><i class="bi bi-key-fill"></i></span>
+                            <input class="form-control" type="password" asp-for="Contrasena" placeholder="••••••••" required />
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-warning w-100 py-2 fw-bold text-dark shadow-sm">
+                        <i class="bi bi-box-arrow-in-right"></i> Entrar al Sistema
+                    </button>
+                </form>
+
+                <div class="mt-4 p-3 bg-light rounded-3 border small">
+                    <div class="fw-bold text-dark mb-1"><i class="bi bi-info-circle text-primary"></i> Credenciales de Acceso:</div>
+                    <div><strong>Usuario:</strong> <code>admin</code></div>
+                    <div><strong>Contraseña:</strong> <code>Admin123*</code></div>
+                </div>
+            </div>
+           
+               
         </div>
-
-        @if (!string.IsNullOrEmpty(Model.Mensaje))
-        {
-            <div class="alert alert-danger py-2">@Model.Mensaje</div>
-        }
-
-        <div class="mb-3">
-            <label class="form-label" asp-for="NombreUsuario">Usuario</label>
-            <input class="form-control" asp-for="NombreUsuario" placeholder="Usuario" autofocus required />
-        </div>
-        <div class="mb-4">
-            <label class="form-label" asp-for="Contrasena">Contraseña</label>
-            <input class="form-control" type="password" asp-for="Contrasena" placeholder="•••••" required />
-        </div>
-
-        <button type="submit" class="btn btn-oro w-100 py-2">Iniciar sesión</button>
-
-        <p class="text-tenue text-center mt-3 mb-0" style="font-size:.8rem">
-            Administrador · Mesero
-        </p>
-    </form>
+    </div>
 </div>
+

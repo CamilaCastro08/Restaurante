@@ -27,7 +27,7 @@ namespace Libreria_restaurante.Implementaciones
             this.IConexion.Cocineros!.Add(entidad);
             this.IConexion.SaveChanges();
 
-            var audit = new ClientesAuditorias
+            var audit = new Auditorias
             {
                 tabla = "Cocineros",
                 accion = "Insertar",
@@ -35,7 +35,7 @@ namespace Libreria_restaurante.Implementaciones
                 datosAnteriores = "",
                 datosNuevos = "id: " + entidad.id + ", especialidad: " + entidad.especialidad
             };
-            this.IConexion.ClientesAuditorias!.Add(audit);
+            this.IConexion.Auditorias!.Add(audit);
             this.IConexion.SaveChanges();
             return entidad;
         }
@@ -55,7 +55,7 @@ namespace Libreria_restaurante.Implementaciones
             var entry = this.IConexion.Entry<Cocineros>(entidad);
             entry.State = EntityState.Modified;
 
-            var audit = new ClientesAuditorias
+            var audit = new Auditorias
             {
                 tabla = "Cocineros",
                 accion = "Actualizar",
@@ -63,7 +63,7 @@ namespace Libreria_restaurante.Implementaciones
                 datosAnteriores = "id: " + anterior.id + ", especialidad: " + anterior.especialidad,
                 datosNuevos = "id: " + entidad.id + ", especialidad: " + entidad.especialidad
             };
-            this.IConexion.ClientesAuditorias!.Add(audit);
+            this.IConexion.Auditorias!.Add(audit);
             this.IConexion.SaveChanges();
             return entidad;
         }
@@ -89,7 +89,7 @@ namespace Libreria_restaurante.Implementaciones
 
             this.IConexion.Cocineros!.Remove(entidad);
 
-            var audit = new ClientesAuditorias
+            var audit = new Auditorias
             {
                 tabla = "Cocineros",
                 accion = "Borrar",
@@ -97,7 +97,7 @@ namespace Libreria_restaurante.Implementaciones
                 datosAnteriores = "id: " + entidad.id + ", especialidad: " + entidad.especialidad,
                 datosNuevos = ""
             };
-            this.IConexion.ClientesAuditorias!.Add(audit);
+            this.IConexion.Auditorias!.Add(audit);
             this.IConexion.SaveChanges();
             return entidad;
         }
