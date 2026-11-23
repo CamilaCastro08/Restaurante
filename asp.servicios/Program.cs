@@ -33,7 +33,6 @@ builder.Services.AddScoped<IProveedoresAplicacion, ProveedoresAplicacion>();
 builder.Services.AddScoped<IRecetasAplicacion, RecetasAplicacion>();
 builder.Services.AddScoped<IReservasAplicacion, ReservasAplicacion>();
 builder.Services.AddScoped<ITurnosAplicacion, TurnosAplicacion>();
-builder.Services.AddScoped<IAuditoriasAplicacion, AuditoriasAplicacion>();
 
 var app = builder.Build();
 app.UseExceptionHandler(a => a.Run(async context =>

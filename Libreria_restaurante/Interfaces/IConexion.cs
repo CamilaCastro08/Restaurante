@@ -28,10 +28,32 @@ namespace Libreria_restaurante.Interfaces
         public DbSet<Recetas>? Recetas { get; set; }
         public DbSet<Reservas>? Reservas { get; set; }
         public DbSet<Turnos>? Turnos { get; set; }
-        public DbSet<Auditorias>? Auditorias { get; set; }
         public DbSet<Usuarios>? Usuarios { get; set; }
         public DbSet<Roles>? Roles { get; set; }
         public DbSet<Permisos>? Permisos { get; set; }
+        public DbSet<CategoriasAuditorias>? CategoriasAuditorias { get; set; }
+        public DbSet<ClientesAuditorias>? ClientesAuditorias { get; set; }
+        public DbSet<CocinerosAuditorias>? CocinerosAuditorias { get; set; }
+        public DbSet<Detalles_PedidosAuditorias>? Detalles_PedidosAuditorias { get; set; }
+        public DbSet<EmpleadosAuditorias>? EmpleadosAuditorias { get; set; }
+        public DbSet<FacturasAuditorias>? FacturasAuditorias { get; set; }
+        public DbSet<GerentesAuditorias>? GerentesAuditorias { get; set; }
+        public DbSet<IngredientesAuditorias>? IngredientesAuditorias { get; set; }
+        public DbSet<InventariosAuditorias>? InventariosAuditorias { get; set; }
+        public DbSet<MenusAuditorias>? MenusAuditorias { get; set; }
+        public DbSet<MesasAuditorias>? MesasAuditorias { get; set; }
+        public DbSet<MeserosAuditorias>? MeserosAuditorias { get; set; }
+        public DbSet<MetodosPagosAuditorias>? MetodosPagosAuditorias { get; set; }
+        public DbSet<PagosAuditorias>? PagosAuditorias { get; set; }
+        public DbSet<PedidosAuditorias>? PedidosAuditorias { get; set; }
+        public DbSet<ProductosAuditorias>? ProductosAuditorias { get; set; }
+        public DbSet<ProveedoresAuditorias>? ProveedoresAuditorias { get; set; }
+        public DbSet<RecetasAuditorias>? RecetasAuditorias { get; set; }
+        public DbSet<ReservasAuditorias>? ReservasAuditorias { get; set; }
+        public DbSet<TurnosAuditorias>? TurnosAuditorias { get; set; }
+        public DbSet<UsuariosAuditorias>? UsuariosAuditorias { get; set; }
+        public DbSet<PermisosAuditorias>? PermisosAuditorias { get; set; }
+        public DbSet<Roles>? RolesAuditorias { get; set; }
 
 
         EntityEntry<T> Entry<T>(T entity) where T : class;

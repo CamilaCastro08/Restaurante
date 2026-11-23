@@ -27,7 +27,7 @@ namespace Libreria_restaurante.Implementaciones
             this.IConexion.Meseros!.Add(entidad);
             this.IConexion.SaveChanges();
 
-            var audit = new Auditorias
+            var audit = new MeserosAuditorias
             {
                 tabla = "Meseros",
                 accion = "Insertar",
@@ -35,7 +35,7 @@ namespace Libreria_restaurante.Implementaciones
                 datosAnteriores = "",
                 datosNuevos = "id: " + entidad.id + ", zona_asignada: " + entidad.zona_asignada
             };
-            this.IConexion.Auditorias!.Add(audit);
+            this.IConexion.MeserosAuditorias!.Add(audit);
             this.IConexion.SaveChanges();
             return entidad;
         }
@@ -55,7 +55,7 @@ namespace Libreria_restaurante.Implementaciones
             var entry = this.IConexion.Entry<Meseros>(entidad);
             entry.State = EntityState.Modified;
 
-            var audit = new Auditorias
+            var audit = new MeserosAuditorias
             {
                 tabla = "Meseros",
                 accion = "Actualizar",
@@ -63,7 +63,7 @@ namespace Libreria_restaurante.Implementaciones
                 datosAnteriores = "id: " + anterior.id + ", zona_asignada: " + anterior.zona_asignada,
                 datosNuevos = "id: " + entidad.id + ", zona_asignada: " + entidad.zona_asignada
             };
-            this.IConexion.Auditorias!.Add(audit);
+            this.IConexion.MeserosAuditorias!.Add(audit);
             this.IConexion.SaveChanges();
             return entidad;
         }
@@ -89,7 +89,7 @@ namespace Libreria_restaurante.Implementaciones
 
             this.IConexion.Meseros!.Remove(entidad);
 
-            var audit = new Auditorias
+            var audit = new MeserosAuditorias
             {
                 tabla = "Meseros",
                 accion = "Borrar",
@@ -97,7 +97,7 @@ namespace Libreria_restaurante.Implementaciones
                 datosAnteriores = "id: " + entidad.id + ", zona_asignada: " + entidad.zona_asignada,
                 datosNuevos = ""
             };
-            this.IConexion.Auditorias!.Add(audit);
+            this.IConexion.MeserosAuditorias!.Add(audit);
             this.IConexion.SaveChanges();
             return entidad;
         }

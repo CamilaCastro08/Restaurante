@@ -27,7 +27,7 @@ namespace Libreria_restaurante.Implementaciones
             this.IConexion.MetodosPagos!.Add(entidad);
             this.IConexion.SaveChanges();
 
-            var audit = new Auditorias
+            var audit = new MetodosPagosAuditorias
             {
                 tabla = "MetodosPagos",
                 accion = "Insertar",
@@ -35,7 +35,7 @@ namespace Libreria_restaurante.Implementaciones
                 datosAnteriores = "",
                 datosNuevos = "id: " + entidad.id + ", tipo: " + entidad.tipo
             };
-            this.IConexion.Auditorias!.Add(audit);
+            this.IConexion.MetodosPagosAuditorias!.Add(audit);
             this.IConexion.SaveChanges();
             return entidad;
         }
@@ -55,7 +55,7 @@ namespace Libreria_restaurante.Implementaciones
             var entry = this.IConexion.Entry<MetodosPagos>(entidad);
             entry.State = EntityState.Modified;
 
-            var audit = new Auditorias
+            var audit = new MetodosPagosAuditorias
             {
                 tabla = "MetodosPagos",
                 accion = "Actualizar",
@@ -63,7 +63,7 @@ namespace Libreria_restaurante.Implementaciones
                 datosAnteriores = "id: " + anterior.id + ", tipo: " + anterior.tipo,
                 datosNuevos = "id: " + entidad.id + ", tipo: " + entidad.tipo
             };
-            this.IConexion.Auditorias!.Add(audit);
+            this.IConexion.MetodosPagosAuditorias!.Add(audit);
             this.IConexion.SaveChanges();
             return entidad;
         }
@@ -87,7 +87,7 @@ namespace Libreria_restaurante.Implementaciones
 
             this.IConexion.MetodosPagos!.Remove(entidad);
 
-            var audit = new Auditorias
+            var audit = new MetodosPagosAuditorias
             {
                 tabla = "MetodosPagos",
                 accion = "Borrar",
@@ -95,7 +95,7 @@ namespace Libreria_restaurante.Implementaciones
                 datosAnteriores = "id: " + entidad.id + ", tipo: " + entidad.tipo,
                 datosNuevos = ""
             };
-            this.IConexion.Auditorias!.Add(audit);
+            this.IConexion.MetodosPagosAuditorias!.Add(audit);
             this.IConexion.SaveChanges();
             return entidad;
         }

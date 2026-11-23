@@ -27,7 +27,7 @@ namespace Libreria_restaurante.Implementaciones
             this.IConexion.Pedidos!.Add(entidad);
             this.IConexion.SaveChanges();
 
-            var audit = new Auditorias
+            var audit = new PedidosAuditorias
             {
                 tabla = "Pedidos",
                 accion = "Insertar",
@@ -35,7 +35,7 @@ namespace Libreria_restaurante.Implementaciones
                 datosAnteriores = "",
                 datosNuevos = "id: " + entidad.id + ", estado: " + entidad.estado
             };
-            this.IConexion.Auditorias!.Add(audit);
+            this.IConexion.PedidosAuditorias!.Add(audit);
             this.IConexion.SaveChanges();
             return entidad;
         }
@@ -55,7 +55,7 @@ namespace Libreria_restaurante.Implementaciones
             var entry = this.IConexion.Entry<Pedidos>(entidad);
             entry.State = EntityState.Modified;
 
-            var audit = new Auditorias
+            var audit = new PedidosAuditorias
             {
                 tabla = "Pedidos",
                 accion = "Actualizar",
@@ -63,7 +63,7 @@ namespace Libreria_restaurante.Implementaciones
                 datosAnteriores = "id: " + anterior.id + ", estado: " + anterior.estado,
                 datosNuevos = "id: " + entidad.id + ", estado: " + entidad.estado
             };
-            this.IConexion.Auditorias!.Add(audit);
+            this.IConexion.PedidosAuditorias!.Add(audit);
             this.IConexion.SaveChanges();
             return entidad;
         }
@@ -107,7 +107,7 @@ namespace Libreria_restaurante.Implementaciones
 
             this.IConexion.Pedidos!.Remove(existente);
 
-            var audit = new Auditorias
+            var audit = new PedidosAuditorias
             {
                 tabla = "Pedidos",
                 accion = "Borrar",
@@ -115,7 +115,7 @@ namespace Libreria_restaurante.Implementaciones
                 datosAnteriores = datosAnt,
                 datosNuevos = ""
             };
-            this.IConexion.Auditorias!.Add(audit);
+            this.IConexion.PedidosAuditorias!.Add(audit);
             this.IConexion.SaveChanges();
             return existente;
         }
