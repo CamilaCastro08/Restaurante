@@ -56,10 +56,22 @@ namespace asp.presentacion.Pages.Ventanas
         {
             try
             {
+                var productos = productosPres.Consultar() ?? new();
+                var prodSeleccionado = productos.FirstOrDefault(p => p.id == Entidad.producto);
+                if (prodSeleccionado == null)
+                    throw new Exception("Debe seleccionar un producto válido.");
+
+                if (Entidad.cantidad <= 0)
+                    throw new Exception("La cantidad debe ser mayor a cero.");
+
+                // Forzar el cálculo exacto en el servidor para evitar manipulación de precios
+                Entidad.subtotal = prodSeleccionado.precio * Entidad.cantidad;
+
                 if (Entidad.id == 0)
                     iPresentacion.Insertar(Entidad);
                 else
                     iPresentacion.Actualizar(Entidad);
+
                 TempData["Mensaje"] = "Guardado";
                 return RedirectToPage();
             }

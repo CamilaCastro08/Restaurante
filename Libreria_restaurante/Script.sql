@@ -353,7 +353,7 @@ DECLARE @ing1 INT = (SELECT TOP 1 id FROM Ingredientes);
 INSERT INTO Inventarios (ingrediente, stock_actual, stock_minimo, fecha_actualizacion) VALUES
 (@ing1, 35.50, 10.00, GETDATE());
 
--- 7. Mesas (solo la Mesa 2 queda Ocupada porque tiene el pedido activo #1)
+-- 7. Mesas 
 INSERT INTO Mesas (numero, capacidad, estado, ubicacion) VALUES
 (1, 4, N'Disponible', N'Salón Principal'),
 (2, 2, N'Ocupada', N'Salón Principal'),
@@ -366,7 +366,7 @@ INSERT INTO Mesas (numero, capacidad, estado, ubicacion) VALUES
 (9, 10, N'Disponible', N'Zona VIP'),
 (10, 2, N'Disponible', N'Barra');
 
--- 8. Clientes (incluyendo Consumidor Final para pedidos sin cliente registrado)
+-- 8. Clientes 
 INSERT INTO Clientes (nombre, telefono, cedula, direccion) VALUES
 (N'Consumidor Final', N'N/A', N'2222222222', N'Mostrador / Salón'),
 (N'Juan David Pérez', N'3001122334', N'1020304050', N'Calle 100 # 15-20, Apto 501'),

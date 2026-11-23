@@ -92,7 +92,9 @@ namespace Libreria_restaurante.Implementaciones
             if (this.IConexion.Pagos!.Any(p => p.metodoPago == itemDb.id))
                 throw new Exception("No se puede eliminar el método de pago porque tiene pagos asociados.");
 
-            this.IConexion.MetodosPagos!.Remove(itemDb);
+            var pagos = this.IConexion.Pagos!.Where(p => p.metodoPago == itemDb.id).ToList();
+                if (pagos.Any()) this.IConexion.Pagos!.RemoveRange(pagos);
+                this.IConexion.MetodosPagos!.Remove(itemDb);
 
             var audit = new Auditorias
             {
@@ -113,3 +115,4 @@ namespace Libreria_restaurante.Implementaciones
         }
     }
 }
+

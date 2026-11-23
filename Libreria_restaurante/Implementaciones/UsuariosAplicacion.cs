@@ -1,4 +1,4 @@
-using Libreria_restaurante.Entidades;
+﻿using Libreria_restaurante.Entidades;
 using Libreria_restaurante.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
@@ -111,19 +111,30 @@ namespace Libreria_restaurante.Implementaciones
             if (entidad.id == 0)
                 throw new Exception("No se ha guardo");
 
-            this.IConexion.Usuarios!.Remove(entidad);
+            var itemDb = this.IConexion.Usuarios!.FirstOrDefault(x => x.id == entidad.id);
+            if (itemDb == null)
+                throw new Exception("El registro no existe o ya fue eliminado");
 
-            var audit = new Auditorias
+            try
             {
+                this.IConexion.Usuarios!.Remove(itemDb);
+
+                var audit = new Auditorias
+                {
                 tabla = "Usuarios",
                 accion = "Borrar",
                 fecha = DateTime.Now,
                 datosAnteriores = "id: " + entidad.id + ", nombreUsuario: " + entidad.nombreUsuario + ", correo: " + entidad.correo + ", rol: " + entidad.rol,
                 datosNuevos = ""
             };
-            this.IConexion.Auditorias!.Add(audit);
-            this.IConexion.SaveChanges();
-            return entidad;
+                this.IConexion.Auditorias!.Add(audit);
+                this.IConexion.SaveChanges();
+                return itemDb;
+            }
+            catch (DbUpdateException)
+            {
+                throw new Exception("No se puede eliminar este registro porque tiene información asociada en otros módulos (primero elimine los registros relacionados).");
+            }
         }
 
         public Usuarios Login(Usuarios entidad)
@@ -140,7 +151,7 @@ namespace Libreria_restaurante.Implementaciones
                 accion = "Login",
                 fecha = DateTime.Now,
                 datosAnteriores = "",
-                datosNuevos = "Inicio de sesión: " + usuario.nombreUsuario,
+                datosNuevos = "Inicio de sesiÃ³n: " + usuario.nombreUsuario,
                 usuario = usuario.id
             });
             this.IConexion.SaveChanges();

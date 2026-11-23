@@ -87,19 +87,30 @@ namespace Libreria_restaurante.Implementaciones
             if (entidad.id == 0)
                 throw new Exception("No se ha guardo");
 
-            this.IConexion.Gerentes!.Remove(entidad);
+            var itemDb = this.IConexion.Gerentes!.FirstOrDefault(x => x.id == entidad.id);
+            if (itemDb == null)
+                throw new Exception("El registro no existe o ya fue eliminado");
 
-            var audit = new Auditorias
+            try
             {
+                this.IConexion.Gerentes!.Remove(itemDb);
+
+                var audit = new Auditorias
+                {
                 tabla = "Gerentes",
                 accion = "Borrar",
                 fecha = DateTime.Now,
                 datosAnteriores = "id: " + entidad.id + ", area_responsable: " + entidad.area_responsable,
                 datosNuevos = ""
             };
-            this.IConexion.Auditorias!.Add(audit);
-            this.IConexion.SaveChanges();
-            return entidad;
+                this.IConexion.Auditorias!.Add(audit);
+                this.IConexion.SaveChanges();
+                return itemDb;
+            }
+            catch (DbUpdateException)
+            {
+                throw new Exception("No se puede eliminar este registro porque tiene información asociada en otros módulos (primero elimine los registros relacionados).");
+            }
         }
 
         private bool Validar(Gerentes entidad)
@@ -108,3 +119,4 @@ namespace Libreria_restaurante.Implementaciones
         }
     }
 }
+

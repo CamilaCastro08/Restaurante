@@ -95,7 +95,16 @@ namespace Libreria_restaurante.Implementaciones
             if (this.IConexion.Reservas!.Any(r => r.mesa == itemDb.id))
                 throw new Exception("No se puede eliminar la mesa porque tiene reservas asociadas.");
 
-            this.IConexion.Mesas!.Remove(itemDb);
+            var reservas = this.IConexion.Reservas!.Where(r => r.mesa == itemDb.id).ToList();
+                if (reservas.Any()) this.IConexion.Reservas!.RemoveRange(reservas);
+                var pedidos = this.IConexion.Pedidos!.Where(p => p.mesa == itemDb.id).ToList();
+                if (pedidos.Any()) {
+                    var idsPed = pedidos.Select(p => p.id).ToList();
+                    var dets = this.IConexion.Detalles_Pedidos!.Where(d => idsPed.Contains(d.pedido)).ToList();
+                    if (dets.Any()) this.IConexion.Detalles_Pedidos!.RemoveRange(dets);
+                    this.IConexion.Pedidos!.RemoveRange(pedidos);
+                }
+                this.IConexion.Mesas!.Remove(itemDb);
 
             var audit = new Auditorias
             {
@@ -116,3 +125,4 @@ namespace Libreria_restaurante.Implementaciones
         }
     }
 }
+

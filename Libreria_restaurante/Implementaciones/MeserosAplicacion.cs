@@ -87,19 +87,37 @@ namespace Libreria_restaurante.Implementaciones
             if (entidad.id == 0)
                 throw new Exception("No se ha guardo");
 
-            this.IConexion.Meseros!.Remove(entidad);
+            var itemDb = this.IConexion.Meseros!.FirstOrDefault(x => x.id == entidad.id);
+            if (itemDb == null)
+                throw new Exception("El registro no existe o ya fue eliminado");
 
-            var audit = new Auditorias
+            try
             {
+                var pedidos = this.IConexion.Pedidos!.Where(p => p.mesero == itemDb.id).ToList();
+                if (pedidos.Any()) {
+                    var idsPed = pedidos.Select(p => p.id).ToList();
+                    var dets = this.IConexion.Detalles_Pedidos!.Where(d => idsPed.Contains(d.pedido)).ToList();
+                    if (dets.Any()) this.IConexion.Detalles_Pedidos!.RemoveRange(dets);
+                    this.IConexion.Pedidos!.RemoveRange(pedidos);
+                }
+                this.IConexion.Meseros!.Remove(itemDb);
+
+                var audit = new Auditorias
+                {
                 tabla = "Meseros",
                 accion = "Borrar",
                 fecha = DateTime.Now,
                 datosAnteriores = "id: " + entidad.id + ", zona_asignada: " + entidad.zona_asignada,
                 datosNuevos = ""
             };
-            this.IConexion.Auditorias!.Add(audit);
-            this.IConexion.SaveChanges();
-            return entidad;
+                this.IConexion.Auditorias!.Add(audit);
+                this.IConexion.SaveChanges();
+                return itemDb;
+            }
+            catch (DbUpdateException)
+            {
+                throw new Exception("No se puede eliminar este registro porque tiene información asociada en otros módulos (primero elimine los registros relacionados).");
+            }
         }
 
         private bool Validar(Meseros entidad)
@@ -108,3 +126,5 @@ namespace Libreria_restaurante.Implementaciones
         }
     }
 }
+
+

@@ -85,19 +85,30 @@ namespace Libreria_restaurante.Implementaciones
             if (entidad.id == 0)
                 throw new Exception("No se ha guardo");
 
-            this.IConexion.Menus!.Remove(entidad);
+            var itemDb = this.IConexion.Menus!.FirstOrDefault(x => x.id == entidad.id);
+            if (itemDb == null)
+                throw new Exception("El registro no existe o ya fue eliminado");
 
-            var audit = new Auditorias
+            try
             {
+                this.IConexion.Menus!.Remove(itemDb);
+
+                var audit = new Auditorias
+                {
                 tabla = "Menus",
                 accion = "Borrar",
                 fecha = DateTime.Now,
                 datosAnteriores = "id: " + entidad.id + ", nombre: " + entidad.nombre,
                 datosNuevos = ""
             };
-            this.IConexion.Auditorias!.Add(audit);
-            this.IConexion.SaveChanges();
-            return entidad;
+                this.IConexion.Auditorias!.Add(audit);
+                this.IConexion.SaveChanges();
+                return itemDb;
+            }
+            catch (DbUpdateException)
+            {
+                throw new Exception("No se puede eliminar este registro porque tiene información asociada en otros módulos (primero elimine los registros relacionados).");
+            }
         }
 
         private bool Validar(Menus entidad)
@@ -106,3 +117,4 @@ namespace Libreria_restaurante.Implementaciones
         }
     }
 }
+
