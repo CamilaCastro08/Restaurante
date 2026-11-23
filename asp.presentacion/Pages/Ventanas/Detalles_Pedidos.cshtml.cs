@@ -8,17 +8,26 @@ namespace asp.presentacion.Pages.Ventanas
     public class Detalles_PedidosModel : PaginaProtegida
     {
         private readonly IDetalles_PedidosPresentacion iPresentacion;
+        private readonly IPedidosPresentacion pedidosPres;
+        private readonly IProductosPresentacion productosPres;
 
-        public Detalles_PedidosModel(IDetalles_PedidosPresentacion iPresentacion)
+        public Detalles_PedidosModel(
+            IDetalles_PedidosPresentacion iPresentacion,
+            IPedidosPresentacion pedidosPres,
+            IProductosPresentacion productosPres)
         {
             this.iPresentacion = iPresentacion;
+            this.pedidosPres = pedidosPres;
+            this.productosPres = productosPres;
         }
 
         protected override string Permiso => "Detalles_Pedidos";
 
-        [BindProperty] public Detalles_Pedidos Entidad { get; set; } = new();
+        [BindProperty] public Detalles_Pedidos Entidad { get; set; } = new() { cantidad = 1 };
         [BindProperty] public Detalles_Pedidos Filtro { get; set; } = new();
         public List<Detalles_Pedidos> Lista { get; set; } = new();
+        public List<Pedidos> ListaPedidos { get; set; } = new();
+        public List<Productos> ListaProductos { get; set; } = new();
         public string? Mensaje { get; set; }
 
         public void OnGet()
@@ -30,6 +39,8 @@ namespace asp.presentacion.Pages.Ventanas
         {
             try
             {
+                ListaPedidos = pedidosPres.Consultar() ?? new();
+                ListaProductos = productosPres.Consultar() ?? new();
                 if (Filtro.pedido == 0)
                     Lista = iPresentacion.Consultar();
                 else
@@ -92,7 +103,9 @@ namespace asp.presentacion.Pages.Ventanas
         {
             try
             {
-                Lista = iPresentacion.Consultar();
+                Lista = iPresentacion.Consultar() ?? new();
+                ListaPedidos = (pedidosPres.Consultar() ?? new()).OrderByDescending(p => p.id).ToList();
+                ListaProductos = productosPres.Consultar() ?? new();
             }
             catch (Exception ex)
             {

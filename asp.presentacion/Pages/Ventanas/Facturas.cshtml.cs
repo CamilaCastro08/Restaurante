@@ -8,10 +8,12 @@ namespace asp.presentacion.Pages.Ventanas
     public class FacturasModel : PaginaProtegida
     {
         private readonly IFacturasPresentacion iPresentacion;
+        private readonly IPedidosPresentacion pedidosPres;
 
-        public FacturasModel(IFacturasPresentacion iPresentacion)
+        public FacturasModel(IFacturasPresentacion iPresentacion, IPedidosPresentacion pedidosPres)
         {
             this.iPresentacion = iPresentacion;
+            this.pedidosPres = pedidosPres;
         }
 
         protected override string Permiso => "Facturas";
@@ -19,6 +21,7 @@ namespace asp.presentacion.Pages.Ventanas
         [BindProperty] public Facturas Entidad { get; set; } = new() { fecha_emision = DateTime.Now };
         [BindProperty] public Facturas Filtro { get; set; } = new();
         public List<Facturas> Lista { get; set; } = new();
+        public List<Pedidos> ListaPedidos { get; set; } = new();
         public string? Mensaje { get; set; }
 
         public void OnGet()
@@ -30,6 +33,7 @@ namespace asp.presentacion.Pages.Ventanas
         {
             try
             {
+                ListaPedidos = pedidosPres.Consultar() ?? new();
                 if (string.IsNullOrEmpty(Filtro.numero))
                     Lista = iPresentacion.Consultar();
                 else
@@ -92,7 +96,8 @@ namespace asp.presentacion.Pages.Ventanas
         {
             try
             {
-                Lista = iPresentacion.Consultar();
+                Lista = iPresentacion.Consultar() ?? new();
+                ListaPedidos = (pedidosPres.Consultar() ?? new()).OrderByDescending(p => p.id).ToList();
             }
             catch (Exception ex)
             {

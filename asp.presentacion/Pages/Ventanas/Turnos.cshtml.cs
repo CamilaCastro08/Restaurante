@@ -8,10 +8,12 @@ namespace asp.presentacion.Pages.Ventanas
     public class TurnosModel : PaginaProtegida
     {
         private readonly ITurnosPresentacion iPresentacion;
+        private readonly IEmpleadosPresentacion empleadosPres;
 
-        public TurnosModel(ITurnosPresentacion iPresentacion)
+        public TurnosModel(ITurnosPresentacion iPresentacion, IEmpleadosPresentacion empleadosPres)
         {
             this.iPresentacion = iPresentacion;
+            this.empleadosPres = empleadosPres;
         }
 
         protected override string Permiso => "Turnos";
@@ -19,6 +21,7 @@ namespace asp.presentacion.Pages.Ventanas
         [BindProperty] public Turnos Entidad { get; set; } = new() { fecha = DateTime.Now, hora_entrada = DateTime.Now, hora_salida = DateTime.Now };
         [BindProperty] public Turnos Filtro { get; set; } = new();
         public List<Turnos> Lista { get; set; } = new();
+        public List<Empleados> ListaEmpleados { get; set; } = new();
         public string? Mensaje { get; set; }
 
         public void OnGet()
@@ -30,6 +33,7 @@ namespace asp.presentacion.Pages.Ventanas
         {
             try
             {
+                ListaEmpleados = empleadosPres.Consultar() ?? new();
                 if (Filtro.empleado == 0)
                     Lista = iPresentacion.Consultar();
                 else
@@ -92,7 +96,8 @@ namespace asp.presentacion.Pages.Ventanas
         {
             try
             {
-                Lista = iPresentacion.Consultar();
+                Lista = iPresentacion.Consultar() ?? new();
+                ListaEmpleados = empleadosPres.Consultar() ?? new();
             }
             catch (Exception ex)
             {

@@ -8,10 +8,12 @@ namespace asp.presentacion.Pages.Ventanas
     public class MeserosModel : PaginaProtegida
     {
         private readonly IMeserosPresentacion iPresentacion;
+        private readonly IEmpleadosPresentacion empleadosPres;
 
-        public MeserosModel(IMeserosPresentacion iPresentacion)
+        public MeserosModel(IMeserosPresentacion iPresentacion, IEmpleadosPresentacion empleadosPres)
         {
             this.iPresentacion = iPresentacion;
+            this.empleadosPres = empleadosPres;
         }
 
         protected override string Permiso => "Meseros";
@@ -19,6 +21,7 @@ namespace asp.presentacion.Pages.Ventanas
         [BindProperty] public Meseros Entidad { get; set; } = new();
         [BindProperty] public Meseros Filtro { get; set; } = new();
         public List<Meseros> Lista { get; set; } = new();
+        public List<Empleados> ListaEmpleados { get; set; } = new();
         public string? Mensaje { get; set; }
 
         public void OnGet()
@@ -30,6 +33,7 @@ namespace asp.presentacion.Pages.Ventanas
         {
             try
             {
+                ListaEmpleados = empleadosPres.Consultar() ?? new();
                 if (string.IsNullOrEmpty(Filtro.zona_asignada))
                     Lista = iPresentacion.Consultar();
                 else
@@ -92,7 +96,8 @@ namespace asp.presentacion.Pages.Ventanas
         {
             try
             {
-                Lista = iPresentacion.Consultar();
+                Lista = iPresentacion.Consultar() ?? new();
+                ListaEmpleados = empleadosPres.Consultar() ?? new();
             }
             catch (Exception ex)
             {

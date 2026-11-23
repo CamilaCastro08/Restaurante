@@ -18,19 +18,25 @@
 <form method="post" asp-page-handler="Guardar" class="mb-4">
     <input type="hidden" asp-for="Entidad.id" />
     <div class="mb-2">
-        <label asp-for="Entidad.empleado" class="form-label"></label>
-        <input asp-for="Entidad.empleado" type="number" class="form-control" />
+        <label asp-for="Entidad.empleado" class="form-label">Empleado</label>
+        <select asp-for="Entidad.empleado" class="form-select" required>
+            <option value="">-- Seleccione un empleado --</option>
+            @foreach (var e in Model.ListaEmpleados)
+            {
+                <option value="@e.id">@e.nombre (@e.cargo)</option>
+            }
+        </select>
     </div>
     <div class="mb-2">
-        <label asp-for="Entidad.fecha" class="form-label"></label>
+        <label asp-for="Entidad.fecha" class="form-label">Fecha</label>
         <input asp-for="Entidad.fecha" type="datetime-local" class="form-control" />
     </div>
     <div class="mb-2">
-        <label asp-for="Entidad.hora_entrada" class="form-label"></label>
+        <label asp-for="Entidad.hora_entrada" class="form-label">Hora entrada</label>
         <input asp-for="Entidad.hora_entrada" type="datetime-local" class="form-control" />
     </div>
     <div class="mb-2">
-        <label asp-for="Entidad.hora_salida" class="form-label"></label>
+        <label asp-for="Entidad.hora_salida" class="form-label">Hora salida</label>
         <input asp-for="Entidad.hora_salida" type="datetime-local" class="form-control" />
     </div>
     <button type="submit" class="btn btn-success">Guardar</button>
@@ -39,7 +45,13 @@
 
 <form method="post" asp-page-handler="Buscar" class="row g-2 mb-3">
     <div class="col">
-        <input asp-for="Filtro.empleado" type="number" class="form-control" placeholder="Buscar por empleado" />
+        <select asp-for="Filtro.empleado" class="form-select">
+            <option value="0">-- Todos los empleados --</option>
+            @foreach (var e in Model.ListaEmpleados)
+            {
+                <option value="@e.id">@e.nombre</option>
+            }
+        </select>
     </div>
     <div class="col-auto">
         <button type="submit" class="btn btn-primary">Buscar</button>
@@ -60,16 +72,17 @@
     <tbody>
         @foreach (var item in Model.Lista)
         {
+            var emp = Model.ListaEmpleados.FirstOrDefault(e => e.id == item.empleado);
             <tr>
                 <td>@item.id</td>
-                <td>@item.empleado</td>
-                <td>@item.fecha</td>
-                <td>@item.hora_entrada</td>
-                <td>@item.hora_salida</td>
+                <td>@(emp?.nombre ?? $"Empleado #{item.empleado}")</td>
+                <td>@item.fecha.ToString("dd/MM/yyyy")</td>
+                <td>@item.hora_entrada.ToString("HH:mm")</td>
+                <td>@item.hora_salida.ToString("HH:mm")</td>
                 <td>
                     <form method="post" class="d-inline">
                         <button type="submit" asp-page-handler="Editar" asp-route-id="@item.id" class="btn btn-sm btn-warning">Editar</button>
-                        <button type="submit" asp-page-handler="Borrar" asp-route-id="@item.id" class="btn btn-sm btn-danger" onclick="return confirm('Borrar este registro?')">Borrar</button>
+                        <button type="submit" asp-page-handler="Borrar" asp-route-id="@item.id" class="btn btn-sm btn-danger" onclick="return confirm('¿Borrar este registro?')">Borrar</button>
                     </form>
                 </td>
             </tr>

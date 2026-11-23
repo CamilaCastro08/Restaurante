@@ -18,19 +18,25 @@
 <form method="post" asp-page-handler="Guardar" class="mb-4">
     <input type="hidden" asp-for="Entidad.id" />
     <div class="mb-2">
-        <label asp-for="Entidad.empleado" class="form-label"></label>
-        <input asp-for="Entidad.empleado" type="number" class="form-control" />
+        <label asp-for="Entidad.empleado" class="form-label">Empleado</label>
+        <select asp-for="Entidad.empleado" class="form-select" required>
+            <option value="">-- Seleccione un empleado --</option>
+            @foreach (var e in Model.ListaEmpleados)
+            {
+                <option value="@e.id">@e.nombre (@e.cargo)</option>
+            }
+        </select>
     </div>
     <div class="mb-2">
-        <label asp-for="Entidad.especialidad" class="form-label"></label>
-        <input asp-for="Entidad.especialidad" class="form-control" />
+        <label asp-for="Entidad.especialidad" class="form-label">Especialidad</label>
+        <input asp-for="Entidad.especialidad" class="form-control" required />
     </div>
     <div class="mb-2">
-        <label asp-for="Entidad.anios_experiencia" class="form-label"></label>
-        <input asp-for="Entidad.anios_experiencia" type="number" class="form-control" />
+        <label asp-for="Entidad.anios_experiencia" class="form-label">Años de experiencia</label>
+        <input asp-for="Entidad.anios_experiencia" type="number" min="0" class="form-control" />
     </div>
     <div class="mb-2">
-        <label asp-for="Entidad.estacion_asignada" class="form-label"></label>
+        <label asp-for="Entidad.estacion_asignada" class="form-label">Estación asignada</label>
         <input asp-for="Entidad.estacion_asignada" class="form-control" />
     </div>
     <button type="submit" class="btn btn-success">Guardar</button>
@@ -52,24 +58,25 @@
             <th>Id</th>
             <th>Empleado</th>
             <th>Especialidad</th>
-            <th>Anios experiencia</th>
-            <th>Estacion asignada</th>
+            <th>Años experiencia</th>
+            <th>Estación asignada</th>
             <th></th>
         </tr>
     </thead>
     <tbody>
         @foreach (var item in Model.Lista)
         {
+            var emp = Model.ListaEmpleados.FirstOrDefault(e => e.id == item.empleado);
             <tr>
                 <td>@item.id</td>
-                <td>@item.empleado</td>
+                <td>@(emp?.nombre ?? $"Empleado #{item.empleado}")</td>
                 <td>@item.especialidad</td>
                 <td>@item.anios_experiencia</td>
                 <td>@item.estacion_asignada</td>
                 <td>
                     <form method="post" class="d-inline">
                         <button type="submit" asp-page-handler="Editar" asp-route-id="@item.id" class="btn btn-sm btn-warning">Editar</button>
-                        <button type="submit" asp-page-handler="Borrar" asp-route-id="@item.id" class="btn btn-sm btn-danger" onclick="return confirm('Borrar este registro?')">Borrar</button>
+                        <button type="submit" asp-page-handler="Borrar" asp-route-id="@item.id" class="btn btn-sm btn-danger" onclick="return confirm('¿Borrar este registro?')">Borrar</button>
                     </form>
                 </td>
             </tr>

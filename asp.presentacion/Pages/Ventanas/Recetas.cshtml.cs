@@ -8,17 +8,20 @@ namespace asp.presentacion.Pages.Ventanas
     public class RecetasModel : PaginaProtegida
     {
         private readonly IRecetasPresentacion iPresentacion;
+        private readonly IProductosPresentacion productosPres;
 
-        public RecetasModel(IRecetasPresentacion iPresentacion)
+        public RecetasModel(IRecetasPresentacion iPresentacion, IProductosPresentacion productosPres)
         {
             this.iPresentacion = iPresentacion;
+            this.productosPres = productosPres;
         }
 
         protected override string Permiso => "Recetas";
 
-        [BindProperty] public Recetas Entidad { get; set; } = new() { tiempo_preparacion = DateTime.Now };
+        [BindProperty] public Recetas Entidad { get; set; } = new() { tiempo_preparacion = DateTime.Now, porciones = 1 };
         [BindProperty] public Recetas Filtro { get; set; } = new();
         public List<Recetas> Lista { get; set; } = new();
+        public List<Productos> ListaProductos { get; set; } = new();
         public string? Mensaje { get; set; }
 
         public void OnGet()
@@ -30,6 +33,7 @@ namespace asp.presentacion.Pages.Ventanas
         {
             try
             {
+                ListaProductos = productosPres.Consultar() ?? new();
                 if (string.IsNullOrEmpty(Filtro.instrucciones))
                     Lista = iPresentacion.Consultar();
                 else
@@ -92,7 +96,8 @@ namespace asp.presentacion.Pages.Ventanas
         {
             try
             {
-                Lista = iPresentacion.Consultar();
+                Lista = iPresentacion.Consultar() ?? new();
+                ListaProductos = productosPres.Consultar() ?? new();
             }
             catch (Exception ex)
             {

@@ -8,10 +8,20 @@ namespace asp.presentacion.Pages.Ventanas
     public class IngredientesModel : PaginaProtegida
     {
         private readonly IIngredientesPresentacion iPresentacion;
+        private readonly IProveedoresPresentacion proveedoresPres;
+        private readonly IRecetasPresentacion recetasPres;
+        private readonly IProductosPresentacion productosPres;
 
-        public IngredientesModel(IIngredientesPresentacion iPresentacion)
+        public IngredientesModel(
+            IIngredientesPresentacion iPresentacion,
+            IProveedoresPresentacion proveedoresPres,
+            IRecetasPresentacion recetasPres,
+            IProductosPresentacion productosPres)
         {
             this.iPresentacion = iPresentacion;
+            this.proveedoresPres = proveedoresPres;
+            this.recetasPres = recetasPres;
+            this.productosPres = productosPres;
         }
 
         protected override string Permiso => "Ingredientes";
@@ -19,6 +29,9 @@ namespace asp.presentacion.Pages.Ventanas
         [BindProperty] public Ingredientes Entidad { get; set; } = new();
         [BindProperty] public Ingredientes Filtro { get; set; } = new();
         public List<Ingredientes> Lista { get; set; } = new();
+        public List<Proveedores> ListaProveedores { get; set; } = new();
+        public List<Recetas> ListaRecetas { get; set; } = new();
+        public List<Productos> ListaProductos { get; set; } = new();
         public string? Mensaje { get; set; }
 
         public void OnGet()
@@ -30,6 +43,7 @@ namespace asp.presentacion.Pages.Ventanas
         {
             try
             {
+                CargarAuxiliares();
                 if (string.IsNullOrEmpty(Filtro.nombre))
                     Lista = iPresentacion.Consultar();
                 else
@@ -88,16 +102,32 @@ namespace asp.presentacion.Pages.Ventanas
             }
         }
 
+        public string DescripcionReceta(int recetaId)
+        {
+            var rec = ListaRecetas.FirstOrDefault(r => r.id == recetaId);
+            if (rec == null) return $"Receta #{recetaId}";
+            var prod = ListaProductos.FirstOrDefault(p => p.id == rec.producto);
+            return $"Receta #{rec.id} - {(prod?.nombre ?? "Producto")}";
+        }
+
         private void Cargar()
         {
             try
             {
-                Lista = iPresentacion.Consultar();
+                Lista = iPresentacion.Consultar() ?? new();
+                CargarAuxiliares();
             }
             catch (Exception ex)
             {
                 Mensaje = ex.Message;
             }
+        }
+
+        private void CargarAuxiliares()
+        {
+            ListaProveedores = proveedoresPres.Consultar() ?? new();
+            ListaRecetas = recetasPres.Consultar() ?? new();
+            ListaProductos = productosPres.Consultar() ?? new();
         }
     }
 }

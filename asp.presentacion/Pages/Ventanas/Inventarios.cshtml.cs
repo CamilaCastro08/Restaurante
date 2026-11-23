@@ -8,10 +8,12 @@ namespace asp.presentacion.Pages.Ventanas
     public class InventariosModel : PaginaProtegida
     {
         private readonly IInventariosPresentacion iPresentacion;
+        private readonly IIngredientesPresentacion ingredientesPres;
 
-        public InventariosModel(IInventariosPresentacion iPresentacion)
+        public InventariosModel(IInventariosPresentacion iPresentacion, IIngredientesPresentacion ingredientesPres)
         {
             this.iPresentacion = iPresentacion;
+            this.ingredientesPres = ingredientesPres;
         }
 
         protected override string Permiso => "Inventarios";
@@ -19,6 +21,7 @@ namespace asp.presentacion.Pages.Ventanas
         [BindProperty] public Inventarios Entidad { get; set; } = new() { fecha_actualizacion = DateTime.Now };
         [BindProperty] public Inventarios Filtro { get; set; } = new();
         public List<Inventarios> Lista { get; set; } = new();
+        public List<Ingredientes> ListaIngredientes { get; set; } = new();
         public string? Mensaje { get; set; }
 
         public void OnGet()
@@ -30,6 +33,7 @@ namespace asp.presentacion.Pages.Ventanas
         {
             try
             {
+                ListaIngredientes = ingredientesPres.Consultar() ?? new();
                 if (Filtro.ingrediente == 0)
                     Lista = iPresentacion.Consultar();
                 else
@@ -92,7 +96,8 @@ namespace asp.presentacion.Pages.Ventanas
         {
             try
             {
-                Lista = iPresentacion.Consultar();
+                Lista = iPresentacion.Consultar() ?? new();
+                ListaIngredientes = ingredientesPres.Consultar() ?? new();
             }
             catch (Exception ex)
             {

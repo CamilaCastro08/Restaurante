@@ -18,24 +18,42 @@
 <form method="post" asp-page-handler="Guardar" class="mb-4">
     <input type="hidden" asp-for="Entidad.id" />
     <div class="mb-2">
-        <label asp-for="Entidad.nombre" class="form-label"></label>
-        <input asp-for="Entidad.nombre" class="form-control" />
+        <label asp-for="Entidad.nombre" class="form-label">Nombre</label>
+        <input asp-for="Entidad.nombre" class="form-control" required />
     </div>
     <div class="mb-2">
-        <label asp-for="Entidad.unidad_medida" class="form-label"></label>
-        <input asp-for="Entidad.unidad_medida" class="form-control" />
+        <label asp-for="Entidad.unidad_medida" class="form-label">Unidad de medida</label>
+        <select asp-for="Entidad.unidad_medida" class="form-select">
+            <option value="Gramos (g)">Gramos (g)</option>
+            <option value="Kilogramos (kg)">Kilogramos (kg)</option>
+            <option value="Mililitros (ml)">Mililitros (ml)</option>
+            <option value="Litros (L)">Litros (L)</option>
+            <option value="Unidades">Unidades</option>
+        </select>
     </div>
     <div class="mb-2">
-        <label asp-for="Entidad.costo_unitario" class="form-label"></label>
+        <label asp-for="Entidad.costo_unitario" class="form-label">Costo unitario ($)</label>
         <input asp-for="Entidad.costo_unitario" type="number" step="0.01" class="form-control" />
     </div>
     <div class="mb-2">
-        <label asp-for="Entidad.proveedor" class="form-label"></label>
-        <input asp-for="Entidad.proveedor" type="number" class="form-control" />
+        <label asp-for="Entidad.proveedor" class="form-label">Proveedor</label>
+        <select asp-for="Entidad.proveedor" class="form-select" required>
+            <option value="">-- Seleccione un proveedor --</option>
+            @foreach (var p in Model.ListaProveedores)
+            {
+                <option value="@p.id">@p.nombre</option>
+            }
+        </select>
     </div>
     <div class="mb-2">
-        <label asp-for="Entidad.receta" class="form-label"></label>
-        <input asp-for="Entidad.receta" type="number" class="form-control" />
+        <label asp-for="Entidad.receta" class="form-label">Receta asociada</label>
+        <select asp-for="Entidad.receta" class="form-select" required>
+            <option value="">-- Seleccione una receta --</option>
+            @foreach (var r in Model.ListaRecetas)
+            {
+                <option value="@r.id">@Model.DescripcionReceta(r.id)</option>
+            }
+        </select>
     </div>
     <button type="submit" class="btn btn-success">Guardar</button>
     <a asp-page="Ingredientes" class="btn btn-secondary">Nuevo</a>
@@ -65,17 +83,18 @@
     <tbody>
         @foreach (var item in Model.Lista)
         {
+            var prov = Model.ListaProveedores.FirstOrDefault(p => p.id == item.proveedor);
             <tr>
                 <td>@item.id</td>
                 <td>@item.nombre</td>
                 <td>@item.unidad_medida</td>
-                <td>@item.costo_unitario</td>
-                <td>@item.proveedor</td>
-                <td>@item.receta</td>
+                <td>$ @item.costo_unitario.ToString("N2")</td>
+                <td>@(prov?.nombre ?? $"Prov #{item.proveedor}")</td>
+                <td>@Model.DescripcionReceta(item.receta)</td>
                 <td>
                     <form method="post" class="d-inline">
                         <button type="submit" asp-page-handler="Editar" asp-route-id="@item.id" class="btn btn-sm btn-warning">Editar</button>
-                        <button type="submit" asp-page-handler="Borrar" asp-route-id="@item.id" class="btn btn-sm btn-danger" onclick="return confirm('Borrar este registro?')">Borrar</button>
+                        <button type="submit" asp-page-handler="Borrar" asp-route-id="@item.id" class="btn btn-sm btn-danger" onclick="return confirm('¿Borrar este registro?')">Borrar</button>
                     </form>
                 </td>
             </tr>

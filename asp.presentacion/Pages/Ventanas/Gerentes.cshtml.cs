@@ -8,10 +8,12 @@ namespace asp.presentacion.Pages.Ventanas
     public class GerentesModel : PaginaProtegida
     {
         private readonly IGerentesPresentacion iPresentacion;
+        private readonly IEmpleadosPresentacion empleadosPres;
 
-        public GerentesModel(IGerentesPresentacion iPresentacion)
+        public GerentesModel(IGerentesPresentacion iPresentacion, IEmpleadosPresentacion empleadosPres)
         {
             this.iPresentacion = iPresentacion;
+            this.empleadosPres = empleadosPres;
         }
 
         protected override string Permiso => "Gerentes";
@@ -19,6 +21,7 @@ namespace asp.presentacion.Pages.Ventanas
         [BindProperty] public Gerentes Entidad { get; set; } = new();
         [BindProperty] public Gerentes Filtro { get; set; } = new();
         public List<Gerentes> Lista { get; set; } = new();
+        public List<Empleados> ListaEmpleados { get; set; } = new();
         public string? Mensaje { get; set; }
 
         public void OnGet()
@@ -30,6 +33,7 @@ namespace asp.presentacion.Pages.Ventanas
         {
             try
             {
+                ListaEmpleados = empleadosPres.Consultar() ?? new();
                 if (string.IsNullOrEmpty(Filtro.area_responsable))
                     Lista = iPresentacion.Consultar();
                 else
@@ -92,7 +96,8 @@ namespace asp.presentacion.Pages.Ventanas
         {
             try
             {
-                Lista = iPresentacion.Consultar();
+                Lista = iPresentacion.Consultar() ?? new();
+                ListaEmpleados = empleadosPres.Consultar() ?? new();
             }
             catch (Exception ex)
             {
