@@ -20,5 +20,5 @@ namespace Libreria_restaurante.Entidades
             public Productos? _producto { get; set; }
             public List<Ingredientes> Ingredientes { get; set; } = new();
     }
-    }
+}
 

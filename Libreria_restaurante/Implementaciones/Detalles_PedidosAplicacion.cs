@@ -27,7 +27,7 @@ namespace Libreria_restaurante.Implementaciones
             this.IConexion.Detalles_Pedidos!.Add(entidad);
             this.IConexion.SaveChanges();
 
-            var audit = new Auditorias
+            var audit = new Detalles_PedidosAuditorias
             {
                 tabla = "Detalles_Pedidos",
                 accion = "Insertar",
@@ -35,7 +35,7 @@ namespace Libreria_restaurante.Implementaciones
                 datosAnteriores = "",
                 datosNuevos = "id: " + entidad.id + ", pedido: " + entidad.pedido
             };
-            this.IConexion.Auditorias!.Add(audit);
+            this.IConexion.Detalles_PedidosAuditorias!.Add(audit);
             this.IConexion.SaveChanges();
             return entidad;
         }
@@ -55,7 +55,7 @@ namespace Libreria_restaurante.Implementaciones
             var entry = this.IConexion.Entry<Detalles_Pedidos>(entidad);
             entry.State = EntityState.Modified;
 
-            var audit = new Auditorias
+            var audit = new Detalles_PedidosAuditorias
             {
                 tabla = "Detalles_Pedidos",
                 accion = "Actualizar",
@@ -63,7 +63,7 @@ namespace Libreria_restaurante.Implementaciones
                 datosAnteriores = "id: " + anterior.id + ", pedido: " + anterior.pedido,
                 datosNuevos = "id: " + entidad.id + ", pedido: " + entidad.pedido
             };
-            this.IConexion.Auditorias!.Add(audit);
+            this.IConexion.Detalles_PedidosAuditorias!.Add(audit);
             this.IConexion.SaveChanges();
             return entidad;
         }
@@ -91,7 +91,7 @@ namespace Libreria_restaurante.Implementaciones
 
             this.IConexion.Detalles_Pedidos!.Remove(entidad);
 
-            var audit = new Auditorias
+            var audit = new Detalles_PedidosAuditorias
             {
                 tabla = "Detalles_Pedidos",
                 accion = "Borrar",
@@ -99,7 +99,7 @@ namespace Libreria_restaurante.Implementaciones
                 datosAnteriores = "id: " + entidad.id + ", pedido: " + entidad.pedido,
                 datosNuevos = ""
             };
-            this.IConexion.Auditorias!.Add(audit);
+            this.IConexion.Detalles_PedidosAuditorias!.Add(audit);
             this.IConexion.SaveChanges();
             return entidad;
         }

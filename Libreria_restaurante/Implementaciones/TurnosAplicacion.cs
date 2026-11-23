@@ -27,7 +27,7 @@ namespace Libreria_restaurante.Implementaciones
             this.IConexion.Turnos!.Add(entidad);
             this.IConexion.SaveChanges();
 
-            var audit = new Auditorias
+            var audit = new TurnosAuditorias
             {
                 tabla = "Turnos",
                 accion = "Insertar",
@@ -35,7 +35,7 @@ namespace Libreria_restaurante.Implementaciones
                 datosAnteriores = "",
                 datosNuevos = "id: " + entidad.id + ", empleado: " + entidad.empleado
             };
-            this.IConexion.Auditorias!.Add(audit);
+            this.IConexion.TurnosAuditorias!.Add(audit);
             this.IConexion.SaveChanges();
             return entidad;
         }
@@ -55,7 +55,7 @@ namespace Libreria_restaurante.Implementaciones
             var entry = this.IConexion.Entry<Turnos>(entidad);
             entry.State = EntityState.Modified;
 
-            var audit = new Auditorias
+            var audit = new TurnosAuditorias
             {
                 tabla = "Turnos",
                 accion = "Actualizar",
@@ -63,7 +63,7 @@ namespace Libreria_restaurante.Implementaciones
                 datosAnteriores = "id: " + anterior.id + ", empleado: " + anterior.empleado,
                 datosNuevos = "id: " + entidad.id + ", empleado: " + entidad.empleado
             };
-            this.IConexion.Auditorias!.Add(audit);
+            this.IConexion.TurnosAuditorias!.Add(audit);
             this.IConexion.SaveChanges();
             return entidad;
         }
@@ -89,7 +89,7 @@ namespace Libreria_restaurante.Implementaciones
 
             this.IConexion.Turnos!.Remove(entidad);
 
-            var audit = new Auditorias
+            var audit = new TurnosAuditorias
             {
                 tabla = "Turnos",
                 accion = "Borrar",
@@ -97,7 +97,7 @@ namespace Libreria_restaurante.Implementaciones
                 datosAnteriores = "id: " + entidad.id + ", empleado: " + entidad.empleado,
                 datosNuevos = ""
             };
-            this.IConexion.Auditorias!.Add(audit);
+            this.IConexion.TurnosAuditorias!.Add(audit);
             this.IConexion.SaveChanges();
             return entidad;
         }

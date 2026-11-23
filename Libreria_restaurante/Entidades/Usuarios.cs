@@ -19,6 +19,5 @@ namespace Libreria_restaurante.Entidades
         [ForeignKey("rol")]
         public Roles? _rol { get; set; }
 
-        public List<Auditorias>? _Auditorias { get; set; } = new();
     }
 }

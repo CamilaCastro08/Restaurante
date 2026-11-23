@@ -274,7 +274,6 @@ CREATE TABLE [Permisos]
 	CONSTRAINT FK_Permisos_Roles FOREIGN KEY ([rol]) REFERENCES [Roles]([id])
 );
 GO
-
 CREATE TABLE [Auditorias]
 (
 	[id] INT PRIMARY KEY IDENTITY(1, 1) NOT NULL,
@@ -287,6 +286,173 @@ CREATE TABLE [Auditorias]
 	CONSTRAINT FK_Auditorias_Usuarios FOREIGN KEY ([usuario]) REFERENCES [Usuarios]([id])
 );
 GO
+--Creación de auditorias
+CREATE TABLE CategoriasAuditorias (
+    [IdAuditoria] INT IDENTITY(1,1) PRIMARY KEY,
+    [IdPersona] INT NOT NULL,
+    [Accion] VARCHAR(20) NOT NULL,
+    [Fecha] DATETIME NOT NULL DEFAULT GETDATE()
+);
+GO
+CREATE TABLE ClientesAuditorias (
+    [IdAuditoria] INT IDENTITY(1,1) PRIMARY KEY,
+    [IdPersona] INT NOT NULL,
+    [Accion] VARCHAR(20) NOT NULL,
+    [Fecha] DATETIME NOT NULL DEFAULT GETDATE()
+);
+GO
+
+CREATE TABLE CocinerosAuditorias (
+    [IdAuditoria] INT IDENTITY(1,1) PRIMARY KEY,
+    [IdPersona] INT NOT NULL,
+    [Accion] VARCHAR(20) NOT NULL,
+    [Fecha] DATETIME NOT NULL DEFAULT GETDATE()
+);
+GO
+
+CREATE TABLE Detalles_PedidosAuditorias (
+    [IdAuditoria] INT IDENTITY(1,1) PRIMARY KEY,
+    [IdPersona] INT NOT NULL,
+    [Accion] VARCHAR(20) NOT NULL,
+    [Fecha] DATETIME NOT NULL DEFAULT GETDATE()
+);
+GO
+
+CREATE TABLE EmpleadosAuditorias (
+    [IdAuditoria] INT IDENTITY(1,1) PRIMARY KEY,
+    [IdPersona] INT NOT NULL,
+    [Accion] VARCHAR(20) NOT NULL,
+    [Fecha] DATETIME NOT NULL DEFAULT GETDATE()
+);
+GO
+
+CREATE TABLE FacturasAuditorias (
+    [IdAuditoria] INT IDENTITY(1,1) PRIMARY KEY,
+    [IdPersona] INT NOT NULL,
+    [Accion] VARCHAR(20) NOT NULL,
+    [Fecha] DATETIME NOT NULL DEFAULT GETDATE()
+);
+GO
+
+CREATE TABLE GerentesAuditorias (
+    [IdAuditoria] INT IDENTITY(1,1) PRIMARY KEY,
+    [IdPersona] INT NOT NULL,
+    [Accion] VARCHAR(20) NOT NULL,
+    [Fecha] DATETIME NOT NULL DEFAULT GETDATE()
+);
+GO
+
+CREATE TABLE IngredientesAuditorias (
+    [IdAuditoria] INT IDENTITY(1,1) PRIMARY KEY,
+    [IdPersona] INT NOT NULL,
+    [Accion] VARCHAR(20) NOT NULL,
+    [Fecha] DATETIME NOT NULL DEFAULT GETDATE()
+);
+GO
+
+CREATE TABLE InventariosAuditorias (
+    [IdAuditoria] INT IDENTITY(1,1) PRIMARY KEY,
+    [IdPersona] INT NOT NULL,
+    [Accion] VARCHAR(20) NOT NULL,
+    [Fecha] DATETIME NOT NULL DEFAULT GETDATE()
+);
+GO
+
+CREATE TABLE MenusAuditorias (
+    [IdAuditoria] INT IDENTITY(1,1) PRIMARY KEY,
+    [IdPersona] INT NOT NULL,
+    [Accion] VARCHAR(20) NOT NULL,
+    [Fecha] DATETIME NOT NULL DEFAULT GETDATE()
+);
+GO
+
+CREATE TABLE MesasAuditorias (
+    [IdAuditoria] INT IDENTITY(1,1) PRIMARY KEY,
+    [IdPersona] INT NOT NULL,
+    [Accion] VARCHAR(20) NOT NULL,
+    [Fecha] DATETIME NOT NULL DEFAULT GETDATE()
+);
+GO
+
+CREATE TABLE MeserosAuditorias (
+    [IdAuditoria] INT IDENTITY(1,1) PRIMARY KEY,
+    [IdPersona] INT NOT NULL,
+    [Accion] VARCHAR(20) NOT NULL,
+    [Fecha] DATETIME NOT NULL DEFAULT GETDATE()
+);
+GO
+CREATE TABLE MetodosPagosAuditorias (
+    [IdAuditoria] INT IDENTITY(1,1) PRIMARY KEY,
+    [IdPersona] INT NOT NULL,
+    [Accion] VARCHAR(20) NOT NULL,
+    [Fecha] DATETIME NOT NULL DEFAULT GETDATE()
+);
+GO
+CREATE TABLE PagosAuditorias (
+    [IdAuditoria] INT IDENTITY(1,1) PRIMARY KEY,
+    [IdPersona] INT NOT NULL,
+    [Accion] VARCHAR(20) NOT NULL,
+    [Fecha] DATETIME NOT NULL DEFAULT GETDATE()
+);
+GO
+CREATE TABLE PedidosAuditorias (
+    [IdAuditoria] INT IDENTITY(1,1) PRIMARY KEY,
+    [IdPersona] INT NOT NULL,
+    [Accion] VARCHAR(20) NOT NULL,
+    [Fecha] DATETIME NOT NULL DEFAULT GETDATE()
+);
+GO
+CREATE TABLE PermisosAuditorias (
+    [IdAuditoria] INT IDENTITY(1,1) PRIMARY KEY,
+    [IdPersona] INT NOT NULL,
+    [Accion] VARCHAR(20) NOT NULL,
+    [Fecha] DATETIME NOT NULL DEFAULT GETDATE()
+);
+GO
+CREATE TABLE ProductosAuditorias (
+    [IdAuditoria] INT IDENTITY(1,1) PRIMARY KEY,
+    [IdPersona] INT NOT NULL,
+    [Accion] VARCHAR(20) NOT NULL,
+    [Fecha] DATETIME NOT NULL DEFAULT GETDATE()
+);
+GO
+CREATE TABLE ProveedoresAuditorias (
+    [IdAuditoria] INT IDENTITY(1,1) PRIMARY KEY,
+    [IdPersona] INT NOT NULL,
+    [Accion] VARCHAR(20) NOT NULL,
+    [Fecha] DATETIME NOT NULL DEFAULT GETDATE()
+);
+GO
+CREATE TABLE RecetasAuditorias (
+    [IdAuditoria] INT IDENTITY(1,1) PRIMARY KEY,
+    [IdPersona] INT NOT NULL,
+    [Accion] VARCHAR(20) NOT NULL,
+    [Fecha] DATETIME NOT NULL DEFAULT GETDATE()
+);
+GO
+CREATE TABLE ReservasAuditorias (
+    [IdAuditoria] INT IDENTITY(1,1) PRIMARY KEY,
+    [IdPersona] INT NOT NULL,
+    [Accion] VARCHAR(20) NOT NULL,
+    [Fecha] DATETIME NOT NULL DEFAULT GETDATE()
+);
+GO
+
+CREATE TABLE RolesAuditorias (
+    [IdAuditoria] INT IDENTITY(1,1) PRIMARY KEY,
+    [IdPersona] INT NOT NULL,
+    [Accion] VARCHAR(20) NOT NULL,
+    [Fecha] DATETIME NOT NULL DEFAULT GETDATE()
+);
+GO
+CREATE TABLE TurnosAuditorias (
+    [IdAuditoria] INT IDENTITY(1,1) PRIMARY KEY,
+    [IdPersona] INT NOT NULL,
+    [Accion] VARCHAR(20) NOT NULL,
+    [Fecha] DATETIME NOT NULL DEFAULT GETDATE()
+);
+GO
+
 
 -- =========================================================================
 -- 2. INSERTS DE DATOS INICIALES (CONTRASEÑAS SIMPLES SIN BCRYPT)
@@ -325,7 +491,6 @@ VALUES
 (N'Roles', N'Acceso a Roles', 1),
 (N'Usuarios', N'Acceso a Usuarios', 1),
 (N'Permisos', N'Acceso a Permisos', 1),
-(N'Auditorias', N'Acceso a Auditorias', 1);
 GO
 
 -- Permisos limitados para Mesero (Rol = 2)
@@ -470,7 +635,3 @@ INSERT INTO [Pagos] ([factura], [metodoPago], [monto], [fecha], [referencia], [e
 VALUES (1, 3, 129600.00, GETDATE(), N'NEQUI-998877', N'Aprobado');
 GO
 
--- Auditoria inicial
-INSERT INTO [Auditorias] ([tabla], [accion], [fecha], [datosAnteriores], [datosNuevos], [usuario])
-VALUES (N'Sistema', N'Inicializacion', GETDATE(), N'', N'Base de datos creada con datos iniciales', 1);
-GO

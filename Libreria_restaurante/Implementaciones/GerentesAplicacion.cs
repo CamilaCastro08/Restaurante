@@ -27,7 +27,7 @@ namespace Libreria_restaurante.Implementaciones
             this.IConexion.Gerentes!.Add(entidad);
             this.IConexion.SaveChanges();
 
-            var audit = new Auditorias
+            var audit = new GerentesAuditorias
             {
                 tabla = "Gerentes",
                 accion = "Insertar",
@@ -35,7 +35,7 @@ namespace Libreria_restaurante.Implementaciones
                 datosAnteriores = "",
                 datosNuevos = "id: " + entidad.id + ", area_responsable: " + entidad.area_responsable
             };
-            this.IConexion.Auditorias!.Add(audit);
+            this.IConexion.GerentesAuditorias!.Add(audit);
             this.IConexion.SaveChanges();
             return entidad;
         }
@@ -55,7 +55,7 @@ namespace Libreria_restaurante.Implementaciones
             var entry = this.IConexion.Entry<Gerentes>(entidad);
             entry.State = EntityState.Modified;
 
-            var audit = new Auditorias
+            var audit = new GerentesAuditorias
             {
                 tabla = "Gerentes",
                 accion = "Actualizar",
@@ -63,7 +63,7 @@ namespace Libreria_restaurante.Implementaciones
                 datosAnteriores = "id: " + anterior.id + ", area_responsable: " + anterior.area_responsable,
                 datosNuevos = "id: " + entidad.id + ", area_responsable: " + entidad.area_responsable
             };
-            this.IConexion.Auditorias!.Add(audit);
+            this.IConexion.GerentesAuditorias!.Add(audit);
             this.IConexion.SaveChanges();
             return entidad;
         }
@@ -89,7 +89,7 @@ namespace Libreria_restaurante.Implementaciones
 
             this.IConexion.Gerentes!.Remove(entidad);
 
-            var audit = new Auditorias
+            var audit = new GerentesAuditorias
             {
                 tabla = "Gerentes",
                 accion = "Borrar",
@@ -97,7 +97,7 @@ namespace Libreria_restaurante.Implementaciones
                 datosAnteriores = "id: " + entidad.id + ", area_responsable: " + entidad.area_responsable,
                 datosNuevos = ""
             };
-            this.IConexion.Auditorias!.Add(audit);
+            this.IConexion.GerentesAuditorias!.Add(audit);
             this.IConexion.SaveChanges();
             return entidad;
         }

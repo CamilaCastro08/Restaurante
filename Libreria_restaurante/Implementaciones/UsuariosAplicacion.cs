@@ -76,7 +76,7 @@ namespace Libreria_restaurante.Implementaciones
             this.IConexion!.Usuarios!.Add(entidad);
             this.IConexion.SaveChanges();
 
-            this.IConexion!.Auditorias!.Add(new Auditorias
+            this.IConexion!.UsuariosAuditorias!.Add(new UsuariosAuditorias
             {
                 tabla = "Usuarios",
                 accion = "Insertar",
@@ -109,7 +109,7 @@ namespace Libreria_restaurante.Implementaciones
             this.IConexion!.Usuarios!.Update(entidad);
             this.IConexion.SaveChanges();
 
-            this.IConexion!.Auditorias!.Add(new Auditorias
+            this.IConexion!.UsuariosAuditorias!.Add(new UsuariosAuditorias
             {
                 tabla = "Usuarios",
                 accion = "Modificar",
@@ -135,7 +135,7 @@ namespace Libreria_restaurante.Implementaciones
             this.IConexion!.Usuarios!.Remove(entidad);
             this.IConexion.SaveChanges();
 
-            this.IConexion!.Auditorias!.Add(new Auditorias
+            this.IConexion!.UsuariosAuditorias!.Add(new UsuariosAuditorias
             {
                 tabla = "Usuarios",
                 accion = "Borrar",
