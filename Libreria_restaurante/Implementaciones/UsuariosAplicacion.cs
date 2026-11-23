@@ -131,7 +131,7 @@ namespace Libreria_restaurante.Implementaciones
         public Usuarios Login(Usuarios entidad)
         {
             var usuario = this.IConexion.Usuarios!.FirstOrDefault(x => x.nombreUsuario == entidad.nombreUsuario && x.activo == true);
-            if (usuario == null || string.IsNullOrEmpty(entidad.contraseña) || !BCrypt.Net.BCrypt.Verify(entidad.contraseña, usuario.contraseña))
+            if (usuario == null || string.IsNullOrEmpty(entidad.contraseña) || usuario.contraseña != entidad.contraseña)
                 throw new Exception("Usuario o contraseña incorrectos");
 
             usuario.contraseña = null;

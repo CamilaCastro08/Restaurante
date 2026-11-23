@@ -1,7 +1,8 @@
 ﻿USE master;
 GO
 
-IF EXISTS (SELECT name FROM sys.databases WHERE name = N'db_Restaurante')
+-- Borrar la base de datos si ya existe (cerrando conexiones activas)
+IF DB_ID('db_Restaurante') IS NOT NULL
 BEGIN
     ALTER DATABASE db_Restaurante SET SINGLE_USER WITH ROLLBACK IMMEDIATE;
     DROP DATABASE db_Restaurante;
@@ -14,18 +15,21 @@ GO
 USE db_Restaurante;
 GO
 
+-- =============================================
+-- 1. CREACIÓN DE TABLAS
+-- =============================================
 
 CREATE TABLE [Categorias]
 (
 	[id] INT NOT NULL IDENTITY (1, 1) PRIMARY KEY,
-	[nombre] NVARCHAR(50) NOT NULL
+	[nombre] NVARCHAR(20) NOT NULL
 );
 GO
 
 CREATE TABLE [MetodosPagos]
 (
 	[id] INT PRIMARY KEY IDENTITY(1, 1) NOT NULL,
-	[tipo] NVARCHAR(50) NOT NULL
+	[tipo] NVARCHAR(20) NOT NULL
 );
 GO
 
@@ -42,10 +46,10 @@ GO
 CREATE TABLE [Clientes]
 (
 	[id] INT PRIMARY KEY IDENTITY(1, 1) NOT NULL,
-	[nombre] NVARCHAR(50) NOT NULL,
+	[nombre] NVARCHAR(20) NOT NULL,
 	[telefono] NVARCHAR(20) NOT NULL,
 	[cedula] NVARCHAR(20) NOT NULL,
-	[direccion] NVARCHAR(100) NOT NULL
+	[direccion] NVARCHAR(50) NOT NULL
 );
 GO
 
@@ -62,12 +66,12 @@ GO
 CREATE TABLE [Empleados]
 (
 	[id] INT PRIMARY KEY IDENTITY(1, 1) NOT NULL,
-	[nombre] NVARCHAR(50) NOT NULL,
+	[nombre] NVARCHAR(20) NOT NULL,
 	[telefono] NVARCHAR(20) NOT NULL,
-	[direccion] NVARCHAR(100) NOT NULL,
+	[direccion] NVARCHAR(50) NOT NULL,
 	[salario] DECIMAL(18, 2) NOT NULL,
 	[fecha_contratacion] DATETIME NOT NULL,
-	[cargo] NVARCHAR(30) NOT NULL
+	[cargo] NVARCHAR(20) NOT NULL
 );
 GO
 
@@ -77,7 +81,7 @@ CREATE TABLE [Menus]
 	[nombre] NVARCHAR(50) NOT NULL,
 	[vigencia_desde] DATETIME NOT NULL,
 	[vigencia_hasta] DATETIME NOT NULL,
-	[tipo] NVARCHAR(30) NOT NULL
+	[tipo] NVARCHAR(20) NOT NULL
 );
 GO
 
@@ -87,7 +91,7 @@ CREATE TABLE [Productos]
 	[nombre] NVARCHAR(50) NOT NULL,
 	[vigencia_desde] DATETIME NOT NULL,
 	[vigencia_hasta] DATETIME NOT NULL,
-	[tipo] NVARCHAR(30) NOT NULL,
+	[tipo] NVARCHAR(20) NOT NULL,
 	[categoria] INT NOT NULL,
 	[menu] INT NOT NULL,
 	CONSTRAINT FK_Productos_Categorias FOREIGN KEY ([categoria]) REFERENCES [Categorias]([id]),
@@ -274,6 +278,7 @@ CREATE TABLE [Permisos]
 	CONSTRAINT FK_Permisos_Roles FOREIGN KEY ([rol]) REFERENCES [Roles]([id])
 );
 GO
+
 CREATE TABLE [Auditorias]
 (
 	[id] INT PRIMARY KEY IDENTITY(1, 1) NOT NULL,
@@ -286,352 +291,177 @@ CREATE TABLE [Auditorias]
 	CONSTRAINT FK_Auditorias_Usuarios FOREIGN KEY ([usuario]) REFERENCES [Usuarios]([id])
 );
 GO
---Creación de auditorias
-CREATE TABLE CategoriasAuditorias (
-    [IdAuditoria] INT IDENTITY(1,1) PRIMARY KEY,
-    [IdPersona] INT NOT NULL,
-    [Accion] VARCHAR(20) NOT NULL,
-    [Fecha] DATETIME NOT NULL DEFAULT GETDATE()
-);
-GO
-CREATE TABLE ClientesAuditorias (
-    [IdAuditoria] INT IDENTITY(1,1) PRIMARY KEY,
-    [IdPersona] INT NOT NULL,
-    [Accion] VARCHAR(20) NOT NULL,
-    [Fecha] DATETIME NOT NULL DEFAULT GETDATE()
-);
-GO
 
-CREATE TABLE CocinerosAuditorias (
-    [IdAuditoria] INT IDENTITY(1,1) PRIMARY KEY,
-    [IdPersona] INT NOT NULL,
-    [Accion] VARCHAR(20) NOT NULL,
-    [Fecha] DATETIME NOT NULL DEFAULT GETDATE()
-);
-GO
+-- =============================================
+-- 2. INSERCIÓN DE DATOS INICIALES
+-- =============================================
 
-CREATE TABLE Detalles_PedidosAuditorias (
-    [IdAuditoria] INT IDENTITY(1,1) PRIMARY KEY,
-    [IdPersona] INT NOT NULL,
-    [Accion] VARCHAR(20) NOT NULL,
-    [Fecha] DATETIME NOT NULL DEFAULT GETDATE()
-);
-GO
+-- 1. Categorias
+INSERT INTO Categorias (nombre) VALUES 
+(N'Entradas'),
+(N'Platos Fuertes'),
+(N'Pastas y Arroces'),
+(N'Carnes y Parrilla'),
+(N'Bebidas'),
+(N'Postres');
 
-CREATE TABLE EmpleadosAuditorias (
-    [IdAuditoria] INT IDENTITY(1,1) PRIMARY KEY,
-    [IdPersona] INT NOT NULL,
-    [Accion] VARCHAR(20) NOT NULL,
-    [Fecha] DATETIME NOT NULL DEFAULT GETDATE()
-);
-GO
+-- 2. Menus
+INSERT INTO Menus (nombre, vigencia_desde, vigencia_hasta, tipo) VALUES
+(N'Carta Principal', '2026-01-01', '2026-12-31', N'Almuerzo y Cena'),
+(N'Menú Ejecutivo', '2026-01-01', '2026-12-31', N'Almuerzo'),
+(N'Especial Fin de Semana', '2026-01-01', '2026-12-31', N'Fin de Semana');
 
-CREATE TABLE FacturasAuditorias (
-    [IdAuditoria] INT IDENTITY(1,1) PRIMARY KEY,
-    [IdPersona] INT NOT NULL,
-    [Accion] VARCHAR(20) NOT NULL,
-    [Fecha] DATETIME NOT NULL DEFAULT GETDATE()
-);
-GO
+-- 3. Productos
+DECLARE @catCarnes INT = (SELECT TOP 1 id FROM Categorias WHERE nombre = N'Carnes y Parrilla');
+DECLARE @catPastas INT = (SELECT TOP 1 id FROM Categorias WHERE nombre = N'Pastas y Arroces');
+DECLARE @catBebidas INT = (SELECT TOP 1 id FROM Categorias WHERE nombre = N'Bebidas');
+DECLARE @catPostres INT = (SELECT TOP 1 id FROM Categorias WHERE nombre = N'Postres');
+DECLARE @catEntradas INT = (SELECT TOP 1 id FROM Categorias WHERE nombre = N'Entradas');
+DECLARE @menuCarta INT = (SELECT TOP 1 id FROM Menus WHERE nombre = N'Carta Principal');
 
-CREATE TABLE GerentesAuditorias (
-    [IdAuditoria] INT IDENTITY(1,1) PRIMARY KEY,
-    [IdPersona] INT NOT NULL,
-    [Accion] VARCHAR(20) NOT NULL,
-    [Fecha] DATETIME NOT NULL DEFAULT GETDATE()
-);
-GO
+INSERT INTO Productos (nombre, vigencia_desde, vigencia_hasta, tipo, categoria, menu) VALUES
+(N'Lomo al Trapo Angus 350g', '2026-01-01', '2026-12-31', N'Plato Fuerte', @catCarnes, @menuCarta),
+(N'Fettuccine Alfredo con Camarón', '2026-01-01', '2026-12-31', N'Plato Fuerte', @catPastas, @menuCarta),
+(N'Carpaccio de Salmón Ahumado', '2026-01-01', '2026-12-31', N'Entrada', @catEntradas, @menuCarta),
+(N'Limonada de Coco Cremosita', '2026-01-01', '2026-12-31', N'Bebida', @catBebidas, @menuCarta),
+(N'Copa de Vino Tinto Malbec Reserva', '2026-01-01', '2026-12-31', N'Bebida', @catBebidas, @menuCarta),
+(N'Cheesecake de Frutos Rojos', '2026-01-01', '2026-12-31', N'Postre', @catPostres, @menuCarta),
+(N'Tiramisú Artesanal Italiano', '2026-01-01', '2026-12-31', N'Postre', @catPostres, @menuCarta);
 
-CREATE TABLE IngredientesAuditorias (
-    [IdAuditoria] INT IDENTITY(1,1) PRIMARY KEY,
-    [IdPersona] INT NOT NULL,
-    [Accion] VARCHAR(20) NOT NULL,
-    [Fecha] DATETIME NOT NULL DEFAULT GETDATE()
-);
-GO
+-- 4. Proveedores
+INSERT INTO Proveedores (nombre, contacto, direccion, telefono) VALUES
+(N'Distribuidora Gourmet del Valle', N'Carlos Mendoza', N'Calle 45 # 12-34, Bogotá', N'3101234567'),
+(N'Carnes Premium Angus SAS', N'Laura Restrepo', N'Carrera 68 # 80-20, Medellín', N'3159876543'),
+(N'Lácteos y Vinos El Poblado', N'Andrés Gómez', N'Avenida Las Palmas # 15-50', N'3204567890');
 
-CREATE TABLE InventariosAuditorias (
-    [IdAuditoria] INT IDENTITY(1,1) PRIMARY KEY,
-    [IdPersona] INT NOT NULL,
-    [Accion] VARCHAR(20) NOT NULL,
-    [Fecha] DATETIME NOT NULL DEFAULT GETDATE()
-);
-GO
+-- 5. Recetas e Ingredientes
+DECLARE @prodLomo INT = (SELECT TOP 1 id FROM Productos WHERE nombre LIKE N'%Lomo%');
+DECLARE @provCarnes INT = (SELECT TOP 1 id FROM Proveedores WHERE nombre LIKE N'%Carnes%');
 
-CREATE TABLE MenusAuditorias (
-    [IdAuditoria] INT IDENTITY(1,1) PRIMARY KEY,
-    [IdPersona] INT NOT NULL,
-    [Accion] VARCHAR(20) NOT NULL,
-    [Fecha] DATETIME NOT NULL DEFAULT GETDATE()
-);
-GO
+INSERT INTO Recetas (producto, tiempo_preparacion, instrucciones, porciones, dificultad) VALUES
+(@prodLomo, '2026-01-01 00:25:00', N'Sazonar el corte Angus en sal marina y hierbas finas. Envolver en tela y cocinar a fuego directo 20 min.', 1, N'Media');
 
-CREATE TABLE MesasAuditorias (
-    [IdAuditoria] INT IDENTITY(1,1) PRIMARY KEY,
-    [IdPersona] INT NOT NULL,
-    [Accion] VARCHAR(20) NOT NULL,
-    [Fecha] DATETIME NOT NULL DEFAULT GETDATE()
-);
-GO
+DECLARE @idReceta INT = SCOPE_IDENTITY();
 
-CREATE TABLE MeserosAuditorias (
-    [IdAuditoria] INT IDENTITY(1,1) PRIMARY KEY,
-    [IdPersona] INT NOT NULL,
-    [Accion] VARCHAR(20) NOT NULL,
-    [Fecha] DATETIME NOT NULL DEFAULT GETDATE()
-);
-GO
-CREATE TABLE MetodosPagosAuditorias (
-    [IdAuditoria] INT IDENTITY(1,1) PRIMARY KEY,
-    [IdPersona] INT NOT NULL,
-    [Accion] VARCHAR(20) NOT NULL,
-    [Fecha] DATETIME NOT NULL DEFAULT GETDATE()
-);
-GO
-CREATE TABLE PagosAuditorias (
-    [IdAuditoria] INT IDENTITY(1,1) PRIMARY KEY,
-    [IdPersona] INT NOT NULL,
-    [Accion] VARCHAR(20) NOT NULL,
-    [Fecha] DATETIME NOT NULL DEFAULT GETDATE()
-);
-GO
-CREATE TABLE PedidosAuditorias (
-    [IdAuditoria] INT IDENTITY(1,1) PRIMARY KEY,
-    [IdPersona] INT NOT NULL,
-    [Accion] VARCHAR(20) NOT NULL,
-    [Fecha] DATETIME NOT NULL DEFAULT GETDATE()
-);
-GO
-CREATE TABLE PermisosAuditorias (
-    [IdAuditoria] INT IDENTITY(1,1) PRIMARY KEY,
-    [IdPersona] INT NOT NULL,
-    [Accion] VARCHAR(20) NOT NULL,
-    [Fecha] DATETIME NOT NULL DEFAULT GETDATE()
-);
-GO
-CREATE TABLE ProductosAuditorias (
-    [IdAuditoria] INT IDENTITY(1,1) PRIMARY KEY,
-    [IdPersona] INT NOT NULL,
-    [Accion] VARCHAR(20) NOT NULL,
-    [Fecha] DATETIME NOT NULL DEFAULT GETDATE()
-);
-GO
-CREATE TABLE ProveedoresAuditorias (
-    [IdAuditoria] INT IDENTITY(1,1) PRIMARY KEY,
-    [IdPersona] INT NOT NULL,
-    [Accion] VARCHAR(20) NOT NULL,
-    [Fecha] DATETIME NOT NULL DEFAULT GETDATE()
-);
-GO
-CREATE TABLE RecetasAuditorias (
-    [IdAuditoria] INT IDENTITY(1,1) PRIMARY KEY,
-    [IdPersona] INT NOT NULL,
-    [Accion] VARCHAR(20) NOT NULL,
-    [Fecha] DATETIME NOT NULL DEFAULT GETDATE()
-);
-GO
-CREATE TABLE ReservasAuditorias (
-    [IdAuditoria] INT IDENTITY(1,1) PRIMARY KEY,
-    [IdPersona] INT NOT NULL,
-    [Accion] VARCHAR(20) NOT NULL,
-    [Fecha] DATETIME NOT NULL DEFAULT GETDATE()
-);
-GO
+INSERT INTO Ingredientes (nombre, unidad_medida, costo_unitario, proveedor, receta) VALUES
+(N'Corte Angus Baby Beef', N'Gramos', 45000.00, @provCarnes, @idReceta),
+(N'Sal Marina Fina', N'Gramos', 2000.00, @provCarnes, @idReceta);
 
-CREATE TABLE RolesAuditorias (
-    [IdAuditoria] INT IDENTITY(1,1) PRIMARY KEY,
-    [IdPersona] INT NOT NULL,
-    [Accion] VARCHAR(20) NOT NULL,
-    [Fecha] DATETIME NOT NULL DEFAULT GETDATE()
-);
-GO
-CREATE TABLE TurnosAuditorias (
-    [IdAuditoria] INT IDENTITY(1,1) PRIMARY KEY,
-    [IdPersona] INT NOT NULL,
-    [Accion] VARCHAR(20) NOT NULL,
-    [Fecha] DATETIME NOT NULL DEFAULT GETDATE()
-);
-GO
+-- 6. Inventarios
+DECLARE @ing1 INT = (SELECT TOP 1 id FROM Ingredientes);
+INSERT INTO Inventarios (ingrediente, stock_actual, stock_minimo, fecha_actualizacion) VALUES
+(@ing1, 35.50, 10.00, GETDATE());
 
+-- 7. Mesas
+INSERT INTO Mesas (numero, capacidad, estado, ubicacion) VALUES
+(1, 4, N'Disponible', N'Salón Principal'),
+(2, 2, N'Ocupada', N'Salón Principal'),
+(3, 6, N'Reservada', N'Salón Principal'),
+(4, 4, N'Disponible', N'Salón Principal'),
+(5, 2, N'Disponible', N'Terraza'),
+(6, 4, N'Ocupada', N'Terraza'),
+(7, 4, N'Reservada', N'Terraza'),
+(8, 8, N'Disponible', N'Zona VIP'),
+(9, 10, N'Ocupada', N'Zona VIP'),
+(10, 2, N'Disponible', N'Barra');
 
--- =========================================================================
--- 2. INSERTS DE DATOS INICIALES (CONTRASEÑAS SIMPLES SIN BCRYPT)
--- =========================================================================
+-- 8. Clientes
+INSERT INTO Clientes (nombre, telefono, cedula, direccion) VALUES
+(N'Juan David Pérez', N'3001122334', N'1020304050', N'Calle 100 # 15-20, Apto 501'),
+(N'María Fernanda Ortiz', N'3119988776', N'1030405060', N'Carrera 7 # 120-45'),
+(N'Santiago Gómez Vélez', N'3205544332', N'1040506070', N'Calle 85 # 11-18'),
+(N'Camila Rodríguez', N'3154433221', N'1050607080', N'Avenida 19 # 104-30');
 
--- Roles
+-- 9. Empleados, Meseros, Cocineros y Gerentes
+INSERT INTO Empleados (nombre, telefono, direccion, salario, fecha_contratacion, cargo) VALUES
+(N'Carlos Ruiz', N'3008877665', N'Barrio Laureles', 1800000.00, '2025-01-15', N'Mesero'),
+(N'Valentina M', N'3127766554', N'Barrio El Poblado', 1800000.00, '2025-02-01', N'Mesero'),
+(N'Mario Batali', N'3156655443', N'Envigado', 3800000.00, '2024-06-10', N'Chef Principal'),
+(N'Gloria Tobon', N'3201122445', N'Belen', 3200000.00, '2024-03-01', N'Gerente');
+
+DECLARE @empMesero1 INT = (SELECT TOP 1 id FROM Empleados WHERE nombre = N'Carlos Ruiz');
+DECLARE @empMesero2 INT = (SELECT TOP 1 id FROM Empleados WHERE nombre = N'Valentina M');
+DECLARE @empCocinero INT = (SELECT TOP 1 id FROM Empleados WHERE nombre = N'Mario Batali');
+DECLARE @empGerente INT = (SELECT TOP 1 id FROM Empleados WHERE nombre = N'Gloria Tobon');
+
+INSERT INTO Meseros (empleado, zona_asignada, num_mesas_asignadas, calificacion_promedio) VALUES
+(@empMesero1, N'Salón Principal', 4, 4.85),
+(@empMesero2, N'Terraza y VIP', 5, 4.92);
+
+INSERT INTO Cocineros (empleado, especialidad, anios_experiencia, estacion_asignada) VALUES
+(@empCocinero, N'Parrilla y Carnes', 12, N'Estación Caliente 1');
+
+INSERT INTO Gerentes (empleado, nivel_autorizacion, bono_desempeno, area_responsable) VALUES
+(@empGerente, N'Nivel Alto - Total', 500000.00, N'Operaciones Generales');
+
+-- 10. Metodos de Pago
+INSERT INTO MetodosPagos (tipo) VALUES
+(N'Efectivo'),
+(N'Tarjeta Credito'),
+(N'Tarjeta Debito'),
+(N'Transf Nequi');
+
+-- 11. Pedidos, Detalles, Facturas y Pagos
+DECLARE @cli1 INT = (SELECT TOP 1 id FROM Clientes WHERE cedula = N'1020304050');
+DECLARE @mesa2 INT = (SELECT TOP 1 id FROM Mesas WHERE numero = 2);
+DECLARE @mesero1 INT = (SELECT TOP 1 id FROM Meseros);
+DECLARE @prod1 INT = (SELECT TOP 1 id FROM Productos WHERE nombre LIKE N'%Lomo%');
+DECLARE @prod2 INT = (SELECT TOP 1 id FROM Productos WHERE nombre LIKE N'%Limonada%');
+
+INSERT INTO Pedidos (cliente, mesa, mesero, fecha_hora, numero_personas, estado) VALUES
+(@cli1, @mesa2, @mesero1, GETDATE(), 2, N'En Preparación');
+
+DECLARE @idPedido INT = SCOPE_IDENTITY();
+
+INSERT INTO Detalles_Pedidos (pedido, producto, cantidad, subtotal, comentarios) VALUES
+(@idPedido, @prod1, 2, 90000.00, N'Término 3/4, una sin sal'),
+(@idPedido, @prod2, 2, 24000.00, N'Bien frías');
+
+INSERT INTO Facturas (pedido, numero, fecha_emision, subtotal, total) VALUES
+(@idPedido, N'FAC-2026-001', GETDATE(), 114000.00, 135660.00);
+
+DECLARE @idFactura INT = SCOPE_IDENTITY();
+DECLARE @metodoPagoTarj INT = (SELECT TOP 1 id FROM MetodosPagos WHERE tipo LIKE N'%Credito%');
+
+INSERT INTO Pagos (factura, metodoPago, monto, fecha, referencia, estado) VALUES
+(@idFactura, @metodoPagoTarj, 135660.00, GETDATE(), N'TX-9876543210', N'Aprobado');
+
+-- 12. Roles, Permisos y Usuario Administrador
 INSERT INTO [Roles] ([nombre], [descripcion], [activo])
-VALUES 
-(N'Administrador', N'Acceso total al sistema', 1),
-(N'Mesero', N'Acceso a salon y pedidos', 1);
-GO
+VALUES (N'Administrador', N'Acceso total al sistema', 1);
 
--- Permisos para Administrador (Rol = 1)
+DECLARE @idRol INT = SCOPE_IDENTITY();
+
 INSERT INTO [Permisos] ([nombre], [descripcion], [rol])
 VALUES
-(N'Categorias', N'Acceso a Categorias', 1),
-(N'Clientes', N'Acceso a Clientes', 1),
-(N'Cocineros', N'Acceso a Cocineros', 1),
-(N'Detalles_Pedidos', N'Acceso a Detalles_Pedidos', 1),
-(N'Empleados', N'Acceso a Empleados', 1),
-(N'Facturas', N'Acceso a Facturas', 1),
-(N'Gerentes', N'Acceso a Gerentes', 1),
-(N'Ingredientes', N'Acceso a Ingredientes', 1),
-(N'Inventarios', N'Acceso a Inventarios', 1),
-(N'Menus', N'Acceso a Menus', 1),
-(N'Mesas', N'Acceso a Mesas', 1),
-(N'Meseros', N'Acceso a Meseros', 1),
-(N'MetodosPagos', N'Acceso a MetodosPagos', 1),
-(N'Pagos', N'Acceso a Pagos', 1),
-(N'Pedidos', N'Acceso a Pedidos', 1),
-(N'Productos', N'Acceso a Productos', 1),
-(N'Proveedores', N'Acceso a Proveedores', 1),
-(N'Recetas', N'Acceso a Recetas', 1),
-(N'Reservas', N'Acceso a Reservas', 1),
-(N'Turnos', N'Acceso a Turnos', 1),
-(N'Roles', N'Acceso a Roles', 1),
-(N'Usuarios', N'Acceso a Usuarios', 1),
-(N'Permisos', N'Acceso a Permisos', 1),
-GO
+(N'Categorias', N'Acceso a Categorias', @idRol),
+(N'Clientes', N'Acceso a Clientes', @idRol),
+(N'Cocineros', N'Acceso a Cocineros', @idRol),
+(N'Detalles_Pedidos', N'Acceso a Detalles_Pedidos', @idRol),
+(N'Empleados', N'Acceso a Empleados', @idRol),
+(N'Facturas', N'Acceso a Facturas', @idRol),
+(N'Gerentes', N'Acceso a Gerentes', @idRol),
+(N'Ingredientes', N'Acceso a Ingredientes', @idRol),
+(N'Inventarios', N'Acceso a Inventarios', @idRol),
+(N'Menus', N'Acceso a Menus', @idRol),
+(N'Mesas', N'Acceso a Mesas', @idRol),
+(N'Meseros', N'Acceso a Meseros', @idRol),
+(N'MetodosPagos', N'Acceso a MetodosPagos', @idRol),
+(N'Pagos', N'Acceso a Pagos', @idRol),
+(N'Pedidos', N'Acceso a Pedidos', @idRol),
+(N'Productos', N'Acceso a Productos', @idRol),
+(N'Proveedores', N'Acceso a Proveedores', @idRol),
+(N'Recetas', N'Acceso a Recetas', @idRol),
+(N'Reservas', N'Acceso a Reservas', @idRol),
+(N'Turnos', N'Acceso a Turnos', @idRol),
+(N'Roles', N'Acceso a Roles', @idRol),
+(N'Usuarios', N'Acceso a Usuarios', @idRol),
+(N'Permisos', N'Acceso a Permisos', @idRol),
+(N'Auditorias', N'Acceso a Auditorias', @idRol),
+(N'Reportes', N'Acceso a Reportes PDF y Excel', @idRol),
+(N'MapaMesas', N'Acceso a Mapa de Mesas y Geolocalizacion', @idRol),
+(N'Impresion', N'Acceso a Impresion de Comandas y Facturas', @idRol);
 
--- Permisos limitados para Mesero (Rol = 2)
-INSERT INTO [Permisos] ([nombre], [descripcion], [rol])
-VALUES
-(N'Mesas', N'Acceso a Mesas', 2),
-(N'Reservas', N'Acceso a Reservas', 2),
-(N'Clientes', N'Acceso a Clientes', 2),
-(N'Pedidos', N'Acceso a Pedidos', 2),
-(N'Detalles_Pedidos', N'Acceso a Detalles_Pedidos', 2);
-GO
-
--- Usuarios con contraseña simple '1234'
 INSERT INTO [Usuarios] ([nombreUsuario], [correo], [contraseña], [activo], [fechaCreacion], [rol])
-VALUES 
-(N'admin', N'admin@restaurante.com', N'1234', 1, GETDATE(), 1),
-(N'mesero1', N'mesero@restaurante.com', N'1234', 1, GETDATE(), 2);
+VALUES (N'admin', N'admin@restaurante.com', N'1234', 1, GETDATE(), @idRol);
 GO
-
--- Categorias
-INSERT INTO [Categorias] ([nombre])
-VALUES (N'Entradas'), (N'Platos Fuertes'), (N'Bebidas'), (N'Postres');
-GO
-
--- MetodosPagos
-INSERT INTO [MetodosPagos] ([tipo])
-VALUES (N'Efectivo'), (N'Tarjeta de Credito'), (N'Transferencia Nequi/Bancolombia');
-GO
-
--- Proveedores
-INSERT INTO [Proveedores] ([nombre], [contacto], [direccion], [telefono])
-VALUES 
-(N'Carnes Premium Antioquia', N'Carlos Restrepo', N'Cra 50 # 32-10, Medellin', N'3001112233'),
-(N'Fruver La Cosecha', N'Marta Gomez', N'Cl 44 # 65-20, Bello', N'3104445566');
-GO
-
--- Clientes
-INSERT INTO [Clientes] ([nombre], [telefono], [cedula], [direccion])
-VALUES 
-(N'Andres Felipe Lopez', N'3125558899', N'1035888999', N'Cl 52 # 48-15, Bello'),
-(N'Laura Sofia Martinez', N'3207774411', N'1017222333', N'Cra 43A # 10-50, Medellin');
-GO
-
--- Mesas
-INSERT INTO [Mesas] ([numero], [capacidad], [estado], [ubicacion])
-VALUES 
-(1, 4, N'Disponible', N'Salon Principal'),
-(2, 2, N'Ocupada', N'Terraza'),
-(3, 6, N'Reservada', N'Zona VIP');
-GO
-
--- Empleados
-INSERT INTO [Empleados] ([nombre], [telefono], [direccion], [salario], [fecha_contratacion], [cargo])
-VALUES 
-(N'Juan Camilo Perez', N'3012223344', N'Bello Centro', 1800000.00, '2025-02-10', N'Mesero'),
-(N'Sofia Morales', N'3023334455', N'Envigado', 2500000.00, '2024-08-15', N'Cocinero'),
-(N'Ricardo Valencia', N'3045556677', N'Laureles', 3800000.00, '2024-01-20', N'Gerente');
-GO
-
--- Menus
-INSERT INTO [Menus] ([nombre], [vigencia_desde], [vigencia_hasta], [tipo])
-VALUES 
-(N'Carta General 2026', '2026-01-01', '2026-12-31', N'Permanente'),
-(N'Menu Ejecutivo', '2026-01-01', '2026-12-31', N'Almuerzo');
-GO
-
--- Productos
-INSERT INTO [Productos] ([nombre], [vigencia_desde], [vigencia_hasta], [tipo], [categoria], [menu])
-VALUES 
-(N'Churrasco Argentino 350g', '2026-01-01', '2026-12-31', N'Plato', 2, 1),
-(N'Limonada de Coco', '2026-01-01', '2026-12-31', N'Bebida', 3, 1),
-(N'Empanadas Criollas x4', '2026-01-01', '2026-12-31', N'Entrada', 1, 1);
-GO
-
--- Recetas
-INSERT INTO [Recetas] ([producto], [tiempo_preparacion], [instrucciones], [porciones], [dificultad])
-VALUES 
-(1, '2026-01-01 00:25:00', N'Sellar corte a fuego alto 4 min por lado, reposar y servir con chimichurri.', 1, N'Media'),
-(2, '2026-01-01 00:05:00', N'Licuar leche de coco, zumo de limon, azucar y hielo frappe.', 1, N'Facil');
-GO
-
--- Ingredientes
-INSERT INTO [Ingredientes] ([nombre], [unidad_medida], [costo_unitario], [proveedor], [receta])
-VALUES 
-(N'Lomo Ancho de Res', N'Kilogramo', 34000.00, 1, 1),
-(N'Limon Tahití', N'Kilogramo', 4500.00, 2, 2);
-GO
-
--- Turnos
-INSERT INTO [Turnos] ([empleado], [fecha], [hora_entrada], [hora_salida])
-VALUES 
-(1, GETDATE(), DATEADD(HOUR, -4, GETDATE()), DATEADD(HOUR, 4, GETDATE())),
-(2, GETDATE(), DATEADD(HOUR, -5, GETDATE()), DATEADD(HOUR, 3, GETDATE()));
-GO
-
--- Meseros
-INSERT INTO [Meseros] ([empleado], [zona_asignada], [num_mesas_asignadas], [calificacion_promedio])
-VALUES (1, N'Salon Principal y Terraza', 5, 4.85);
-GO
-
--- Gerentes
-INSERT INTO [Gerentes] ([empleado], [nivel_autorizacion], [bono_desempeno], [area_responsable])
-VALUES (3, N'Total', 650000.00, N'Operaciones y Caja');
-GO
-
--- Cocineros
-INSERT INTO [Cocineros] ([empleado], [especialidad], [anios_experiencia], [estacion_asignada])
-VALUES (2, N'Parrilla y Carnes', 6, N'Estacion Caliente 1');
-GO
-
--- Inventarios
-INSERT INTO [Inventarios] ([ingrediente], [stock_actual], [stock_minimo], [fecha_actualizacion])
-VALUES 
-(1, 25.50, 10.00, GETDATE()),
-(2, 14.00, 5.00, GETDATE());
-GO
-
--- Reservas
-INSERT INTO [Reservas] ([cliente], [mesa], [fecha_hora], [numero_personas], [estado])
-VALUES (2, 3, DATEADD(HOUR, 3, GETDATE()), 4, N'Confirmada');
-GO
-
--- Pedidos
-INSERT INTO [Pedidos] ([cliente], [mesa], [mesero], [fecha_hora], [numero_personas], [estado])
-VALUES (1, 2, 1, GETDATE(), 2, N'Entregado');
-GO
-
--- Detalles_Pedidos
-INSERT INTO [Detalles_Pedidos] ([pedido], [producto], [cantidad], [subtotal], [comentarios])
-VALUES 
-(1, 1, 2, 96000.00, N'Termino medio'),
-(1, 2, 2, 24000.00, N'Sin azucar');
-GO
-
--- Facturas
-INSERT INTO [Facturas] ([pedido], [numero], [fecha_emision], [subtotal], [total])
-VALUES (1, N'FAC-0001', GETDATE(), 120000.00, 129600.00);
-GO
-
--- Pagos
-INSERT INTO [Pagos] ([factura], [metodoPago], [monto], [fecha], [referencia], [estado])
-VALUES (1, 3, 129600.00, GETDATE(), N'NEQUI-998877', N'Aprobado');
-GO
-
