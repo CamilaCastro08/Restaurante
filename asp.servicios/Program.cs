@@ -3,13 +3,22 @@ using Libreria_restaurante.Interfaces;
 using Microsoft.AspNetCore.Diagnostics;
 
 var builder = WebApplication.CreateBuilder(args);
-builder.Services.AddControllers().AddJsonOptions(o => o.JsonSerializerOptions.ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.IgnoreCycles);
+
+builder.Services.AddControllers().AddJsonOptions(o =>
+    o.JsonSerializerOptions.ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.IgnoreCycles);
+
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowAll", p => p.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
+});
+
 builder.Services.AddScoped<IConexion>(x =>
 {
     var conexion = new Conexion();
     conexion.StringConexion = builder.Configuration.GetConnectionString("string_conexion");
     return conexion;
 });
+
 builder.Services.AddScoped<ICategoriasAplicacion, CategoriasAplicacion>();
 builder.Services.AddScoped<IRolesAplicacion, RolesAplicacion>();
 builder.Services.AddScoped<IPermisosAplicacion, PermisosAplicacion>();
@@ -33,8 +42,10 @@ builder.Services.AddScoped<IProveedoresAplicacion, ProveedoresAplicacion>();
 builder.Services.AddScoped<IRecetasAplicacion, RecetasAplicacion>();
 builder.Services.AddScoped<IReservasAplicacion, ReservasAplicacion>();
 builder.Services.AddScoped<ITurnosAplicacion, TurnosAplicacion>();
+builder.Services.AddScoped<IAuditoriasAplicacion, AuditoriasAplicacion>();
 
 var app = builder.Build();
+
 app.UseExceptionHandler(a => a.Run(async context =>
 {
     var error = context.Features.Get<IExceptionHandlerFeature>()?.Error;
@@ -42,5 +53,10 @@ app.UseExceptionHandler(a => a.Run(async context =>
     context.Response.ContentType = "text/plain; charset=utf-8";
     await context.Response.WriteAsync(error != null && error.GetType() == typeof(Exception) ? error.Message : "Error en el servidor");
 }));
+
+app.UseCors("AllowAll");
+
+app.MapGet("/health", () => Results.Ok(new { status = "Healthy", timestamp = DateTime.UtcNow }));
+
 app.MapControllers();
 app.Run();

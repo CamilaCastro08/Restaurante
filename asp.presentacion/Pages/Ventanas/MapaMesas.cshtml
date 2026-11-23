@@ -1,0 +1,210 @@
+@page
+@model asp.presentacion.Pages.Ventanas.MapaMesasModel
+@{
+    ViewData["Title"] = "Mapa Interactivo de Mesas";
+}
+
+<!-- Leaflet CSS -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h2 class="fw-bold mb-1"><i class="bi bi-map"></i> Mapa Interactivo del Restaurante</h2>
+        <p class="text-muted mb-0">Control en tiempo real de salones, distribución de mesas y cobertura geográfica</p>
+    </div>
+    <div class="d-flex gap-2">
+        <a asp-page="/Ventanas/Mesas" class="btn btn-outline-secondary">
+            <i class="bi bi-gear"></i> Administrar Mesas
+        </a>
+        <a asp-page="/Ventanas/Reservas" class="btn btn-primary">
+            <i class="bi bi-calendar-check"></i> Ver Reservas
+        </a>
+    </div>
+</div>
+
+@if (!string.IsNullOrEmpty(Model.Mensaje))
+{
+    <div class="alert alert-warning alert-dismissible fade show" role="alert">
+        @Model.Mensaje
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+@if (TempData["Mensaje"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        @TempData["Mensaje"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
+<!-- Resumen de Estado del Salón -->
+<div class="row g-3 mb-4">
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm bg-success text-white">
+            <div class="card-body py-3 d-flex justify-content-between align-items-center">
+                <div>
+                    <h6 class="text-white-50 mb-1">Disponibles</h6>
+                    <h2 class="fw-bold mb-0">@Model.MesasDisponibles</h2>
+                </div>
+                <i class="bi bi-check-circle fs-1 text-white-50"></i>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm bg-danger text-white">
+            <div class="card-body py-3 d-flex justify-content-between align-items-center">
+                <div>
+                    <h6 class="text-white-50 mb-1">Ocupadas</h6>
+                    <h2 class="fw-bold mb-0">@Model.MesasOcupadas</h2>
+                </div>
+                <i class="bi bi-people-fill fs-1 text-white-50"></i>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm bg-warning text-dark">
+            <div class="card-body py-3 d-flex justify-content-between align-items-center">
+                <div>
+                    <h6 class="text-muted mb-1">Reservadas</h6>
+                    <h2 class="fw-bold mb-0">@Model.MesasReservadas</h2>
+                </div>
+                <i class="bi bi-clock-history fs-1 text-black-50"></i>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm bg-dark text-white">
+            <div class="card-body py-3 d-flex justify-content-between align-items-center">
+                <div>
+                    <h6 class="text-white-50 mb-1">Capacidad Total</h6>
+                    <h2 class="fw-bold mb-0">@Model.CapacidadTotal pers.</h2>
+                </div>
+                <i class="bi bi-building fs-1 text-white-50"></i>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Plano del Salón -->
+<div class="card shadow-sm border-0 mb-4">
+    <div class="card-header bg-white py-3 border-0 d-flex justify-content-between align-items-center">
+        <h5 class="fw-bold mb-0"><i class="bi bi-grid-3x3-gap"></i> Plano Visual de Mesas por Zona</h5>
+        <div>
+            <span class="badge bg-success me-1">● Disponible</span>
+            <span class="badge bg-danger me-1">● Ocupada</span>
+            <span class="badge bg-warning text-dark">● Reservada</span>
+        </div>
+    </div>
+    <div class="card-body">
+        @{
+            var zonas = Model.ListaMesas.Select(m => m.ubicacion).Distinct().ToList();
+            if (!zonas.Any())
+            {
+                <div class="text-center py-5 text-muted">
+                    <h5>No hay mesas configuradas aún en el sistema.</h5>
+                    <a asp-page="/Ventanas/Mesas" class="btn btn-primary mt-2">Crear Primera Mesa</a>
+                </div>
+            }
+        }
+
+        @foreach (var zona in zonas)
+        {
+            <div class="mb-4">
+                <h6 class="fw-bold text-uppercase text-secondary border-bottom pb-2 mb-3">
+                    <i class="bi bi-geo-alt"></i> Zona: @zona
+                </h6>
+                <div class="row g-3">
+                    @foreach (var mesa in Model.ListaMesas.Where(m => m.ubicacion == zona))
+                    {
+                        var borderClass = mesa.estado == "Disponible" ? "border-success" : (mesa.estado == "Ocupada" ? "border-danger" : "border-warning");
+                        var bgBadge = mesa.estado == "Disponible" ? "bg-success" : (mesa.estado == "Ocupada" ? "bg-danger" : "bg-warning text-dark");
+
+                        <div class="col-sm-6 col-md-4 col-lg-3">
+                            <div class="card h-100 shadow-sm @borderClass" style="border-width: 2px;">
+                                <div class="card-body text-center p-3">
+                                    <div class="d-flex justify-content-between align-items-center mb-2">
+                                        <span class="badge @bgBadge">@mesa.estado</span>
+                                        <span class="text-muted small"><i class="bi bi-people"></i> @mesa.capacidad pers.</span>
+                                    </div>
+                                    <div class="my-2">
+                                        <i class="bi bi-table fs-1 @(mesa.estado == "Disponible" ? "text-success" : (mesa.estado == "Ocupada" ? "text-danger" : "text-warning"))"></i>
+                                        <h4 class="fw-bold mt-1 mb-0">Mesa @mesa.numero</h4>
+                                    </div>
+                                    <hr class="my-2" />
+                                    <!-- Cambio Rápido de Estado -->
+                                    <form method="post" asp-page-handler="CambiarEstado" class="d-flex justify-content-center gap-1">
+                                        <input type="hidden" name="mesaId" value="@mesa.id" />
+                                        <button type="submit" name="nuevoEstado" value="Disponible" class="btn btn-sm btn-outline-success @(mesa.estado == "Disponible" ? "active" : "")" title="Marcar Libre">
+                                            Libre
+                                        </button>
+                                        <button type="submit" name="nuevoEstado" value="Ocupada" class="btn btn-sm btn-outline-danger @(mesa.estado == "Ocupada" ? "active" : "")" title="Marcar Ocupada">
+                                            Ocupar
+                                        </button>
+                                        <button type="submit" name="nuevoEstado" value="Reservada" class="btn btn-sm btn-outline-warning @(mesa.estado == "Reservada" ? "active" : "")" title="Marcar Reservada">
+                                            Reservar
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+<!-- Mapa Geográfico del Restaurante y Cobertura Delivery -->
+<div class="card shadow-sm border-0 mb-4">
+    <div class="card-header bg-white py-3 border-0">
+        <h5 class="fw-bold mb-0"><i class="bi bi-geo"></i> Ubicación Geográfica y Cobertura de Entregas</h5>
+        <p class="text-muted small mb-0">Visualización interactiva con Leaflet / OpenStreetMap</p>
+    </div>
+    <div class="card-body p-0">
+        <div id="mapaGeografico" style="height: 420px; width: 100%; border-radius: 0 0 var(--bs-card-inner-border-radius) var(--bs-card-inner-border-radius);"></div>
+    </div>
+    <div class="card-footer bg-light py-2">
+        <div class="d-flex justify-content-between align-items-center small text-muted">
+            <span><i class="bi bi-pin-map-fill text-danger"></i> <strong>Sede Principal:</strong> Carrera 43A # 5A-113, Medellín, Colombia</span>
+            <span><i class="bi bi-circle-fill text-primary"></i> Zona Reparto: 5 km a la redonda</span>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            // Coordenadas del Restaurante (Medellín - Zona Gourmet El Poblado)
+            var lat = 6.2088;
+            var lng = -75.5670;
+
+            var map = L.map('mapaGeografico').setView([lat, lng], 14);
+
+            L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                maxZoom: 19,
+                attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+            }).addTo(map);
+
+            // Marcador del Restaurante
+            var marker = L.marker([lat, lng]).addTo(map);
+            marker.bindPopup("<b>🍴 Restaurante Gourmet</b><br>Sede Principal El Poblado.<br>Abierto de 12:00 PM a 11:00 PM.").openPopup();
+
+            // Círculo de cobertura de domicilios / delivery (3 km y 5 km)
+            L.circle([lat, lng], {
+                color: 'blue',
+                fillColor: '#30f',
+                fillOpacity: 0.1,
+                radius: 2500
+            }).addTo(map).bindPopup("Radio de Domicilio Express (2.5 km)");
+
+            L.circle([lat, lng], {
+                color: 'green',
+                fillColor: '#0f3',
+                fillOpacity: 0.05,
+                radius: 5000
+            }).addTo(map).bindPopup("Radio Cobertura Máxima (5.0 km)");
+        });
+    </script>
+}

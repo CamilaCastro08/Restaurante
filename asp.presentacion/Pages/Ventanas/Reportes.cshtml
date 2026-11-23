@@ -1,0 +1,309 @@
+@page
+@model asp.presentacion.Pages.Ventanas.ReportesModel
+@{
+    ViewData["Title"] = "Módulo de Reportes";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h2 class="fw-bold mb-1"><i class="bi bi-file-earmark-bar-graph"></i> Reportes del Restaurante</h2>
+        <p class="text-muted mb-0">Generación y exportación de reportes ejecutivos (PDF, Excel)</p>
+    </div>
+    <div class="btn-group">
+        <a asp-page-handler="ExportarExcel" 
+           asp-route-tipo="@Model.TipoReporte" 
+           asp-route-desde="@Model.FechaDesde?.ToString("yyyy-MM-dd")" 
+           asp-route-hasta="@Model.FechaHasta?.ToString("yyyy-MM-dd")" 
+           class="btn btn-outline-success">
+            <i class="bi bi-file-earmark-excel"></i> Exportar a EXCEL (.csv)
+        </a>
+        <button type="button" class="btn btn-outline-danger" onclick="imprimirReporte()">
+            <i class="bi bi-file-earmark-pdf"></i> Imprimir / Guardar en PDF
+        </button>
+    </div>
+</div>
+
+@if (!string.IsNullOrEmpty(Model.Mensaje))
+{
+    <div class="alert alert-warning alert-dismissible fade show" role="alert">
+        @Model.Mensaje
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
+<!-- Tarjetas de Filtros -->
+<div class="card shadow-sm mb-4 border-0">
+    <div class="card-body">
+        <form method="get" class="row g-3 align-items-end">
+            <div class="col-md-4">
+                <label class="form-label fw-bold">Tipo de Reporte</label>
+                <select name="TipoReporte" class="form-select" onchange="this.form.submit()">
+                    <!option value="Ventas" @(Model.TipoReporte == "Ventas" ? "selected" : "")>📊 Ventas y Facturación</!option>
+                    <!option value="Inventario" @(Model.TipoReporte == "Inventario" ? "selected" : "")>📦 Inventario y Stock</!option>
+                    <!option value="Mesas" @(Model.TipoReporte == "Mesas" ? "selected" : "")>🪑 Mesas y Capacidad</!option>
+                </select>
+            </div>
+            @if (Model.TipoReporte == "Ventas")
+            {
+                <div class="col-md-3">
+                    <label class="form-label fw-bold">Fecha Desde</label>
+                    <input type="date" name="FechaDesde" class="form-control" value="@Model.FechaDesde?.ToString("yyyy-MM-dd")" />
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label fw-bold">Fecha Hasta</label>
+                    <input type="date" name="FechaHasta" class="form-control" value="@Model.FechaHasta?.ToString("yyyy-MM-dd")" />
+                </div>
+            }
+            <div class="col-md-2">
+                <button type="submit" class="btn btn-primary w-100">
+                    <i class="bi bi-filter"></i> Filtrar
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Resumen Ejecutivo (KPIs) -->
+<div class="row g-3 mb-4">
+    @if (Model.TipoReporte == "Ventas")
+    {
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm bg-primary text-white">
+                <div class="card-body py-3">
+                    <h6 class="card-subtitle text-white-50 mb-1">Total Facturado</h6>
+                    <h3 class="card-title fw-bold mb-0">$ @Model.TotalVentas.ToString("N2")</h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm bg-success text-white">
+                <div class="card-body py-3">
+                    <h6 class="card-subtitle text-white-50 mb-1">Facturas Emitidas</h6>
+                    <h3 class="card-title fw-bold mb-0">@Model.TotalItems</h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm bg-dark text-white">
+                <div class="card-body py-3">
+                    <h6 class="card-subtitle text-white-50 mb-1">Ticket Promedio</h6>
+                    <h3 class="card-title fw-bold mb-0">$ @Model.PromedioVentas.ToString("N2")</h3>
+                </div>
+            </div>
+        </div>
+    }
+    else if (Model.TipoReporte == "Inventario")
+    {
+        <div class="col-md-6">
+            <div class="card border-0 shadow-sm bg-primary text-white">
+                <div class="card-body py-3">
+                    <h6 class="card-subtitle text-white-50 mb-1">Ingredientes en Inventario</h6>
+                    <h3 class="card-title fw-bold mb-0">@Model.TotalItems</h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card border-0 shadow-sm bg-warning text-dark">
+                <div class="card-body py-3">
+                    <h6 class="card-subtitle text-muted mb-1">Stock Crítico</h6>
+                    <h3 class="card-title fw-bold mb-0">@Model.ListaInventarios.Count(x => x.stock_actual <= x.stock_minimo)</h3>
+                </div>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm bg-primary text-white">
+                <div class="card-body py-3">
+                    <h6 class="card-subtitle text-white-50 mb-1">Total Mesas</h6>
+                    <h3 class="card-title fw-bold mb-0">@Model.TotalItems</h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm bg-success text-white">
+                <div class="card-body py-3">
+                    <h6 class="card-subtitle text-white-50 mb-1">Mesas Disponibles</h6>
+                    <h3 class="card-title fw-bold mb-0">@Model.ListaMesas.Count(x => x.estado == "Disponible")</h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm bg-danger text-white">
+                <div class="card-body py-3">
+                    <h6 class="card-subtitle text-white-50 mb-1">Mesas Ocupadas</h6>
+                    <h3 class="card-title fw-bold mb-0">@Model.ListaMesas.Count(x => x.estado == "Ocupada")</h3>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+<!-- Tabla Imprimible de Resultados -->
+<div id="areaReporte" class="card shadow-sm border-0">
+    <div class="card-header bg-white py-3 border-0 d-flex justify-content-between align-items-center">
+        <div>
+            <h5 class="fw-bold mb-0">Detalle del Reporte: @Model.TipoReporte</h5>
+            <small class="text-muted">Generado el: @DateTime.Now.ToString("dd/MM/yyyy HH:mm:ss")</small>
+        </div>
+        <span class="badge bg-secondary">@Model.TotalItems registros</span>
+    </div>
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            @if (Model.TipoReporte == "Ventas")
+            {
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th># ID</th>
+                            <th>N° Factura</th>
+                            <th>Fecha Emisión</th>
+                            <th class="text-end">Subtotal</th>
+                            <th class="text-end">Total</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (!Model.ListaFacturas.Any())
+                        {
+                            <tr><td colspan="5" class="text-center py-4 text-muted">No hay facturas registradas en el periodo.</td></tr>
+                        }
+                        @foreach (var item in Model.ListaFacturas)
+                        {
+                            <tr>
+                                <td><span class="badge bg-light text-dark">#@item.id</span></td>
+                                <td class="fw-semibold">@item.numero</td>
+                                <td>@item.fecha_emision.ToString("dd/MM/yyyy HH:mm")</td>
+                                <td class="text-end">$ @item.subtotal.ToString("N2")</td>
+                                <td class="text-end fw-bold text-success">$ @item.total.ToString("N2")</td>
+                            </tr>
+                        }
+                    </tbody>
+                    @if (Model.ListaFacturas.Any())
+                    {
+                        <tfoot class="table-light">
+                            <tr class="fw-bold">
+                                <td colspan="3" class="text-end">TOTAL GENERAL:</td>
+                                <td class="text-end">$ @Model.ListaFacturas.Sum(x => x.subtotal).ToString("N2")</td>
+                                <td class="text-end text-success fs-5">$ @Model.TotalVentas.ToString("N2")</td>
+                            </tr>
+                        </tfoot>
+                    }
+                </table>
+            }
+            else if (Model.TipoReporte == "Inventario")
+            {
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th># ID</th>
+                            <th>Ingrediente ID</th>
+                            <th>Stock Actual</th>
+                            <th>Stock Mínimo</th>
+                            <th>Última Actualización</th>
+                            <th>Estado Alerta</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (!Model.ListaInventarios.Any())
+                        {
+                            <tr><td colspan="6" class="text-center py-4 text-muted">No hay registros de inventario.</td></tr>
+                        }
+                        @foreach (var item in Model.ListaInventarios)
+                        {
+                            var critico = item.stock_actual <= item.stock_minimo;
+                            <tr>
+                                <td>@item.id</td>
+                                <td class="fw-semibold">Ingrediente #@item.ingrediente</td>
+                                <td>@item.stock_actual.ToString("N2")</td>
+                                <td>@item.stock_minimo.ToString("N2")</td>
+                                <td>@item.fecha_actualizacion.ToString("dd/MM/yyyy HH:mm")</td>
+                                <td>
+                                    @if (critico)
+                                    {
+                                        <span class="badge bg-danger">Alerta Crítica</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-success">Óptimo</span>
+                                    }
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            }
+            else
+            {
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th># ID</th>
+                            <th>Mesa N°</th>
+                            <th>Capacidad</th>
+                            <th>Ubicación</th>
+                            <th>Estado</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (!Model.ListaMesas.Any())
+                        {
+                            <tr><td colspan="5" class="text-center py-4 text-muted">No hay mesas registradas.</td></tr>
+                        }
+                        @foreach (var item in Model.ListaMesas)
+                        {
+                            <tr>
+                                <td>@item.id</td>
+                                <td class="fw-bold">Mesa @item.numero</td>
+                                <td>@item.capacidad Personas</td>
+                                <td>@item.ubicacion</td>
+                                <td>
+                                    @if (item.estado == "Disponible")
+                                    {
+                                        <span class="badge bg-success">Disponible</span>
+                                    }
+                                    else if (item.estado == "Ocupada")
+                                    {
+                                        <span class="badge bg-danger">Ocupada</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-warning text-dark">Reservada</span>
+                                    }
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            }
+        </div>
+    </div>
+</div>
+
+<style>
+    @@media print {
+        body * {
+            visibility: hidden;
+        }
+        #areaReporte, #areaReporte * {
+            visibility: visible;
+        }
+        #areaReporte {
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 100%;
+        }
+        .btn, form, header, footer {
+            display: none !important;
+        }
+    }
+</style>
+
+@section Scripts {
+    <script>
+        function imprimirReporte() {
+            window.print();
+        }
+    </script>
+}

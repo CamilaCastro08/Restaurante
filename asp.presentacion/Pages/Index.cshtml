@@ -5,15 +5,15 @@
     var nombre = HttpContext.Session.GetString("nombre") ?? "Usuario";
 }
 
-<!-- Hero Banner Gastronómico -->
+
 <div class="p-5 mb-4 rounded-3 text-white shadow" style="background: linear-gradient(135deg, #1f1c18 0%, #362e24 50%, #544431 100%);">
     <div class="container-fluid py-2">
         <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
             <div>
-                <span class="badge bg-warning text-dark px-3 py-2 fs-6 mb-2"><i class="bi bi-award"></i> Sistema Integral de Gestión Gastronómica</span>
-                <h1 class="display-5 fw-bold mb-1">🍴 Restaurante Gourmet & Cava</h1>
+              
+                <h1 class="display-5 fw-bold mb-1">🍴 Restaurante Gourmet </h1>
                 <p class="col-md-9 fs-5 text-light opacity-75 mb-0">
-                    Bienvenido, <strong>@nombre</strong>. Monitorea tu salón, comanda órdenes en cocina, controla inventarios y visualiza la facturación en tiempo real.
+                    Bienvenido, <strong>@nombre</strong>.
                 </p>
             </div>
             <div class="d-flex flex-column gap-2">
@@ -36,7 +36,7 @@
     </div>
 }
 
-<!-- Tarjetas de Métricas en Tiempo Real (KPIs) -->
+
 <div class="row g-3 mb-4">
     <div class="col-md-3 col-sm-6">
         <div class="card border-0 shadow-sm h-100 bg-white border-start border-success border-4">
@@ -70,7 +70,7 @@
                     </div>
                 </div>
                 <div class="mt-2 small">
-                    <a asp-page="/Ventanas/Pedidos" class="text-decoration-none">Ver flujo de órdenes &rarr;</a>
+                    <a asp-page="/Ventanas/Pedidos" class="text-decoration-none">Ver pedidos &rarr;</a>
                 </div>
             </div>
         </div>
@@ -117,7 +117,7 @@
     </div>
 </div>
 
-<!-- Accesos Rápidos a Módulos del Sistema -->
+
 <h4 class="fw-bold mb-3"><i class="bi bi-compass"></i> Módulos Operativos Principales</h4>
 <div class="row g-3 mb-4">
     <div class="col-md-4">
@@ -128,12 +128,12 @@
                         <i class="bi bi-map fs-2"></i>
                     </div>
                     <div>
-                        <h5 class="fw-bold mb-0">Mapa Interactivo</h5>
-                        <small class="text-muted">Plano de Mesas & Cobertura</small>
+                        <h5 class="fw-bold mb-0">Mapa</h5>
+                        <small class="text-muted"></small>
                     </div>
                 </div>
                 <p class="text-muted flex-grow-1 small">
-                    Controla en vivo el estado de mesas (Disponibles, Ocupadas, Reservadas) y visualiza el mapa geográfico de delivery.
+                  
                 </p>
                 <a asp-page="/Ventanas/MapaMesas" class="btn btn-outline-primary w-100">
                     Ir al Mapa <i class="bi bi-arrow-right"></i>
@@ -151,11 +151,11 @@
                     </div>
                     <div>
                         <h5 class="fw-bold mb-0">Reportes Ejecutivos</h5>
-                        <small class="text-muted">PDF & Excel</small>
+                        <small class="text-muted"></small>
                     </div>
                 </div>
                 <p class="text-muted flex-grow-1 small">
-                    Genera balances consolidados de ventas por rango de fechas, estados de stock y capacidad de atención exportables con un clic.
+                   
                 </p>
                 <a asp-page="/Ventanas/Reportes" class="btn btn-outline-success w-100">
                     Abrir Reportes <i class="bi bi-arrow-right"></i>
@@ -172,39 +172,31 @@
                         <i class="bi bi-printer fs-2"></i>
                     </div>
                     <div>
-                        <h5 class="fw-bold mb-0">Impresión Térmica</h5>
-                        <small class="text-muted">Comandas & Pre-cuentas</small>
+                        <h5 class="fw-bold mb-0">Impresión </h5>
+                        <small class="text-muted"></small>
                     </div>
                 </div>
                 <p class="text-muted flex-grow-1 small">
-                    Emite tickets para cocina con notas especiales de preparación e imprime facturas y pre-cuentas de mesa con desglose fiscal.
+                   
                 </p>
                 <a asp-page="/Ventanas/Impresion" class="btn btn-outline-dark w-100">
-                    Imprimir Tickets <i class="bi bi-arrow-right"></i>
+                    Imprimir  <i class="bi bi-arrow-right"></i>
                 </a>
             </div>
         </div>
     </div>
 </div>
 
-<!-- Ficha de Competencias del Proyecto (Final 20%) -->
+
 <div class="card border-0 shadow-sm bg-light">
     <div class="card-body p-4">
         <div class="row align-items-center">
             <div class="col-md-8">
-                <h5 class="fw-bold text-dark mb-1"><i class="bi bi-check2-all text-success"></i> Competencias Integradas - Proyecto Final 20%</h5>
-                <p class="text-muted small mb-0">
-                    Arquitectura multicapa en C# y .NET 10: <strong>POO</strong> aplicada, persistencia <strong>ORM Entity Framework Core</strong>, <strong>WebAPIs RESTful</strong> para 24 entidades, capa de presentación en <strong>ASP.NET Core Razor</strong>, control de sesiones, pruebas unitarias automatizadas y soporte para publicación en <strong>IIS</strong> y contenedores en la nube.
-                </p>
+                <h5 class="fw-bold text-dark mb-1"><i class="bi bi-check2-all text-success"></i> </h5>
+                
             </div>
-            <div class="col-md-4 text-md-end mt-3 mt-md-0">
-                <a asp-page="/Ventanas/Auditorias" class="btn btn-outline-secondary btn-sm me-1">
-                    <i class="bi bi-shield-check"></i> Auditorías
-                </a>
-                <a href="http://localhost:5216/swagger" target="_blank" class="btn btn-primary btn-sm">
-                    <i class="bi bi-code-slash"></i> Swagger WebAPI
-                </a>
-            </div>
+            <div 
+             
         </div>
     </div>
 </div>

@@ -1,0 +1,269 @@
+@page
+@model asp.presentacion.Pages.Ventanas.ImpresionModel
+@{
+    ViewData["Title"] = "Impresión de Comandas y Facturas";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4 no-print">
+    <div>
+        <h2 class="fw-bold mb-1"><i class="bi bi-printer"></i> Módulo de Impresión</h2>
+        <p class="text-muted mb-0">Impresión térmica de comandas para cocina y facturas / pre-cuentas de clientes</p>
+    </div>
+    <div class="d-flex gap-2">
+        <button type="button" class="btn btn-outline-dark" onclick="imprimirElemento('ticketCocina')">
+            <i class="bi bi-fire"></i> Imprimir Comanda Cocina
+        </button>
+        <button type="button" class="btn btn-primary" onclick="imprimirElemento('ticketFactura')">
+            <i class="bi bi-receipt"></i> Imprimir Factura Cliente
+        </button>
+    </div>
+</div>
+
+@if (!string.IsNullOrEmpty(Model.Mensaje))
+{
+    <div class="alert alert-warning alert-dismissible fade show no-print" role="alert">
+        @Model.Mensaje
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
+<!-- Selector de Pedido -->
+<div class="card shadow-sm border-0 mb-4 no-print">
+    <div class="card-body">
+        <form method="get" class="row g-3 align-items-end">
+            <div class="col-md-8">
+                <label class="form-label fw-bold">Seleccionar Pedido a Imprimir</label>
+                <select name="PedidoId" class="form-select" onchange="this.form.submit()">
+                    @if (!Model.ListaPedidos.Any())
+                    {
+                        <option value="">No hay pedidos registrados</option>
+                    }
+                    @foreach (var p in Model.ListaPedidos)
+                    {
+                        <!option value="@p.id" @(p.id == Model.PedidoId ? "selected" : "")>
+                            Pedido #@p.id | Mesa @(p.mesa) | @p.fecha_hora.ToString("dd/MM/yyyy HH:mm") | Estado: @p.estado
+                        </!option>
+                    }
+                </select>
+            </div>
+            <div class="col-md-4">
+                <button type="submit" class="btn btn-secondary w-100">
+                    <i class="bi bi-arrow-clockwise"></i> Cargar Datos del Pedido
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+@if (Model.PedidoSeleccionado == null)
+{
+    <div class="alert alert-info no-print">
+        <i class="bi bi-info-circle"></i> No hay ningún pedido seleccionado o registrado en la base de datos.
+    </div>
+}
+else
+{
+    <div class="row g-4">
+        <!-- Ticket de Cocina -->
+        <div class="col-lg-6">
+            <div class="card shadow-sm border-0 h-100">
+                <div class="card-header bg-dark text-white py-2 d-flex justify-content-between align-items-center no-print">
+                    <span class="fw-bold"><i class="bi bi-fire"></i> Formato Comanda Cocina (Ticket 80mm)</span>
+                    <button class="btn btn-sm btn-light" onclick="imprimirElemento('ticketCocina')">
+                        <i class="bi bi-printer"></i> Imprimir
+                    </button>
+                </div>
+                <div class="card-body p-4 d-flex justify-content-center bg-light">
+                    <div id="ticketCocina" class="ticket-box bg-white p-4 shadow-sm">
+                        <div class="text-center border-bottom pb-2 mb-2">
+                            <h5 class="fw-bold mb-0">*** COMANDA COCINA ***</h5>
+                            <span class="fw-bold fs-4">MESA @(Model.MesaAsociada?.numero.ToString() ?? Model.PedidoSeleccionado.mesa.ToString())</span><br />
+                            <small class="text-muted">Zona: @(Model.MesaAsociada?.ubicacion ?? "Salón")</small>
+                        </div>
+                        <div class="small mb-2">
+                            <strong>Pedido N°:</strong> #@Model.PedidoSeleccionado.id<br />
+                            <strong>Mesero:</strong> @(Model.EmpleadoMesero?.nombre ?? "Mesero General")<br />
+                            <strong>Hora:</strong> @Model.PedidoSeleccionado.fecha_hora.ToString("dd/MM/yyyy HH:mm:ss")<br />
+                            <strong>Personas:</strong> @Model.PedidoSeleccionado.numero_personas<br />
+                            <strong>Estado:</strong> @Model.PedidoSeleccionado.estado
+                        </div>
+                        <div class="border-top border-bottom py-2 my-2">
+                            <table class="table table-sm table-borderless mb-0 ticket-table">
+                                <thead>
+                                    <tr class="border-bottom">
+                                        <th style="width: 20%;">CANT</th>
+                                        <th style="width: 80%;">DESCRIPCIÓN</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @if (!Model.DetallesPedido.Any())
+                                    {
+                                        <tr><td colspan="2" class="text-center text-muted">Sin detalles de productos</td></tr>
+                                    }
+                                    @foreach (var d in Model.DetallesPedido)
+                                    {
+                                        var nombreProd = Model.NombresProductos.ContainsKey(d.producto) ? Model.NombresProductos[d.producto] : $"Producto #{d.producto}";
+                                        <tr>
+                                            <td class="fw-bold fs-6">@d.cantidad x</td>
+                                            <td>
+                                                <span class="fw-bold">@nombreProd</span>
+                                                @if (!string.IsNullOrEmpty(d.comentarios))
+                                                {
+                                                    <div class="text-danger small fst-italic">>> NOTA: @d.comentarios</div>
+                                                }
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="text-center pt-2 small text-muted">
+                            ------------------------------------<br />
+                            ORDEN ENVIADA A COCINA
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Factura / Pre-cuenta Cliente -->
+        <div class="col-lg-6">
+            <div class="card shadow-sm border-0 h-100">
+                <div class="card-header bg-primary text-white py-2 d-flex justify-content-between align-items-center no-print">
+                    <span class="fw-bold"><i class="bi bi-receipt"></i> Formato Factura / Pre-cuenta Cliente</span>
+                    <button class="btn btn-sm btn-light" onclick="imprimirElemento('ticketFactura')">
+                        <i class="bi bi-printer"></i> Imprimir
+                    </button>
+                </div>
+                <div class="card-body p-4 d-flex justify-content-center bg-light">
+                    <div id="ticketFactura" class="ticket-box bg-white p-4 shadow-sm">
+                        <div class="text-center border-bottom pb-2 mb-2">
+                            <h4 class="fw-bold mb-0">RESTAURANTE GOURMET</h4>
+                            <small>NIT: 901.458.789-2</small><br />
+                            <small>Cra 43A # 5A-113, Medellín</small><br />
+                            <small>Tel: (604) 444-5566</small><br />
+                            <strong class="d-block mt-1">
+                                @(Model.FacturaAsociada != null ? $"FACTURA DE VENTA: {Model.FacturaAsociada.numero}" : "PRE-CUENTA DE CONSUMO")
+                            </strong>
+                        </div>
+                        <div class="small mb-2">
+                            <strong>Fecha:</strong> @(Model.FacturaAsociada?.fecha_emision.ToString("dd/MM/yyyy HH:mm") ?? DateTime.Now.ToString("dd/MM/yyyy HH:mm"))<br />
+                            <strong>Mesa:</strong> @(Model.MesaAsociada?.numero.ToString() ?? Model.PedidoSeleccionado.mesa.ToString()) (@(Model.MesaAsociada?.ubicacion ?? "Salón"))<br />
+                            <strong>Cliente:</strong> @(Model.ClienteAsociado?.nombre ?? "Consumidor Final")<br />
+                            <strong>Cédula/NIT:</strong> @(Model.ClienteAsociado?.cedula ?? "222222222222")<br />
+                            <strong>Atendido por:</strong> @(Model.EmpleadoMesero?.nombre ?? "Mesero Asignado")
+                        </div>
+                        <div class="border-top border-bottom py-2 my-2">
+                            <table class="table table-sm table-borderless mb-0 ticket-table">
+                                <thead>
+                                    <tr class="border-bottom">
+                                        <th>CANT</th>
+                                        <th>PRODUCTO</th>
+                                        <th class="text-end">TOTAL</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var d in Model.DetallesPedido)
+                                    {
+                                        var nombreProd = Model.NombresProductos.ContainsKey(d.producto) ? Model.NombresProductos[d.producto] : $"Producto #{d.producto}";
+                                        <tr>
+                                            <td>@d.cantidad</td>
+                                            <td>@nombreProd</td>
+                                            <td class="text-end">$ @d.subtotal.ToString("N2")</td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                        @{
+                            decimal subtotal = Model.FacturaAsociada?.subtotal ?? Model.DetallesPedido.Sum(x => x.subtotal);
+                            decimal iva = subtotal * 0.08m; // Impoconsumo 8%
+                            decimal propina = subtotal * 0.10m; // Propina sugerida 10%
+                            decimal total = Model.FacturaAsociada?.total ?? (subtotal + iva);
+                        }
+                        <div class="small">
+                            <div class="d-flex justify-content-between">
+                                <span>Subtotal Consumos:</span>
+                                <span>$ @subtotal.ToString("N2")</span>
+                            </div>
+                            <div class="d-flex justify-content-between text-muted">
+                                <span>Impuesto al Consumo (8%):</span>
+                                <span>$ @iva.ToString("N2")</span>
+                            </div>
+                            <div class="d-flex justify-content-between text-muted">
+                                <span>Propina Sugerida (10%):</span>
+                                <span>$ @propina.ToString("N2")</span>
+                            </div>
+                            <div class="d-flex justify-content-between fw-bold fs-6 border-top pt-1 mt-1">
+                                <span>TOTAL A PAGAR:</span>
+                                <span>$ @total.ToString("N2")</span>
+                            </div>
+                            <div class="d-flex justify-content-between text-success fw-bold">
+                                <span>Total con Propina:</span>
+                                <span>$ @((total + propina).ToString("N2"))</span>
+                            </div>
+                        </div>
+                        <div class="text-center pt-3 small text-muted border-top mt-3">
+                            ¡Gracias por su visita!<br />
+                            Resolución DIAN N° 18764000123 de 2026<br />
+                            Vigilado Superintendencia de Industria y Comercio
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+<style>
+    .ticket-box {
+        width: 320px;
+        font-family: 'Courier New', Courier, monospace;
+        color: #000;
+        border: 1px dashed #ccc;
+    }
+    .ticket-table th, .ticket-table td {
+        padding: 2px 4px;
+        font-size: 0.85rem;
+    }
+    @@media print {
+        .no-print {
+            display: none !important;
+        }
+        body {
+            background-color: #fff !important;
+            margin: 0 !important;
+            padding: 0 !important;
+        }
+        .ticket-box {
+            border: none !important;
+            box-shadow: none !important;
+            width: 100% !important;
+            max-width: 350px !important;
+            margin: 0 auto !important;
+        }
+    }
+</style>
+
+@section Scripts {
+    <script>
+        function imprimirElemento(idElemento) {
+            var elemento = document.getElementById(idElemento);
+            if (!elemento) return;
+
+            var ventana = window.open('', '_blank', 'width=450,height=600');
+            ventana.document.write('<html><head><title>Impresión de Ticket</title>');
+            ventana.document.write('<link rel="stylesheet" href="/lib/bootstrap/dist/css/bootstrap.min.css">');
+            ventana.document.write('<style>body{font-family: monospace; padding: 20px;} table{width: 100%;} th, td{padding: 2px 4px; font-size: 13px;}</style>');
+            ventana.document.write('</head><body>');
+            ventana.document.write(elemento.outerHTML);
+            ventana.document.write('</body></html>');
+            ventana.document.close();
+            ventana.focus();
+            setTimeout(function () {
+                ventana.print();
+                ventana.close();
+            }, 300);
+        }
+    </script>
+}
